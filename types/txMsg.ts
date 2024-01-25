@@ -16,6 +16,7 @@ import {
   MsgMigrateContract,
 } from "cosmjs-types/cosmwasm/wasm/v1/tx";
 import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
+import { MsgCreateValidator } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 
 export const MsgTypeUrls = {
   Send: "/cosmos.bank.v1beta1.MsgSend",
@@ -30,6 +31,7 @@ export const MsgTypeUrls = {
   Instantiate: "/cosmwasm.wasm.v1.MsgInstantiateContract",
   Instantiate2: "/cosmwasm.wasm.v1.MsgInstantiateContract2",
   Migrate: "/cosmwasm.wasm.v1.MsgMigrateContract",
+  Validator: "/cosmos.staking.v1beta1.MsgCreateValidator",
 } as const;
 
 export type MsgTypeUrl = (typeof MsgTypeUrls)[keyof typeof MsgTypeUrls];
@@ -47,4 +49,5 @@ export const MsgCodecs = {
   [MsgTypeUrls.Instantiate]: MsgInstantiateContract,
   [MsgTypeUrls.Instantiate2]: MsgInstantiateContract2,
   [MsgTypeUrls.Migrate]: MsgMigrateContract,
+  [MsgTypeUrls.Validator]: MsgCreateValidator,
 };

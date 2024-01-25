@@ -185,6 +185,12 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           <label>Staking</label>
           <ul>
             <li>
+              <Button
+                label="CreateValidator"
+                onClick={() => addMsgType(MsgTypeUrls.Validator)}
+              />
+            </li>
+            <li>
               <Button label="Delegate" onClick={() => addMsgType(MsgTypeUrls.Delegate)} />
             </li>
             <li>

@@ -12,6 +12,7 @@ import MsgSendForm from "./MsgSendForm";
 import MsgSetWithdrawAddressForm from "./MsgSetWithdrawAddressForm";
 import MsgTransferForm from "./MsgTransferForm";
 import MsgUndelegateForm from "./MsgUndelegateForm";
+import MsgCreateValidatorForm from "./MsgCreateValidatorForm";
 
 interface MsgFormProps {
   readonly msgType: MsgTypeUrl;
@@ -24,6 +25,8 @@ const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
   switch (msgType) {
     case MsgTypeUrls.Send:
       return <MsgSendForm fromAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.Validator:
+      return <MsgCreateValidatorForm delegatorAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Delegate:
       return <MsgDelegateForm delegatorAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Undelegate:
