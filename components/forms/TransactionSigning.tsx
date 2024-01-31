@@ -1,13 +1,13 @@
 import { LoadingStates, SigningStatus } from "@/types/signing";
 import { MultisigThresholdPubkey, makeCosmoshubPath } from "@cosmjs/amino";
-import { createWasmAminoConverters, wasmTypes } from "@cosmjs/cosmwasm-stargate";
+import { createWasmAminoConverters } from "@cosmjs/cosmwasm-stargate";
 import { toBase64 } from "@cosmjs/encoding";
 import { LedgerSigner } from "@cosmjs/ledger-amino";
 import { Registry } from "@cosmjs/proto-signing";
 import {
   AminoTypes,
   SigningStargateClient,
-  createDefaultAminoConverters,
+  createBankAminoConverters,
   defaultRegistryTypes,
 } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
@@ -143,10 +143,9 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       const signerAddress = walletAccount?.bech32Address;
       assert(signerAddress, "Missing signer address");
       const signingClient = await SigningStargateClient.offline(offlineSigner, {
-        registry: new Registry([...defaultRegistryTypes, ...wasmTypes]),
+        registry: new Registry([...defaultRegistryTypes]),
         aminoTypes: new AminoTypes({
-          ...createDefaultAminoConverters(),
-          ...createWasmAminoConverters(),
+          ...createBankAminoConverters(),
         }),
       });
 

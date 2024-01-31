@@ -117,6 +117,11 @@ const TransactionPage = ({
       );
       assert(pubkey, "Pubkey not found on chain or in database");
       assert(txInfo, "Transaction not found in database");
+
+      console.log("accountOnChain", { accountOnChain });
+      console.log("pubkey", { pubkey });
+      console.log("txInfo", { txInfo });
+
       const bodyBytes = fromBase64(currentSignatures[0].bodyBytes);
       const signedTxBytes = makeMultisignedTxBytes(
         pubkey,
@@ -125,6 +130,9 @@ const TransactionPage = ({
         bodyBytes,
         new Map(currentSignatures.map((s) => [s.address, fromBase64(s.signature)])),
       );
+
+      console.log("signedTxBytes", signedTxBytes);
+      console.log("bodyBytes", bodyBytes);
 
       const broadcaster = await StargateClient.connect(chain.nodeAddress);
       const result = await broadcaster.broadcastTx(signedTxBytes);

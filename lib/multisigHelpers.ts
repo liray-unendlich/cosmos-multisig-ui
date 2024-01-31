@@ -31,7 +31,7 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
 ): Promise<string> => {
   const pubkeys = compressedPubkeys.map((compressedPubkey) => {
     return {
-      type: "tendermint/PubKeySecp256k1",
+      type: "/ethermint.crypto.v1.ethsecp256k1.PubKey",
       value: compressedPubkey,
     };
   });
