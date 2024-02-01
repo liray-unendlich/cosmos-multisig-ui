@@ -1,5 +1,5 @@
-import { assert } from "@cosmjs/utils";
-import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
+import { assert } from "@/lib/packages/utils";
+import { MsgTransfer } from "@/lib/packages/cosmjs-types/ibc/applications/transfer/v1/tx";
 import { thinSpace } from "../../../lib/displayHelpers";
 import HashView from "../HashView";
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { isSecp256k1Pubkey, pubkeyToAddress, SinglePubkey } from "@cosmjs/amino";
+import { isSecp256k1Pubkey, pubkeyToAddress, SinglePubkey } from "@/lib/packages/amino";
 
 import HashView from "./HashView";
 import StackableContainer from "../layout/StackableContainer";

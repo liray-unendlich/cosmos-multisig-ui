@@ -1,16 +1,16 @@
 import { LoadingStates, SigningStatus } from "@/types/signing";
-import { MultisigThresholdPubkey, makeCosmoshubPath } from "@cosmjs/amino";
-import { createWasmAminoConverters } from "@cosmjs/cosmwasm-stargate";
-import { toBase64 } from "@cosmjs/encoding";
-import { LedgerSigner } from "@cosmjs/ledger-amino";
-import { Registry } from "@cosmjs/proto-signing";
+import { MultisigThresholdPubkey, makeCosmoshubPath } from "@/lib/packages/amino";
+import { createWasmAminoConverters } from "@/lib/packages/cosmwasm-stargate";
+import { toBase64 } from "@/lib/packages/encoding";
+import { LedgerSigner } from "@/lib/packages/ledger-amino";
+import { Registry } from "@/lib/packages/proto-signing";
 import {
   AminoTypes,
   SigningStargateClient,
   createBankAminoConverters,
   defaultRegistryTypes,
-} from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
+} from "@/lib/packages/stargate";
+import { assert } from "@/lib/packages/utils";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { useCallback, useLayoutEffect, useState } from "react";
 import { useChains } from "../../context/ChainsContext";
@@ -53,6 +53,8 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       setWalletAccount(tempWalletAccount);
 
       const pubkey = toBase64(tempWalletAccount.pubKey);
+      console.log({ tempWalletAccount, pubkey });
+
       const isMember = memberPubkeys.includes(pubkey);
       const hasSigned = isMember
         ? props.signatures.some((sig) => sig.address === tempWalletAccount.bech32Address)
@@ -136,7 +138,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
   const signTransaction = async () => {
     try {
       setLoading((newLoading) => ({ ...newLoading, signing: true }));
-
+      // debugger;
       const offlineSigner =
         walletType === "Keplr" ? window.getOfflineSignerOnlyAmino(chain.chainId) : ledgerSigner;
 

@@ -1,8 +1,8 @@
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
-import { MultisigThresholdPubkey } from "@cosmjs/amino";
-import { fromBase64 } from "@cosmjs/encoding";
-import { Account, StargateClient, makeMultisignedTxBytes } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
+import { MultisigThresholdPubkey } from "@/lib/packages/amino";
+import { fromBase64 } from "@/lib/packages/encoding";
+import { Account, StargateClient, makeMultisignedTxBytes } from "@/lib/packages/stargate";
+import { assert } from "@/lib/packages/utils";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -106,6 +106,7 @@ const TransactionPage = ({
   }, [chain, multisigAddress]);
 
   const broadcastTx = async () => {
+    // debugger;
     try {
       setIsBroadcasting(true);
       setBroadcastError("");
@@ -121,6 +122,7 @@ const TransactionPage = ({
       console.log("accountOnChain", { accountOnChain });
       console.log("pubkey", { pubkey });
       console.log("txInfo", { txInfo });
+      console.log("currentSignatures", { currentSignatures });
 
       const bodyBytes = fromBase64(currentSignatures[0].bodyBytes);
       const signedTxBytes = makeMultisignedTxBytes(
@@ -128,7 +130,12 @@ const TransactionPage = ({
         txInfo.sequence,
         txInfo.fee,
         bodyBytes,
-        new Map(currentSignatures.map((s) => [s.address, fromBase64(s.signature)])),
+        new Map(
+          currentSignatures.map((s) => {
+            console.log({ s });
+            return [s.address, fromBase64(s.signature)];
+          }),
+        ),
       );
 
       console.log("signedTxBytes", signedTxBytes);

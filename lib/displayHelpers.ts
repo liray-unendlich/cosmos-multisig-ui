@@ -1,8 +1,8 @@
-import { Coin } from "@cosmjs/amino";
-import { sha512 } from "@cosmjs/crypto";
-import { fromBase64, fromBech32, toBase64, toBech32 } from "@cosmjs/encoding";
-import { Decimal } from "@cosmjs/math";
 import { ChainInfo } from "../context/ChainsContext/types";
+import { Coin } from "./packages/amino";
+import { sha512 } from "./packages/crypto";
+import { fromBase64, fromBech32, toBase64, toBech32 } from "./packages/encoding";
+import { Decimal } from "./packages/math";
 
 function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);

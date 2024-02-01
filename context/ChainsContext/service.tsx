@@ -1,5 +1,5 @@
 import { getChainsFromRegistry, getShaFromRegistry } from "@/lib/chainRegistry";
-import { StargateClient } from "@cosmjs/stargate";
+import { StargateClient } from "@/lib/packages/stargate";
 import { useEffect, useState } from "react";
 import { emptyChain, isChainInfoFilled } from "./helpers";
 import {

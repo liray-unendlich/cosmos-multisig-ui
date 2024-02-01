@@ -1,6 +1,6 @@
-import { EncodeObject } from "@cosmjs/proto-signing";
-import { Account, calculateFee } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
+import { EncodeObject } from "@/lib/packages/proto-signing";
+import { Account, calculateFee } from "@/lib/packages/stargate";
+import { assert } from "@/lib/packages/utils";
 import { NextRouter, withRouter } from "next/router";
 import { useRef, useState } from "react";
 import { useChains } from "../../../context/ChainsContext";

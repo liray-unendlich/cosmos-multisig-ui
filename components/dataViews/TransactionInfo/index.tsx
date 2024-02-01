@@ -1,4 +1,4 @@
-import { EncodeObject } from "@cosmjs/proto-signing";
+import { EncodeObject } from "@/lib/packages/proto-signing";
 import { useChains } from "../../../context/ChainsContext";
 import { printableCoins } from "../../../lib/displayHelpers";
 import { DbTransaction } from "../../../types";

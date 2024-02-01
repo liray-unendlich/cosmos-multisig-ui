@@ -1,0 +1,26 @@
+# We use npm, not yarn
+yarn.lock
+
+node_modules/
+
+/build/
+/aioz/
+/ethermint/
+/bech32ibc/
+/confio/
+/cosmos/
+/cosmos_proto/
+/cosmwasm/
+/gogoproto/
+/google/
+/ibc/
+/gravity/
+/tendermint/
+/helpers.*
+/index.*
+
+# IDEs
+.vscode/
+
+# macOS
+.DS_Store

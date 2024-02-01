@@ -1,5 +1,5 @@
-import { MsgInstantiateContract2EncodeObject } from "@cosmjs/cosmwasm-stargate";
-import { fromHex, toUtf8 } from "@cosmjs/encoding";
+import { MsgInstantiateContract2EncodeObject } from "@/lib/packages/cosmwasm-stargate";
+import { fromHex, toUtf8 } from "@/lib/packages/encoding";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { MsgGetter } from "..";

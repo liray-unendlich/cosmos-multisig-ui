@@ -1,12 +1,12 @@
+import { checkAddress } from "./displayHelpers";
 import {
+  MultisigThresholdPubkey,
   createMultisigThresholdPubkey,
   isMultisigThresholdPubkey,
-  MultisigThresholdPubkey,
   pubkeyToAddress,
-} from "@cosmjs/amino";
-import { Account, StargateClient } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
-import { checkAddress } from "./displayHelpers";
+} from "./packages/amino";
+import { Account, StargateClient } from "./packages/stargate";
+import { assert } from "./packages/utils";
 import { requestJson } from "./request";
 
 interface CreateMultisigAccountResponse {
@@ -29,9 +29,17 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   addressPrefix: string,
   chainId: string,
 ): Promise<string> => {
+  console.log("createMultisigFromCompressedSecp256k1Pubkeys", {
+    compressedPubkeys,
+    threshold,
+    addressPrefix,
+    chainId,
+  });
   const pubkeys = compressedPubkeys.map((compressedPubkey) => {
     return {
       type: "/ethermint.crypto.v1.ethsecp256k1.PubKey",
+      // type: "/cosmos.crypto.secp256k1.PubKey",
+      // type: "tendermint/PubKeySecp256k1",
       value: compressedPubkey,
     };
   });

@@ -1,4 +1,4 @@
-import { MsgCreateVestingAccount } from "cosmjs-types/cosmos/vesting/v1beta1/tx";
+import { MsgCreateVestingAccount } from "@/lib/packages/cosmjs-types/cosmos/vesting/v1beta1/tx";
 import { useChains } from "../../../context/ChainsContext";
 import { printableCoins } from "../../../lib/displayHelpers";
 import HashView from "../HashView";

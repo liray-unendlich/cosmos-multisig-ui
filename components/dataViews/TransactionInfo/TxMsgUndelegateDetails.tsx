@@ -1,5 +1,5 @@
-import { assert } from "@cosmjs/utils";
-import { MsgUndelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
+import { assert } from "@/lib/packages/utils";
+import { MsgUndelegate } from "@/lib/packages/cosmjs-types/cosmos/staking/v1beta1/tx";
 import { useChains } from "../../../context/ChainsContext";
 import { printableCoin } from "../../../lib/displayHelpers";
 import HashView from "../HashView";

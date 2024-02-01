@@ -1,4 +1,4 @@
-import { StargateClient } from "@cosmjs/stargate";
+import { StargateClient } from "@/lib/packages/stargate";
 import { NextRouter, withRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useChains } from "../../context/ChainsContext";

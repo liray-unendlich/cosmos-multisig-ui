@@ -1,5 +1,5 @@
-import { fromUtf8 } from "@cosmjs/encoding";
-import { MsgExecuteContract } from "cosmjs-types/cosmwasm/wasm/v1/tx";
+import { fromUtf8 } from "@/lib/packages/encoding";
+import { MsgExecuteContract } from "@/lib/packages/cosmjs-types/cosmwasm/wasm/v1/tx";
 import { JSONValue } from "immutable-json-patch";
 import dynamic from "next/dynamic";
 import { useState } from "react";

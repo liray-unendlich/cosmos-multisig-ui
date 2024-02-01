@@ -1,4 +1,4 @@
-import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
+import { MsgSend } from "@/lib/packages/cosmjs-types/cosmos/bank/v1beta1/tx";
 import { useChains } from "../../../context/ChainsContext";
 import { printableCoins } from "../../../lib/displayHelpers";
 import HashView from "../HashView";
