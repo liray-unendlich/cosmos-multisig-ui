@@ -6,7 +6,7 @@ import {
   QueryParamsResponse,
   QueryPendingIbcAutoForwardsResponse,
   QueryPendingSendToEvmChainResponse,
-} from "@/lib/packages/cosmjs-types/gravity/v1/query";
+} from "cosmjs-types/gravity/v1/query";
 
 import { createProtobufRpcClient, QueryClient } from "../../queryclient";
 

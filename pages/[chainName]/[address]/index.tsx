@@ -1,7 +1,7 @@
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
 import { MultisigThresholdPubkey, SinglePubkey } from "@/lib/packages/amino";
 import { Account, StargateClient } from "@/lib/packages/stargate";
-import { Coin } from "@/lib/packages/cosmjs-types/cosmos/base/v1beta1/coin";
+import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import HashView from "../../../components/dataViews/HashView";

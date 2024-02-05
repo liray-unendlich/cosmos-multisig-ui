@@ -28,16 +28,16 @@ import { HttpEndpoint, Tendermint34Client } from "@/lib/packages/tendermint-rpc"
 import { assert, assertDefined } from "@/lib/packages/utils";
 import { FeeMarketEIP1559TxData } from "@ethereumjs/tx";
 import { bufferToBigInt, toBuffer } from "@ethereumjs/util";
-import { ExtensionOptionsWrappedEthereumTx } from "@/lib/packages/cosmjs-types/aioz/wetx/v1/tx";
-import { Coin } from "@/lib/packages/cosmjs-types/cosmos/base/v1beta1/coin";
-import { MsgWithdrawDelegatorReward } from "@/lib/packages/cosmjs-types/cosmos/distribution/v1beta1/tx";
-import { MsgDelegate, MsgUndelegate } from "@/lib/packages/cosmjs-types/cosmos/staking/v1beta1/tx";
-import { SignMode } from "@/lib/packages/cosmjs-types/cosmos/tx/signing/v1beta1/signing";
-import { TxRaw } from "@/lib/packages/cosmjs-types/cosmos/tx/v1beta1/tx";
-import { ExtensionOptionsWeb3Tx } from "@/lib/packages/cosmjs-types/ethermint/types/v1/web3";
-import { Any } from "@/lib/packages/cosmjs-types/google/protobuf/any";
-import { MsgTransfer } from "@/lib/packages/cosmjs-types/ibc/applications/transfer/v1/tx";
-import { Height } from "@/lib/packages/cosmjs-types/ibc/core/client/v1/client";
+import { ExtensionOptionsWrappedEthereumTx } from "cosmjs-types/aioz/wetx/v1/tx";
+import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
+import { MsgWithdrawDelegatorReward } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
+import { MsgDelegate, MsgUndelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
+import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
+import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import { ExtensionOptionsWeb3Tx } from "cosmjs-types/ethermint/types/v1/web3";
+import { Any } from "cosmjs-types/google/protobuf/any";
+import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
+import { Height } from "cosmjs-types/ibc/core/client/v1/client";
 import Long from "long";
 
 import { AminoConverters, AminoTypes } from "./aminotypes";

@@ -4,10 +4,10 @@ import { encodePubkey } from "@/lib/packages/proto-signing";
 import {
   CompactBitArray,
   MultiSignature,
-} from "@/lib/packages/cosmjs-types/cosmos/crypto/multisig/v1beta1/multisig";
-import { SignMode } from "@/lib/packages/cosmjs-types/cosmos/tx/signing/v1beta1/signing";
-import { AuthInfo, SignerInfo } from "@/lib/packages/cosmjs-types/cosmos/tx/v1beta1/tx";
-import { TxRaw } from "@/lib/packages/cosmjs-types/cosmos/tx/v1beta1/tx";
+} from "cosmjs-types/cosmos/crypto/multisig/v1beta1/multisig";
+import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
+import { AuthInfo, SignerInfo } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import Long from "long";
 
 export function makeCompactBitArray(bits: readonly boolean[]): CompactBitArray {

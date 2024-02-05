@@ -2,8 +2,8 @@ import {
   Bech32PrefixRequest,
   Bech32PrefixResponse,
   QueryClientImpl,
-} from "@/lib/packages/cosmjs-types/cosmos/auth/v1beta1/query";
-import { Any } from "@/lib/packages/cosmjs-types/google/protobuf/any";
+} from "cosmjs-types/cosmos/auth/v1beta1/query";
+import { Any } from "cosmjs-types/google/protobuf/any";
 
 import { createProtobufRpcClient, QueryClient } from "../../queryclient";
 

@@ -1,6 +1,6 @@
 import { EncodeObject, GeneratedType } from "@/lib/packages/proto-signing";
-import { ExtensionOptionDynamicFeeTx } from "@/lib/packages/cosmjs-types/ethermint/types/v1/dynamic_fee";
-import { ExtensionOptionsWeb3Tx } from "@/lib/packages/cosmjs-types/ethermint/types/v1/web3";
+import { ExtensionOptionDynamicFeeTx } from "cosmjs-types/ethermint/types/v1/dynamic_fee";
+import { ExtensionOptionsWeb3Tx } from "cosmjs-types/ethermint/types/v1/web3";
 
 export const ethermintTypes: ReadonlyArray<[string, GeneratedType]> = [
   ["/ethermint.types.v1.ExtensionOptionsWeb3Tx", ExtensionOptionsWeb3Tx],

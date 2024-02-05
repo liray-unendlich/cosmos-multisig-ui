@@ -1,11 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { assert } from "@/lib/packages/utils";
-import { Metadata } from "@/lib/packages/cosmjs-types/cosmos/bank/v1beta1/bank";
-import {
-  QueryClientImpl,
-  QueryTotalSupplyResponse,
-} from "@/lib/packages/cosmjs-types/cosmos/bank/v1beta1/query";
-import { Coin } from "@/lib/packages/cosmjs-types/cosmos/base/v1beta1/coin";
+import { Metadata } from "cosmjs-types/cosmos/bank/v1beta1/bank";
+import { QueryClientImpl, QueryTotalSupplyResponse } from "cosmjs-types/cosmos/bank/v1beta1/query";
+import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
 
 import { createPagination, createProtobufRpcClient, QueryClient } from "../../queryclient";
 

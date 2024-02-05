@@ -19,7 +19,7 @@ import {
 } from "@/lib/packages/crypto";
 import { fromBase64, fromUtf8, toBase64, toBech32, toUtf8 } from "@/lib/packages/encoding";
 import { assert, isNonNullObject } from "@/lib/packages/utils";
-import { SignDoc } from "@/lib/packages/cosmjs-types/cosmos/tx/v1beta1/tx";
+import { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
 import {
   AccountData,

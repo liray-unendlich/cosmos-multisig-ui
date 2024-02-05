@@ -5186,6 +5186,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cosmjs-types@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "cosmjs-types@npm:1.0.0"
+  dependencies:
+    long: "npm:^4.0.0"
+    protobufjs: "npm:~6.11.2"
+  checksum: 10/8d58644e836be100685b88453a688183a44dad7e293d7e3465e4d967d9a50a5932f28c811e0acaec4028a01f853b8af5c68b9f9aa51c0b7702c920250b20a107
+  languageName: node
+  linkType: hard
+
 "cosmos-multisig-ui@workspace:.":
   version: 0.0.0-use.local
   resolution: "cosmos-multisig-ui@workspace:."
@@ -5245,6 +5255,7 @@ __metadata:
     clsx: "npm:^2.0.0"
     cmdk: "npm:^0.2.0"
     copy-to-clipboard: "npm:^3.3.3"
+    cosmjs-types: "npm:^1.0.0"
     date-fns: "npm:^2.30.0"
     elliptic: "npm:^6.5.4"
     eslint: "npm:8.48.0"
@@ -10506,7 +10517,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"protobufjs@npm:^6.8.8":
+"protobufjs@npm:^6.8.8, protobufjs@npm:~6.11.2":
   version: 6.11.4
   resolution: "protobufjs@npm:6.11.4"
   dependencies:

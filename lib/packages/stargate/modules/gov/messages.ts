@@ -4,7 +4,7 @@ import {
   MsgSubmitProposal,
   MsgVote,
   MsgVoteWeighted,
-} from "@/lib/packages/cosmjs-types/cosmos/gov/v1beta1/tx";
+} from "cosmjs-types/cosmos/gov/v1beta1/tx";
 
 export const govTypes: ReadonlyArray<[string, GeneratedType]> = [
   ["/cosmos.gov.v1beta1.MsgDeposit", MsgDeposit],

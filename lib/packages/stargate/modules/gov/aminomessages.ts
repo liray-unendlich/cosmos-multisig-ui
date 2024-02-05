@@ -2,17 +2,14 @@
 import { AminoMsg, Coin } from "@/lib/packages/amino";
 import { Decimal } from "@/lib/packages/math";
 import { assert, assertDefinedAndNotNull, isNonNullObject } from "@/lib/packages/utils";
-import {
-  TextProposal,
-  voteOptionFromJSON,
-} from "@/lib/packages/cosmjs-types/cosmos/gov/v1beta1/gov";
+import { TextProposal, voteOptionFromJSON } from "cosmjs-types/cosmos/gov/v1beta1/gov";
 import {
   MsgDeposit,
   MsgSubmitProposal,
   MsgVote,
   MsgVoteWeighted,
-} from "@/lib/packages/cosmjs-types/cosmos/gov/v1beta1/tx";
-import { Any } from "@/lib/packages/cosmjs-types/google/protobuf/any";
+} from "cosmjs-types/cosmos/gov/v1beta1/tx";
+import { Any } from "cosmjs-types/google/protobuf/any";
 import Long from "long";
 
 import { AminoConverters } from "../../aminotypes";

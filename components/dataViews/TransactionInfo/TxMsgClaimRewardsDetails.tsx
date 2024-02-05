@@ -1,4 +1,4 @@
-import { MsgWithdrawDelegatorReward } from "@/lib/packages/cosmjs-types/cosmos/distribution/v1beta1/tx";
+import { MsgWithdrawDelegatorReward } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 import HashView from "../HashView";
 
 interface TxMsgClaimRewardsDetailsProps {

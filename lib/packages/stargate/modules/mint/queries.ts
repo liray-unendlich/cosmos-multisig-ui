@@ -1,7 +1,7 @@
 import { Decimal } from "@/lib/packages/math";
 import { assert } from "@/lib/packages/utils";
-import { Params } from "@/lib/packages/cosmjs-types/cosmos/mint/v1beta1/mint";
-import { QueryClientImpl } from "@/lib/packages/cosmjs-types/cosmos/mint/v1beta1/query";
+import { Params } from "cosmjs-types/cosmos/mint/v1beta1/mint";
+import { QueryClientImpl } from "cosmjs-types/cosmos/mint/v1beta1/query";
 
 import {
   createProtobufRpcClient,
@@ -10,7 +10,7 @@ import {
 } from "../../queryclient";
 
 /**
- * Like Params from "@/lib/packages/cosmjs-types/cosmos/mint/v1beta1/mint"
+ * Like Params from "cosmjs-types/cosmos/mint/v1beta1/mint"
  * but using decimal types.
  */
 export interface MintParams extends Pick<Params, "blocksPerYear" | "mintDenom"> {

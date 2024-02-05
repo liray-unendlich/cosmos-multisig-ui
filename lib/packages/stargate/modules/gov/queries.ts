@@ -1,5 +1,5 @@
 import { Uint64 } from "@/lib/packages/math";
-import { ProposalStatus } from "@/lib/packages/cosmjs-types/cosmos/gov/v1beta1/gov";
+import { ProposalStatus } from "cosmjs-types/cosmos/gov/v1beta1/gov";
 import {
   QueryClientImpl,
   QueryDepositResponse,
@@ -10,7 +10,7 @@ import {
   QueryTallyResultResponse,
   QueryVoteResponse,
   QueryVotesResponse,
-} from "@/lib/packages/cosmjs-types/cosmos/gov/v1beta1/query";
+} from "cosmjs-types/cosmos/gov/v1beta1/query";
 import Long from "long";
 
 import { createPagination, createProtobufRpcClient, longify, QueryClient } from "../../queryclient";

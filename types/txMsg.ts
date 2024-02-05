@@ -1,21 +1,21 @@
-import { MsgSend } from "@/lib/packages/cosmjs-types/cosmos/bank/v1beta1/tx";
+import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import {
   MsgSetWithdrawAddress,
   MsgWithdrawDelegatorReward,
-} from "@/lib/packages/cosmjs-types/cosmos/distribution/v1beta1/tx";
+} from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 import {
   MsgBeginRedelegate,
   MsgDelegate,
   MsgUndelegate,
-} from "@/lib/packages/cosmjs-types/cosmos/staking/v1beta1/tx";
-import { MsgCreateVestingAccount } from "@/lib/packages/cosmjs-types/cosmos/vesting/v1beta1/tx";
+} from "cosmjs-types/cosmos/staking/v1beta1/tx";
+import { MsgCreateVestingAccount } from "cosmjs-types/cosmos/vesting/v1beta1/tx";
 import {
   MsgExecuteContract,
   MsgInstantiateContract,
   // MsgInstantiateContract2,
   MsgMigrateContract,
-} from "@/lib/packages/cosmjs-types/cosmwasm/wasm/v1/tx";
-import { MsgTransfer } from "@/lib/packages/cosmjs-types/ibc/applications/transfer/v1/tx";
+} from "cosmjs-types/cosmwasm/wasm/v1/tx";
+import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 
 export const MsgTypeUrls = {
   Send: "/cosmos.bank.v1beta1.MsgSend",

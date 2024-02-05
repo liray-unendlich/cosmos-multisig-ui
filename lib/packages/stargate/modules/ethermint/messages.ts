@@ -1,5 +1,5 @@
 import { EncodeObject, GeneratedType } from "@/lib/packages/proto-signing";
-import { DynamicFeeTx } from "@/lib/packages/cosmjs-types/ethermint/evm/v1/tx";
+import { DynamicFeeTx } from "cosmjs-types/ethermint/evm/v1/tx";
 
 export const evmTypes: ReadonlyArray<[string, GeneratedType]> = [
   ["/ethermint.evm.v1.DynamicFeeTx", DynamicFeeTx],

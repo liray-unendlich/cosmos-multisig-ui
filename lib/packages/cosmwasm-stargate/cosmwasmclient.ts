@@ -35,8 +35,8 @@ import {
   CodeInfoResponse,
   QueryCodesResponse,
   QueryContractsByCodeResponse,
-} from "@/lib/packages/cosmjs-types/cosmwasm/wasm/v1/query";
-import { ContractCodeHistoryOperationType } from "@/lib/packages/cosmjs-types/cosmwasm/wasm/v1/types";
+} from "cosmjs-types/cosmwasm/wasm/v1/query";
+import { ContractCodeHistoryOperationType } from "cosmjs-types/cosmwasm/wasm/v1/types";
 
 import { JsonObject, setupWasmExtension, WasmExtension } from "./modules";
 

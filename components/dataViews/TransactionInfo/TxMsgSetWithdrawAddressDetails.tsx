@@ -1,4 +1,4 @@
-import { MsgSetWithdrawAddress } from "@/lib/packages/cosmjs-types/cosmos/distribution/v1beta1/tx";
+import { MsgSetWithdrawAddress } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 import HashView from "../HashView";
 
 interface TxMsgSetWithdrawAddressDetailsProps {

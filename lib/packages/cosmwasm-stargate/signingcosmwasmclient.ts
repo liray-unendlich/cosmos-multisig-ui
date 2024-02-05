@@ -33,10 +33,10 @@ import {
 } from "@/lib/packages/stargate";
 import { HttpEndpoint, Tendermint34Client } from "@/lib/packages/tendermint-rpc";
 import { assert, assertDefined } from "@/lib/packages/utils";
-import { MsgWithdrawDelegatorReward } from "@/lib/packages/cosmjs-types/cosmos/distribution/v1beta1/tx";
-import { MsgDelegate, MsgUndelegate } from "@/lib/packages/cosmjs-types/cosmos/staking/v1beta1/tx";
-import { SignMode } from "@/lib/packages/cosmjs-types/cosmos/tx/signing/v1beta1/signing";
-import { TxRaw } from "@/lib/packages/cosmjs-types/cosmos/tx/v1beta1/tx";
+import { MsgWithdrawDelegatorReward } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
+import { MsgDelegate, MsgUndelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
+import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
+import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import {
   MsgClearAdmin,
   MsgExecuteContract,
@@ -44,7 +44,7 @@ import {
   MsgMigrateContract,
   MsgStoreCode,
   MsgUpdateAdmin,
-} from "@/lib/packages/cosmjs-types/cosmwasm/wasm/v1/tx";
+} from "cosmjs-types/cosmwasm/wasm/v1/tx";
 import Long from "long";
 import pako from "pako";
 

@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { AminoMsg, Coin } from "@/lib/packages/amino";
-import {
-  MsgConvertAIOZRC20,
-  MsgConvertCoin,
-} from "@/lib/packages/cosmjs-types/aioz/aiozrc20/v1/tx";
+import { MsgConvertAIOZRC20, MsgConvertCoin } from "cosmjs-types/aioz/aiozrc20/v1/tx";
 
 // eslint-disable-next-line import/no-cycle
 import { AminoConverters } from "../../aminotypes";

@@ -5,8 +5,8 @@ import { bigIntToHex, bufferToBigInt, toBuffer } from "@ethereumjs/util";
 import {
   ExtensionOptionsWrappedEthereumTx,
   MsgWrappedEthereumTx,
-} from "@/lib/packages/cosmjs-types/aioz/wetx/v1/tx";
-import { DynamicFeeTx, MsgEthereumTx } from "@/lib/packages/cosmjs-types/ethermint/evm/v1/tx";
+} from "cosmjs-types/aioz/wetx/v1/tx";
+import { DynamicFeeTx, MsgEthereumTx } from "cosmjs-types/ethermint/evm/v1/tx";
 import Long from "long";
 
 import { DynamicFeeTxEncodeObject } from "../ethermint/messages";

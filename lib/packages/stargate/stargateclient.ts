@@ -8,10 +8,10 @@ import {
   toRfc3339WithNanoseconds,
 } from "@/lib/packages/tendermint-rpc";
 import { assert, sleep } from "@/lib/packages/utils";
-import { MsgData } from "@/lib/packages/cosmjs-types/cosmos/base/abci/v1beta1/abci";
-import { Coin } from "@/lib/packages/cosmjs-types/cosmos/base/v1beta1/coin";
-import { QueryDelegatorDelegationsResponse } from "@/lib/packages/cosmjs-types/cosmos/staking/v1beta1/query";
-import { DelegationResponse } from "@/lib/packages/cosmjs-types/cosmos/staking/v1beta1/staking";
+import { MsgData } from "cosmjs-types/cosmos/base/abci/v1beta1/abci";
+import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
+import { QueryDelegatorDelegationsResponse } from "cosmjs-types/cosmos/staking/v1beta1/query";
+import { DelegationResponse } from "cosmjs-types/cosmos/staking/v1beta1/staking";
 
 import { Account, accountFromAny, AccountParser } from "./accounts";
 import { Event, fromTendermint34Event } from "./events";

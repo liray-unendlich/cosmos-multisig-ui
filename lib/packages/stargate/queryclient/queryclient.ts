@@ -16,7 +16,7 @@ import {
   isNonNullObject,
   sleep,
 } from "@/lib/packages/utils";
-import { ProofOps } from "@/lib/packages/cosmjs-types/tendermint/crypto/proof";
+import { ProofOps } from "cosmjs-types/tendermint/crypto/proof";
 import { Stream } from "xstream";
 
 type QueryExtensionSetup<P> = (base: QueryClient) => P;

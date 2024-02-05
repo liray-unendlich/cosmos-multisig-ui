@@ -1,8 +1,5 @@
 import { EncodeObject, GeneratedType } from "@/lib/packages/proto-signing";
-import {
-  MsgConvertAIOZRC20,
-  MsgConvertCoin,
-} from "@/lib/packages/cosmjs-types/aioz/aiozrc20/v1/tx";
+import { MsgConvertAIOZRC20, MsgConvertCoin } from "cosmjs-types/aioz/aiozrc20/v1/tx";
 
 export const aiozrc20Types: ReadonlyArray<[string, GeneratedType]> = [
   ["/aioz.aiozrc20.v1.MsgConvertCoin", MsgConvertCoin],
