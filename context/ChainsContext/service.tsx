@@ -72,7 +72,7 @@ export const useChainsFromRegistry = () => {
 export const getNodeFromArray = async (nodeArray: readonly string[]) => {
   // only return https connections
   const secureNodes = nodeArray
-    .filter((address) => address.startsWith("https://"))
+    // .filter((address) => address.startsWith("https://"))
     .map((address) => address);
 
   if (!secureNodes.length) {

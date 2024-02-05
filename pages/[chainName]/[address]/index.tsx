@@ -45,6 +45,7 @@ const Multipage = () => {
         setHoldings(tempHoldings);
 
         const result = await getMultisigAccount(multisigAddress, chain.addressPrefix, client);
+        console.log("=== getMultisigAccount", { result });
         setPubkey(result[0]);
         setAccountOnChain(result[1]);
         setHasAccountError(false);

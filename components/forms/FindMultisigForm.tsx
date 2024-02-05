@@ -30,6 +30,7 @@ const FindMultisigForm = (props: Props) => {
 
       try {
         const client = await StargateClient.connect(chain.nodeAddress);
+        // console.log({ address });
         await getMultisigAccount(address, chain.addressPrefix, client);
         setMultisigError("");
       } catch (error) {

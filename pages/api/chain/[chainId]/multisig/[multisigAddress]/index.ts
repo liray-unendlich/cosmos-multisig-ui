@@ -13,6 +13,7 @@ export default async function multisigAddressApi(req: NextApiRequest, res: NextA
           res.status(404).send("Multisig not found");
           return;
         }
+        console.log("getRes", JSON.stringify(getRes, null, 2));
         console.log("success", getRes.data.getMultisig);
         res.status(200).send(getRes.data.getMultisig);
         return;

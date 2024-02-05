@@ -1,3 +1,4 @@
+import { log } from "console";
 import { checkAddress } from "./displayHelpers";
 import {
   MultisigThresholdPubkey,
@@ -8,6 +9,7 @@ import {
 import { Account, StargateClient } from "./packages/stargate";
 import { assert } from "./packages/utils";
 import { requestJson } from "./request";
+import { CommunityPoolSpendProposal } from "./packages/cosmjs-types/cosmos/distribution/v1beta1/distribution";
 
 interface CreateMultisigAccountResponse {
   readonly address: string;
@@ -29,7 +31,7 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   addressPrefix: string,
   chainId: string,
 ): Promise<string> => {
-  console.log("createMultisigFromCompressedSecp256k1Pubkeys", {
+  console.log("=== createMultisigFromCompressedSecp256k1Pubkeys", {
     compressedPubkeys,
     threshold,
     addressPrefix,
@@ -45,7 +47,11 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   });
   const multisigPubkey = createMultisigThresholdPubkey(pubkeys, threshold);
   const multisigAddress = pubkeyToAddress(multisigPubkey, addressPrefix);
-
+  console.log("=== createMultisigFromCompressedSecp256k1Pubkeys2", {
+    pubkeys,
+    multisigPubkey,
+    multisigAddress,
+  });
   // save multisig to fauna
   const multisig = {
     address: multisigAddress,
@@ -53,10 +59,11 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
     chainId,
   };
 
-  const { address }: CreateMultisigAccountResponse = await requestJson(
-    `/api/chain/${chainId}/multisig`,
-    { body: multisig },
-  );
+  const resp: CreateMultisigAccountResponse = await requestJson(`/api/chain/${chainId}/multisig`, {
+    body: multisig,
+  });
+  console.log("=== createMultisigFromCompressedSecp256k1Pubkeys3", { resp });
+  const { address } = resp;
 
   return address;
 };
@@ -78,6 +85,7 @@ const getMultisigAccount = async (
   addressPrefix: string,
   client: StargateClient,
 ): Promise<[MultisigThresholdPubkey, Account | null]> => {
+  console.log("=== getMultisigAccount", { address, addressPrefix, client });
   // we need the multisig pubkeys to create transactions, if the multisig
   // is new, and has never submitted a transaction its pubkeys will not be
   // available from a node. If the multisig was created with this instance
@@ -88,6 +96,7 @@ const getMultisigAccount = async (
   }
 
   const accountOnChain = await client.getAccount(address);
+  console.log("=== getMultisigAccount2", { accountOnChain });
   const chainId = await client.getChainId();
 
   let pubkey: MultisigThresholdPubkey;
@@ -99,14 +108,18 @@ const getMultisigAccount = async (
     pubkey = accountOnChain.pubkey;
   } else {
     try {
-      const { pubkeyJSON }: GetMultisigAccountResponse = await requestJson(
+      const resp: GetMultisigAccountResponse = await requestJson(
         `/api/chain/${chainId}/multisig/${address}`,
       );
+      console.log("=== getMultisigAccount3", { resp });
+      const { pubkeyJSON } = resp;
       pubkey = JSON.parse(pubkeyJSON);
     } catch {
       throw new Error("Multisig has no pubkey on node, and was not created using this tool.");
     }
   }
+
+  console.log("=== getMultisigAccount result", { pubkey, accountOnChain });
 
   return [pubkey, accountOnChain];
 };

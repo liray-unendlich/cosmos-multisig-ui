@@ -8,7 +8,7 @@ import { requestGraphQlJson } from "./request";
  * @return Returns async function that makes a request to the faunadb graphql endpoint
  */
 const createMultisig = async (multisig: DbAccount) => {
-  console.log(multisig);
+  console.log("graphqlHelpers createMultisig", multisig);
   return requestGraphQlJson({
     body: {
       query: `
