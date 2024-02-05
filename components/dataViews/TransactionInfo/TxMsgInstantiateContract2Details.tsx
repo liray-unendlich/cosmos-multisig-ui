@@ -1,5 +1,5 @@
 import { fromUtf8, toHex } from "@/lib/packages/encoding";
-import { MsgInstantiateContract2 } from "@/lib/packages/cosmjs-types/cosmwasm/wasm/v1/tx";
+import { MsgInstantiateContract as MsgInstantiateContract2 } from "@/lib/packages/cosmjs-types/cosmwasm/wasm/v1/tx";
 import { JSONValue } from "immutable-json-patch";
 import dynamic from "next/dynamic";
 import { useState } from "react";
@@ -55,7 +55,7 @@ const TxMsgInstantiateContract2Details = ({ msgValue }: TxMsgInstantiateContract
       </li>
       <li>
         <label>Salt:</label>
-        <div>{toHex(msgValue.salt)}</div>
+        <div>{toHex((msgValue as any).salt)}</div>
       </li>
       <li>
         <label>Funds:</label>

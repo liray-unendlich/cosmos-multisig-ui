@@ -79,7 +79,7 @@ const MsgCreateVestingAccountForm = ({
       fromAddress,
       toAddress,
       amount: [microCoin],
-      endTime: timestampFromDatetimeLocal(endTime, "s"),
+      endTime: timestampFromDatetimeLocal(endTime, "s") as any,
       delayed,
     });
 
