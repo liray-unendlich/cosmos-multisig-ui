@@ -159,7 +159,7 @@ const MsgInstantiateContract2Form = ({
     });
 
     const msg: MsgInstantiateContract2EncodeObject = {
-      typeUrl: MsgTypeUrls.Instantiate2 as any,
+      typeUrl: MsgTypeUrls.Instantiate2 as unknown as "/cosmwasm.wasm.v1.MsgInstantiateContract",
       value: msgValue,
     };
 

@@ -1,6 +1,5 @@
 import { LoadingStates, SigningStatus } from "@/types/signing";
 import { MultisigThresholdPubkey, makeCosmoshubPath } from "@/lib/packages/amino";
-import { createWasmAminoConverters } from "@/lib/packages/cosmwasm-stargate";
 import { toBase64 } from "@/lib/packages/encoding";
 import { LedgerSigner } from "@/lib/packages/ledger-amino";
 import { Registry } from "@/lib/packages/proto-signing";

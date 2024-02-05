@@ -55,7 +55,7 @@ const TxMsgInstantiateContract2Details = ({ msgValue }: TxMsgInstantiateContract
       </li>
       <li>
         <label>Salt:</label>
-        <div>{toHex((msgValue as any).salt)}</div>
+        <div>{toHex((msgValue as unknown as { salt: Uint8Array }).salt)}</div>
       </li>
       <li>
         <label>Funds:</label>

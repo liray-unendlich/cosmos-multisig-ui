@@ -1,8 +1,8 @@
 export {
-  AccountData,
-  EIP712SignResponse,
-  OfflineEIP712Signer,
-  OfflineSigner,
+  type AccountData,
+  type EIP712SignResponse,
+  type OfflineEIP712Signer,
+  type OfflineSigner,
   isOfflineEIP712Signer,
   isOfflineDirectSigner,
 } from "./signer";

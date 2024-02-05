@@ -1,8 +1,8 @@
-export { QueryAbciResponse, QueryClient, QueryStoreResponse } from "./queryclient";
+export { type QueryAbciResponse, QueryClient, type QueryStoreResponse } from "./queryclient";
 export {
   createPagination,
   createProtobufRpcClient,
   decodeCosmosSdkDecFromProto,
   longify,
-  ProtobufRpcClient,
+  type ProtobufRpcClient,
 } from "./utils";

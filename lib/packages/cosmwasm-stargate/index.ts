@@ -1,8 +1,8 @@
 export {
-  Code,
-  CodeDetails,
-  Contract,
-  ContractCodeHistoryEntry,
+  type Code,
+  type CodeDetails,
+  type Contract,
+  type ContractCodeHistoryEntry,
   CosmWasmClient,
 } from "./cosmwasmclient";
 export { fromBinary, toBinary } from "./encoding";
@@ -15,28 +15,33 @@ export {
   isMsgMigrateEncodeObject,
   isMsgStoreCodeEncodeObject,
   isMsgUpdateAdminEncodeObject,
-  JsonObject,
-  MsgClearAdminEncodeObject,
-  MsgExecuteContractEncodeObject,
-  MsgInstantiateContractEncodeObject,
-  MsgMigrateContractEncodeObject,
-  MsgStoreCodeEncodeObject,
-  MsgUpdateAdminEncodeObject,
+  type JsonObject,
+  type MsgClearAdminEncodeObject,
+  type MsgExecuteContractEncodeObject,
+  type MsgInstantiateContractEncodeObject,
+  type MsgMigrateContractEncodeObject,
+  type MsgStoreCodeEncodeObject,
+  type MsgUpdateAdminEncodeObject,
   setupWasmExtension,
-  WasmExtension,
+  type WasmExtension,
 } from "./modules";
 export {
-  ChangeAdminResult,
-  ExecuteInstruction,
-  ExecuteResult,
-  InstantiateOptions,
-  InstantiateResult,
-  MigrateResult,
+  type ChangeAdminResult,
+  type ExecuteInstruction,
+  type ExecuteResult,
+  type InstantiateOptions,
+  type InstantiateResult,
+  type MigrateResult,
   SigningCosmWasmClient,
-  SigningCosmWasmClientOptions,
-  UploadResult,
+  type SigningCosmWasmClientOptions,
+  type UploadResult,
 } from "./signingcosmwasmclient";
 
 // Re-exported because this is part of the CosmWasmClient/SigningCosmWasmClient APIs
-export { Attribute, DeliverTxResponse, Event, IndexedTx } from "@/lib/packages/stargate";
-export { HttpEndpoint } from "@/lib/packages/tendermint-rpc";
+export {
+  type Attribute,
+  type DeliverTxResponse,
+  type Event,
+  type IndexedTx,
+} from "@/lib/packages/stargate";
+export { type HttpEndpoint } from "@/lib/packages/tendermint-rpc";

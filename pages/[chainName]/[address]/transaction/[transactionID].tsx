@@ -131,7 +131,7 @@ const TransactionPage = ({
         txInfo.fee,
         bodyBytes,
         new Map(
-          currentSignatures.map((s: unknown) => {
+          currentSignatures.map((s: { address: string; signature: string }) => {
             console.log("broadcastTx # 2: signature", JSON.stringify({ signature: s }), null, 2);
             return [s.address, fromBase64(s.signature)];
           }),

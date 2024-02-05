@@ -76,7 +76,7 @@ export class SocketWrapper {
   public connect(): void {
     const socket = new WebSocket(this.url);
 
-    socket.onerror = (error) => {
+    socket.onerror = (error: Error) => {
       this.clearTimeout();
       if (this.errorHandler) {
         this.errorHandler(error);

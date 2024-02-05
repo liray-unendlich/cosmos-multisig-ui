@@ -2,8 +2,8 @@ export { ConnectionStatus, QueueingStreamingSocket } from "./queueingstreamingso
 export { ReconnectingSocket } from "./reconnectingsocket";
 export {
   SocketWrapper,
-  SocketWrapperCloseEvent,
-  SocketWrapperErrorEvent,
-  SocketWrapperMessageEvent,
+  type SocketWrapperCloseEvent,
+  type SocketWrapperErrorEvent,
+  type SocketWrapperMessageEvent,
 } from "./socketwrapper";
 export { StreamingSocket } from "./streamingsocket";

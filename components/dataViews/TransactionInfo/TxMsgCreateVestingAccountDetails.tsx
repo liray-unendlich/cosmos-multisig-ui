@@ -9,7 +9,7 @@ interface TxMsgCreateVestingAccountDetailsProps {
 
 const TxMsgCreateVestingAccountDetails = ({ msgValue }: TxMsgCreateVestingAccountDetailsProps) => {
   const { chain } = useChains();
-  const endTimeDateObj = new Date(Number((msgValue.endTime as any) * 1000n));
+  const endTimeDateObj = new Date(Number((msgValue.endTime as unknown as bigint) * 1000n));
   const endTimeDate = endTimeDateObj.toLocaleDateString();
   const endTimeHours = endTimeDateObj.toLocaleTimeString().slice(0, -3);
 

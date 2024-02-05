@@ -1,6 +1,6 @@
 export {
-  AminoMsgConvertAIOZRC20,
-  AminoMsgConvertCoin,
+  type AminoMsgConvertAIOZRC20,
+  type AminoMsgConvertCoin,
   createAiozrc20AminoConverters,
   isAminoMsgConvertAIOZRC20,
   isAminoMsgConvertCoin,
@@ -9,34 +9,34 @@ export {
   aiozrc20Types,
   isMsgConvertAIOZRC20EncodeObject,
   isMsgConvertCoinEncodeObject,
-  MsgConvertAIOZRC20EncodeObject,
-  MsgConvertCoinEncodeObject,
+  type MsgConvertAIOZRC20EncodeObject,
+  type MsgConvertCoinEncodeObject,
 } from "./aiozrc20/messages";
-export { Aiozrc20Extension, setupAiozrc20Extension } from "./aiozrc20/queries";
-export { AuthExtension, setupAuthExtension } from "./auth/queries";
+export { type Aiozrc20Extension, setupAiozrc20Extension } from "./aiozrc20/queries";
+export { type AuthExtension, setupAuthExtension } from "./auth/queries";
 export { createAuthzAminoConverters } from "./authz/aminomessages";
 export { authzTypes } from "./authz/messages";
 export { setupAuthzExtension } from "./authz/queries";
 export {
-  AminoMsgMultiSend,
-  AminoMsgSend,
+  type AminoMsgMultiSend,
+  type AminoMsgSend,
   createBankAminoConverters,
   isAminoMsgMultiSend,
   isAminoMsgSend,
 } from "./bank/aminomessages";
-export { bankTypes, isMsgSendEncodeObject, MsgSendEncodeObject } from "./bank/messages";
-export { BankExtension, setupBankExtension } from "./bank/queries";
-export { Bech32ibcExtension, setupBech32ibcExtension } from "./bech32ibc/queries";
+export { bankTypes, isMsgSendEncodeObject, type MsgSendEncodeObject } from "./bank/messages";
+export { type BankExtension, setupBankExtension } from "./bank/queries";
+export { type Bech32ibcExtension, setupBech32ibcExtension } from "./bech32ibc/queries";
 export {
-  AminoMsgVerifyInvariant,
+  type AminoMsgVerifyInvariant,
   createCrysisAminoConverters,
   isAminoMsgVerifyInvariant,
 } from "./crisis/aminomessages";
 export {
-  AminoMsgFundCommunityPool,
-  AminoMsgSetWithdrawAddress,
-  AminoMsgWithdrawDelegatorReward,
-  AminoMsgWithdrawValidatorCommission,
+  type AminoMsgFundCommunityPool,
+  type AminoMsgSetWithdrawAddress,
+  type AminoMsgWithdrawDelegatorReward,
+  type AminoMsgWithdrawValidatorCommission,
   createDistributionAminoConverters,
   isAminoMsgFundCommunityPool,
   isAminoMsgSetWithdrawAddress,
@@ -46,30 +46,34 @@ export {
 export {
   distributionTypes,
   isMsgWithdrawDelegatorRewardEncodeObject,
-  MsgWithdrawDelegatorRewardEncodeObject,
+  type MsgWithdrawDelegatorRewardEncodeObject,
 } from "./distribution/messages";
-export { DistributionExtension, setupDistributionExtension } from "./distribution/queries";
+export { type DistributionExtension, setupDistributionExtension } from "./distribution/queries";
 export {
   ethermintTypes,
-  ExtensionOptionDynamicFeeTxEncodeObject,
-  ExtensionOptionsWeb3TxEncodeObject,
+  type ExtensionOptionDynamicFeeTxEncodeObject,
+  type ExtensionOptionsWeb3TxEncodeObject,
   isExtensionOptionDynamicFeeTxEncodeObject,
   isExtensionOptionsWeb3TxEncodeObject,
 } from "./ethermint/extensionoptions";
-export { DynamicFeeTxEncodeObject, evmTypes, isDynamicFeeTxEncodeObject } from "./ethermint/messages";
 export {
-  AminoMsgSubmitEvidence,
+  type DynamicFeeTxEncodeObject,
+  evmTypes,
+  isDynamicFeeTxEncodeObject,
+} from "./ethermint/messages";
+export {
+  type AminoMsgSubmitEvidence,
   createEvidenceAminoConverters,
   isAminoMsgSubmitEvidence,
 } from "./evidence/aminomessages";
 export { createFeegrantAminoConverters } from "./feegrant/aminomessages";
 export { feegrantTypes } from "./feegrant/messages";
-export { FeegrantExtension, setupFeegrantExtension } from "./feegrant/queries";
+export { type FeegrantExtension, setupFeegrantExtension } from "./feegrant/queries";
 export {
-  AminoMsgDeposit,
-  AminoMsgSubmitProposal,
-  AminoMsgVote,
-  AminoMsgVoteWeighted,
+  type AminoMsgDeposit,
+  type AminoMsgSubmitProposal,
+  type AminoMsgVote,
+  type AminoMsgVoteWeighted,
   createGovAminoConverters,
   isAminoMsgDeposit,
   isAminoMsgSubmitProposal,
@@ -82,15 +86,20 @@ export {
   isMsgSubmitProposalEncodeObject,
   isMsgVoteEncodeObject,
   isMsgVoteWeightedEncodeObject,
-  MsgDepositEncodeObject,
-  MsgSubmitProposalEncodeObject,
-  MsgVoteEncodeObject,
-  MsgVoteWeightedEncodeObject,
+  type MsgDepositEncodeObject,
+  type MsgSubmitProposalEncodeObject,
+  type MsgVoteEncodeObject,
+  type MsgVoteWeightedEncodeObject,
 } from "./gov/messages";
-export { GovExtension, GovParamsType, GovProposalId, setupGovExtension } from "./gov/queries";
 export {
-  AminoMsgCancelSendToEvmChain,
-  AminoMsgSendToEvmChain,
+  type GovExtension,
+  type GovParamsType,
+  type GovProposalId,
+  setupGovExtension,
+} from "./gov/queries";
+export {
+  type AminoMsgCancelSendToEvmChain,
+  type AminoMsgSendToEvmChain,
   createGravityAminoConverters,
   isAminoMsgCancelSendToEvmChain,
   isAminoMsgSendToEvmChain,
@@ -99,21 +108,25 @@ export {
   gravityTypes,
   isMsgCancelSendToEvmChainEncodeObject,
   isMsgSendToEvmChainEncodeObject,
-  MsgCancelSendToEvmChainEncodeObject,
-  MsgSendToEvmChainEncodeObject,
+  type MsgCancelSendToEvmChainEncodeObject,
+  type MsgSendToEvmChainEncodeObject,
 } from "./gravity/messages";
-export { GravityExtension, setupGravityExtension } from "./gravity/queries";
-export { AminoMsgTransfer, createIbcAminoConverters, isAminoMsgTransfer } from "./ibc/aminomessages";
-export { ibcTypes, isMsgTransferEncodeObject, MsgTransferEncodeObject } from "./ibc/messages";
-export { IbcExtension, setupIbcExtension } from "./ibc/queries";
-export { parseChainIdRevision } from "./ibc/utils";
-export { MintExtension, MintParams, setupMintExtension } from "./mint/queries";
+export { type GravityExtension, setupGravityExtension } from "./gravity/queries";
 export {
-  AminoMsgBeginRedelegate,
-  AminoMsgCreateValidator,
-  AminoMsgDelegate,
-  AminoMsgEditValidator,
-  AminoMsgUndelegate,
+  type AminoMsgTransfer,
+  createIbcAminoConverters,
+  isAminoMsgTransfer,
+} from "./ibc/aminomessages";
+export { ibcTypes, isMsgTransferEncodeObject, type MsgTransferEncodeObject } from "./ibc/messages";
+export { type IbcExtension, setupIbcExtension } from "./ibc/queries";
+export { parseChainIdRevision } from "./ibc/utils";
+export { type MintExtension, type MintParams, setupMintExtension } from "./mint/queries";
+export {
+  type AminoMsgBeginRedelegate,
+  type AminoMsgCreateValidator,
+  type AminoMsgDelegate,
+  type AminoMsgEditValidator,
+  type AminoMsgUndelegate,
   createSdkStakingAminoConverters,
   isAminoMsgBeginRedelegate,
   isAminoMsgCreateValidator,
@@ -127,29 +140,33 @@ export {
   isMsgDelegateEncodeObject,
   isMsgEditValidatorEncodeObject,
   isMsgUndelegateEncodeObject,
-  MsgBeginRedelegateEncodeObject,
-  MsgCreateValidatorEncodeObject,
-  MsgDelegateEncodeObject,
-  MsgEditValidatorEncodeObject,
-  MsgUndelegateEncodeObject,
+  type MsgBeginRedelegateEncodeObject,
+  type MsgCreateValidatorEncodeObject,
+  type MsgDelegateEncodeObject,
+  type MsgEditValidatorEncodeObject,
+  type MsgUndelegateEncodeObject,
   stakingTypes,
 } from "./sdkstaking/messages";
-export { SdkStakingExtension, setupSdkStakingExtension } from "./sdkstaking/queries";
-export { AminoMsgUnjail, createSlashingAminoConverters, isAminoMsgUnjail } from "./slashing/aminomessages";
-export { setupSlashingExtension, SlashingExtension } from "./slashing/queries";
-export { setupStakingExtension, StakingExtension } from "./staking/queries";
-export { setupTxExtension, TxExtension } from "./tx/queries";
+export { type SdkStakingExtension, setupSdkStakingExtension } from "./sdkstaking/queries";
 export {
-  AminoMsgCreateVestingAccount,
+  type AminoMsgUnjail,
+  createSlashingAminoConverters,
+  isAminoMsgUnjail,
+} from "./slashing/aminomessages";
+export { setupSlashingExtension, type SlashingExtension } from "./slashing/queries";
+export { setupStakingExtension, type StakingExtension } from "./staking/queries";
+export { setupTxExtension, type TxExtension } from "./tx/queries";
+export {
+  type AminoMsgCreateVestingAccount,
   createVestingAminoConverters,
   isAminoMsgCreateVestingAccount,
 } from "./vesting/aminomessages";
 export { vestingTypes } from "./vesting/messages";
 export {
   createMsgWrappedEthereumTxEncodeObjectFromTxData,
-  ExtensionOptionsWrappedEthereumTxEncodeObject,
+  type ExtensionOptionsWrappedEthereumTxEncodeObject,
   isExtensionOptionsWrappedEthereumTxEncodeObject,
   isMsgWrappedEthereumTxEncodeObject,
-  MsgWrappedEthereumTxEncodeObject,
+  type MsgWrappedEthereumTxEncodeObject,
   wetxTypes,
 } from "./wetx/messages";

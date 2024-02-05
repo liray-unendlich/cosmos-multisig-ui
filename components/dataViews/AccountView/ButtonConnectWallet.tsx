@@ -5,7 +5,7 @@ import { LedgerSigner } from "@/lib/packages/ledger-amino";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
-import { Dispatch, SetStateAction, useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useLayoutEffect, useState } from "react";
 import { useChains } from "../../../context/ChainsContext";
 import { getConnectError } from "../../../lib/errorHelpers";
 import { Button } from "../../ui/button";

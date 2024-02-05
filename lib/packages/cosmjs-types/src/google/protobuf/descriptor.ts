@@ -2110,8 +2110,12 @@ export const FieldDescriptorProto = {
     return {
       name: isSet(object.name) ? String(object.name) : "",
       number: isSet(object.number) ? Number(object.number) : 0,
-      label: isSet(object.label) ? fieldDescriptorProto_LabelFromJSON(object.label) : 0,
-      type: isSet(object.type) ? fieldDescriptorProto_TypeFromJSON(object.type) : 0,
+      label: isSet(object.label)
+        ? fieldDescriptorProto_LabelFromJSON(object.label)
+        : (0 as FieldDescriptorProto_Label),
+      type: isSet(object.type)
+        ? fieldDescriptorProto_TypeFromJSON(object.type)
+        : (0 as FieldDescriptorProto_Type),
       typeName: isSet(object.typeName) ? String(object.typeName) : "",
       extendee: isSet(object.extendee) ? String(object.extendee) : "",
       defaultValue: isSet(object.defaultValue) ? String(object.defaultValue) : "",
@@ -2957,7 +2961,9 @@ export const FileOptions = {
         ? Boolean(object.javaGenerateEqualsAndHash)
         : false,
       javaStringCheckUtf8: isSet(object.javaStringCheckUtf8) ? Boolean(object.javaStringCheckUtf8) : false,
-      optimizeFor: isSet(object.optimizeFor) ? fileOptions_OptimizeModeFromJSON(object.optimizeFor) : 0,
+      optimizeFor: isSet(object.optimizeFor)
+        ? fileOptions_OptimizeModeFromJSON(object.optimizeFor)
+        : (0 as FileOptions_OptimizeMode),
       goPackage: isSet(object.goPackage) ? String(object.goPackage) : "",
       ccGenericServices: isSet(object.ccGenericServices) ? Boolean(object.ccGenericServices) : false,
       javaGenericServices: isSet(object.javaGenericServices) ? Boolean(object.javaGenericServices) : false,
