@@ -52,7 +52,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       setWalletAccount(tempWalletAccount);
 
       const pubkey = toBase64(tempWalletAccount.pubKey);
-      console.log("connectKeplr # 1", JSON.stringify({ tempWalletAccount, pubkey }, null, 2));
+      // console.log("connectKeplr # 1", JSON.stringify({ tempWalletAccount, pubkey }, null, 2));
 
       const isMember = memberPubkeys.includes(pubkey);
       const hasSigned = isMember

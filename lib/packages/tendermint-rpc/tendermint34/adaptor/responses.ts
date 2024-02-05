@@ -112,10 +112,15 @@ interface RpcAttribute {
   readonly value?: string | null;
 }
 
+function stringToUint8Array(str: string): Uint8Array {
+  const encoder = new TextEncoder();
+  return encoder.encode(str);
+}
+
 function decodeAttribute(attribute: RpcAttribute): responses.Attribute {
   return {
-    key: fromBase64(assertNotEmpty(attribute.key)),
-    value: fromBase64(assertString(attribute.value ?? "")),
+    key: stringToUint8Array(assertNotEmpty(attribute.key)),
+    value: stringToUint8Array(assertString(attribute.value ?? "")),
   };
 }
 
@@ -152,6 +157,7 @@ interface RpcTxData {
 }
 
 function decodeTxData(data: RpcTxData): responses.TxData {
+  // debugger;
   return {
     code: apiToSmallInt(assertNumber(data.code ?? 0)),
     codespace: data.codespace,
@@ -712,6 +718,7 @@ interface RpcTxResponse {
 }
 
 function decodeTxResponse(data: RpcTxResponse): responses.TxResponse {
+  // debugger;
   return {
     tx: fromBase64(assertNotEmpty(data.tx)),
     result: decodeTxData(assertObject(data.tx_result)),

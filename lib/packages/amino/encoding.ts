@@ -249,7 +249,7 @@ export function encodeAminoPubkey(pubkey: Pubkey): Uint8Array {
     }
     const uintOut = new Uint8Array([...out]);
 
-    console.log({ out, uintOut });
+    // console.log({ out, uintOut });
     return uintOut;
   } else if (isEd25519Pubkey(pubkey)) {
     return new Uint8Array([...pubkeyAminoPrefixEd25519, ...fromBase64(pubkey.value)]);
