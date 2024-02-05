@@ -22,7 +22,7 @@ export function createMultisigThresholdPubkey(
   threshold: number,
   nosort = false,
 ): MultisigThresholdPubkey {
-  console.log("createMultisigThresholdPubkey", { pubkeys, threshold, nosort });
+  console.log("createMultisigThresholdPubkey", JSON.stringify({ pubkeys, threshold }, null, 2));
   const uintThreshold = new Uint53(threshold);
   if (uintThreshold.toNumber() > pubkeys.length) {
     throw new Error(
@@ -36,7 +36,7 @@ export function createMultisigThresholdPubkey(
         // https://github.com/cosmos/cosmos-sdk/blob/v0.42.2/client/keys/add.go#L172-L174
         const addressLhs = pubkeyToRawAddress(lhs);
         const addressRhs = pubkeyToRawAddress(rhs);
-        console.log("outPubkeys", { addressLhs, addressRhs });
+        console.log("outPubkeys", JSON.stringify({ addressLhs, addressRhs }, null, 2));
         return compareArrays(addressLhs, addressRhs);
       });
 

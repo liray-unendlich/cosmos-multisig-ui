@@ -1,4 +1,3 @@
-import { log } from "console";
 import { checkAddress } from "./displayHelpers";
 import {
   MultisigThresholdPubkey,
@@ -9,7 +8,6 @@ import {
 import { Account, StargateClient } from "./packages/stargate";
 import { assert } from "./packages/utils";
 import { requestJson } from "./request";
-import { CommunityPoolSpendProposal } from "./packages/cosmjs-types/cosmos/distribution/v1beta1/distribution";
 
 interface CreateMultisigAccountResponse {
   readonly address: string;
@@ -31,12 +29,19 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   addressPrefix: string,
   chainId: string,
 ): Promise<string> => {
-  console.log("=== createMultisigFromCompressedSecp256k1Pubkeys", {
-    compressedPubkeys,
-    threshold,
-    addressPrefix,
-    chainId,
-  });
+  console.log(
+    "=== createMultisigFromCompressedSecp256k1Pubkeys",
+    JSON.stringify(
+      {
+        compressedPubkeys,
+        threshold,
+        addressPrefix,
+        chainId,
+      },
+      null,
+      2,
+    ),
+  );
   const pubkeys = compressedPubkeys.map((compressedPubkey) => {
     return {
       type: "/ethermint.crypto.v1.ethsecp256k1.PubKey",
@@ -46,12 +51,21 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
     };
   });
   const multisigPubkey = createMultisigThresholdPubkey(pubkeys, threshold);
+  // debugger;
   const multisigAddress = pubkeyToAddress(multisigPubkey, addressPrefix);
-  console.log("=== createMultisigFromCompressedSecp256k1Pubkeys2", {
-    pubkeys,
-    multisigPubkey,
-    multisigAddress,
-  });
+  // const multisigAddress = "haqq1jk7n65xev9ye7wljw95uhu2ghf4sgxf354s6p9";
+  console.log(
+    "=== createMultisigFromCompressedSecp256k1Pubkeys2",
+    JSON.stringify(
+      {
+        pubkeys,
+        multisigPubkey,
+        multisigAddress,
+      },
+      null,
+      2,
+    ),
+  );
   // save multisig to fauna
   const multisig = {
     address: multisigAddress,
@@ -62,7 +76,10 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   const resp: CreateMultisigAccountResponse = await requestJson(`/api/chain/${chainId}/multisig`, {
     body: multisig,
   });
-  console.log("=== createMultisigFromCompressedSecp256k1Pubkeys3", { resp });
+  console.log(
+    "=== createMultisigFromCompressedSecp256k1Pubkeys3",
+    JSON.stringify({ resp }, null, 2),
+  );
   const { address } = resp;
 
   return address;
@@ -85,7 +102,7 @@ const getMultisigAccount = async (
   addressPrefix: string,
   client: StargateClient,
 ): Promise<[MultisigThresholdPubkey, Account | null]> => {
-  console.log("=== getMultisigAccount", { address, addressPrefix, client });
+  console.log("getMultisigAccount # 1", JSON.stringify({ address, addressPrefix }, null, 2));
   // we need the multisig pubkeys to create transactions, if the multisig
   // is new, and has never submitted a transaction its pubkeys will not be
   // available from a node. If the multisig was created with this instance
@@ -96,7 +113,7 @@ const getMultisigAccount = async (
   }
 
   const accountOnChain = await client.getAccount(address);
-  console.log("=== getMultisigAccount2", { accountOnChain });
+  console.log("getMultisigAccount # 2", JSON.stringify({ accountOnChain }, null, 2));
   const chainId = await client.getChainId();
 
   let pubkey: MultisigThresholdPubkey;
@@ -111,7 +128,7 @@ const getMultisigAccount = async (
       const resp: GetMultisigAccountResponse = await requestJson(
         `/api/chain/${chainId}/multisig/${address}`,
       );
-      console.log("=== getMultisigAccount3", { resp });
+      console.log("getMultisigAccount # 3", JSON.stringify({ resp }, null, 2));
       const { pubkeyJSON } = resp;
       pubkey = JSON.parse(pubkeyJSON);
     } catch {
@@ -119,7 +136,10 @@ const getMultisigAccount = async (
     }
   }
 
-  console.log("=== getMultisigAccount result", { pubkey, accountOnChain });
+  console.log(
+    "getMultisigAccount # 4: result",
+    JSON.stringify({ pubkey, accountOnChain }, null, 2),
+  );
 
   return [pubkey, accountOnChain];
 };

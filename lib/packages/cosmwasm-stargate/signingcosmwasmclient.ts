@@ -600,6 +600,22 @@ export class SigningCosmWasmClient extends CosmWasmClient {
     memo: string,
     { accountNumber, sequence, chainId }: SignerData,
   ): Promise<TxRaw> {
+    console.log(
+      "signAmino wasm # 1",
+      JSON.stringify(
+        {
+          signerAddress,
+          messages,
+          fee,
+          memo,
+          accountNumber,
+          sequence,
+          chainId,
+        },
+        null,
+        2,
+      ),
+    );
     assert(!isOfflineDirectSigner(this.signer));
     const accountFromSigner = (await this.signer.getAccounts()).find(
       (account) => account.address === signerAddress,
@@ -608,7 +624,7 @@ export class SigningCosmWasmClient extends CosmWasmClient {
       throw new Error("Failed to retrieve account from signer");
     }
     const pubkey = encodePubkey(encodeSecp256k1Pubkey(accountFromSigner.pubkey));
-    console.log("signAmino", { pubkey });
+    console.log("signAmino wasm # 2", JSON.stringify({ pubkey }, null, 2));
     const signMode = SignMode.SIGN_MODE_LEGACY_AMINO_JSON;
     const msgs = messages.map((msg) => this.aminoTypes.toAmino(msg));
     const signDoc = makeSignDocAmino(msgs, fee, chainId, memo, accountNumber, sequence);
@@ -616,7 +632,9 @@ export class SigningCosmWasmClient extends CosmWasmClient {
     const signedTxBody: TxBodyEncodeObject = {
       typeUrl: "/cosmos.tx.v1beta1.TxBody",
       value: {
-        messages: signed.msgs.map((msg) => this.aminoTypes.fromAmino(msg)),
+        messages: signed.msgs.map((msg) => {
+          return this.aminoTypes.fromAmino(msg);
+        }),
         memo: signed.memo,
       },
     };
