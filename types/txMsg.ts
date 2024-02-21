@@ -8,6 +8,7 @@ import {
   MsgDelegate,
   MsgUndelegate,
 } from "cosmjs-types/cosmos/staking/v1beta1/tx";
+import { MsgVote } from "cosmjs-types/cosmos/gov/v1beta1/tx";
 import { MsgCreateVestingAccount } from "cosmjs-types/cosmos/vesting/v1beta1/tx";
 import {
   MsgExecuteContract,
@@ -25,6 +26,7 @@ export const MsgTypeUrls = {
   BeginRedelegate: "/cosmos.staking.v1beta1.MsgBeginRedelegate",
   Delegate: "/cosmos.staking.v1beta1.MsgDelegate",
   Undelegate: "/cosmos.staking.v1beta1.MsgUndelegate",
+  Vote: "/cosmos.gov.v1beta1.MsgVote",
   CreateVestingAccount: "/cosmos.vesting.v1beta1.MsgCreateVestingAccount",
   Transfer: "/ibc.applications.transfer.v1.MsgTransfer",
   Execute: "/cosmwasm.wasm.v1.MsgExecuteContract",
@@ -43,6 +45,7 @@ export const MsgCodecs = {
   [MsgTypeUrls.BeginRedelegate]: MsgBeginRedelegate,
   [MsgTypeUrls.Delegate]: MsgDelegate,
   [MsgTypeUrls.Undelegate]: MsgUndelegate,
+  [MsgTypeUrls.Vote]: MsgVote,
   [MsgTypeUrls.CreateVestingAccount]: MsgCreateVestingAccount,
   [MsgTypeUrls.Transfer]: MsgTransfer,
   [MsgTypeUrls.Execute]: MsgExecuteContract,
