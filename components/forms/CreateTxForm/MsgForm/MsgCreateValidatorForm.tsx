@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
 import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
-import { checkAddress, exampleAddress, exampleValidatorAddress, trimStringsObj } from "../../../../lib/displayHelpers";
+import { exampleValidatorAddress, trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
@@ -23,6 +23,7 @@ const MsgCreateValidatorForm = ({
 
   // set amount, validator pubkey, commission-rate, commission-max, commission-max-change-rate, min-self-delegation, moniker, details, website, security-contact
   const [amount, setAmount] = useState("0");
+  const [validatorAddress, setValidatorAddress] = useState("");
   const [validatorPubkey, setValidatorPubkey] = useState("");
   const [commissionRate, setCommissionRate] = useState("0");
   const [commissionMax, setCommissionMax] = useState("0");
@@ -35,6 +36,7 @@ const MsgCreateValidatorForm = ({
 
   // set validatorAddressError and amountError, pubkeyError, commissionRateError, commissionMaxError, commissionMaxChangeRateError, minSelfDelegationError, monikerError, detailsError, websiteError, securityContactError
   const [amountError, setAmountError] = useState("");
+  const [validatorAddressError, setValidatorAddressError] = useState("");
   const [validatorPubkeyError, setValidatorPubkeyError] = useState("");
   const [commissionRateError, setCommissionRateError] = useState("");
   const [commissionMaxError, setCommissionMaxError] = useState("");
@@ -45,7 +47,7 @@ const MsgCreateValidatorForm = ({
   const [websiteError, setWebsiteError] = useState("");
   const [securityContactError, setSecurityContactError] = useState("");
 
-  const trimmedInputs = trimStringsObj({ amount, validatorPubkey, commissionRate, commissionMax, commissionMaxChangeRate, minSelfDelegation, moniker, details, website, securityContact });
+  const trimmedInputs = trimStringsObj({ amount, validatorAddress,validatorPubkey, commissionRate, commissionMax, commissionMaxChangeRate, minSelfDelegation, moniker, details, website, securityContact });
 
   useEffect(() => {
     // eslint-disable-next-line no-shadow
@@ -67,19 +69,18 @@ const MsgCreateValidatorForm = ({
         return false;
       }
       
-      // pubkey validation. it should be like chain.addressPrefix+"valcons"" and it should be a valid address for the network
-      if (!validatorPubkey || !validatorPubkey.startsWith(chain.addressPrefix+"valcons")) {
-        setValidatorPubkeyError("Pubkey must be like "+chain.addressPrefix+"valcons");
+      // validatorAddress validation it should be start with chain.addressPrefix and "valoper" and length should be 43 
+      if (!validatorAddress ) {
+        setValidatorAddressError(`Validator Address must be valid address for network ${chain.chainId}`);
         return false;
       }
-      const validatoPubkeyErrorMsg = checkAddress(validatorPubkey, chain.addressPrefix);
-      if (validatoPubkeyErrorMsg) {
-        setValidatorPubkeyError(
-          `Invalid address for network ${chain.chainId}: ${validatoPubkeyErrorMsg}`,
-          );
-          return false;
+
+      // pubkey validation.
+      if (!validatorPubkey ) {
+        setValidatorPubkeyError(`Validator Pubkey must be provided`);
+        return false;
       }
-      
+
       // commissionRate validation it should be greater than 0 and less than 1 and less than commissionMax
       if (!commissionRate || Number(commissionRate) <= 0 || Number(commissionRate) >= 1 || Number(commissionRate) >= Number(commissionMax)) {
         setCommissionRateError("Commission Rate must be greater than 0 and less than 1 and less than Commission Max");
@@ -111,13 +112,13 @@ const MsgCreateValidatorForm = ({
       }
 
       // website validation it should be a valid url like "https://xx.com"
-      if (!website || !website.startsWith("https://")) {
+      if (website && !website.startsWith("https://")) {
         setWebsiteError("Website must be a valid url like https://xx.com");
         return false;
       }
 
       // securityContact validation it should be a valid email address
-      if (!securityContact || !securityContact.includes("@")) {
+      if (securityContact && !securityContact.includes("@")) {
         setSecurityContactError("Security Contact must be a valid email address");
         return false;
       }
@@ -132,10 +133,14 @@ const MsgCreateValidatorForm = ({
         return { denom: chain.displayDenom, amount: "0" };
       }
     })();
-
+    
     const msgValue = MsgCodecs[MsgTypeUrls.Validator].fromPartial({
       delegatorAddress,
-      validatorAddress: validatorPubkey,
+      validatorAddress: validatorAddress,
+      pubkey: {
+        typeUrl: "/cosmos.crypto.ed25519.PubKey",
+        value: new TextEncoder().encode(validatorPubkey),
+      },
       value: microCoin,
       commission: {
         rate: commissionRate,
@@ -162,6 +167,7 @@ const MsgCreateValidatorForm = ({
     delegatorAddress,
     setMsgGetter,
     trimmedInputs,
+    validatorAddress, // Add 'validatorAddress' as a dependency
   ]);
 
   return (
@@ -170,6 +176,19 @@ const MsgCreateValidatorForm = ({
         ✕
       </button>
       <h2>MsgCreateValidator</h2>
+      <div className="form-item">
+        <Input
+          label="Validator Address"
+          name="validator-address"
+          value={validatorAddress}
+          onChange={({ target }) => {
+            setValidatorAddress(target.value);
+            setValidatorAddressError("");
+          }}
+          error={validatorAddressError}
+          placeholder={`E.g. ${exampleValidatorAddress(0, chain.addressPrefix)}`}
+        />
+      </div>
       <div className="form-item">
         <Input
           label="Validator Pubkey"
