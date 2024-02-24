@@ -202,13 +202,15 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
                 onClick={() => addMsgType(MsgTypeUrls.Unjail)}
               />
             </li>
+            </ul>
+            <ul>
             <li>
               <Button
                 label="WithdrawValidatorCommission"
                 onClick={() => addMsgType(MsgTypeUrls.WithdrawValidatorCommission)}
               />
             </li>
-          </ul>
+            </ul>
         </div>
         <div className="btn-cluster">
           <label>Vesting</label>
