@@ -1,5 +1,5 @@
 import { EncodeObject } from "@cosmjs/proto-signing";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
