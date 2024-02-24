@@ -7,6 +7,7 @@ import { exampleValidatorAddress, trimStringsObj } from "../../../../lib/display
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
+import { toBech32, fromBase64, fromBech32} from "@cosmjs/encoding";
 
 interface MsgCreateValidatorFormProps {
   readonly delegatorAddress: string;
@@ -23,7 +24,7 @@ const MsgCreateValidatorForm = ({
 
   // set amount, validator pubkey, commission-rate, commission-max, commission-max-change-rate, min-self-delegation, moniker, details, website, security-contact
   const [amount, setAmount] = useState("0");
-  const [validatorAddress, setValidatorAddress] = useState("");
+  // const [validatorAddress, setValidatorAddress] = useState("");
   const [validatorPubkey, setValidatorPubkey] = useState("");
   const [commissionRate, setCommissionRate] = useState("0");
   const [commissionMax, setCommissionMax] = useState("0");
@@ -36,7 +37,7 @@ const MsgCreateValidatorForm = ({
 
   // set validatorAddressError and amountError, pubkeyError, commissionRateError, commissionMaxError, commissionMaxChangeRateError, minSelfDelegationError, monikerError, detailsError, websiteError, securityContactError
   const [amountError, setAmountError] = useState("");
-  const [validatorAddressError, setValidatorAddressError] = useState("");
+  // const [validatorAddressError, setValidatorAddressError] = useState("");
   const [validatorPubkeyError, setValidatorPubkeyError] = useState("");
   const [commissionRateError, setCommissionRateError] = useState("");
   const [commissionMaxError, setCommissionMaxError] = useState("");
@@ -47,7 +48,7 @@ const MsgCreateValidatorForm = ({
   const [websiteError, setWebsiteError] = useState("");
   const [securityContactError, setSecurityContactError] = useState("");
 
-  const trimmedInputs = trimStringsObj({ amount, validatorAddress,validatorPubkey, commissionRate, commissionMax, commissionMaxChangeRate, minSelfDelegation, moniker, details, website, securityContact });
+  const trimmedInputs = trimStringsObj({ amount, validatorPubkey, commissionRate, commissionMax, commissionMaxChangeRate, minSelfDelegation, moniker, details, website, securityContact });
 
   useEffect(() => {
     // eslint-disable-next-line no-shadow
@@ -68,12 +69,6 @@ const MsgCreateValidatorForm = ({
         setAmountError("Amount must be greater than 0");
         return false;
       }
-      
-      // validatorAddress validation it should be start with chain.addressPrefix and "valoper" and length should be 43 
-      if (!validatorAddress ) {
-        setValidatorAddressError(`Validator Address must be valid address for network ${chain.chainId}`);
-        return false;
-      }
 
       // pubkey validation.
       if (!validatorPubkey ) {
@@ -82,19 +77,19 @@ const MsgCreateValidatorForm = ({
       }
 
       // commissionRate validation it should be greater than 0 and less than 1 and less than commissionMax
-      if (!commissionRate || Number(commissionRate) <= 0 || Number(commissionRate) >= 1 || Number(commissionRate) >= Number(commissionMax)) {
+      if (!commissionRate || Number(commissionRate) < 0 || Number(commissionRate) > 1 * 10 ** 18 || Number(commissionRate) > Number(commissionMax)) {
         setCommissionRateError("Commission Rate must be greater than 0 and less than 1 and less than Commission Max");
         return false;
       }
 
       // commissionMax validation it should be greater than 0 and less than 1 and greater than commissionRate
-      if (!commissionMax || Number(commissionMax) <= 0 || Number(commissionMax) >= 1 || Number(commissionMax) <= Number(commissionRate)) {
+      if (!commissionMax || Number(commissionMax) < 0 || Number(commissionMax) > 1 * 10 **  18 || Number(commissionMax) < Number(commissionRate)) {
         setCommissionMaxError("Commission Max must be greater than 0 and less than 1 and greater than Commission Rate");
         return false;
       }
 
       // commissionMaxChangeRate validation it should be greater than 0 and less than 1
-      if (!commissionMaxChangeRate || Number(commissionMaxChangeRate) <= 0 || Number(commissionMaxChangeRate) >= 1) {
+      if (!commissionMaxChangeRate || Number(commissionMaxChangeRate) < 0 || Number(commissionMaxChangeRate) > 1 * 10 ** 18) {
         setCommissionMaxChangeRateError("Commission Max Change Rate must be greater than 0 and less than 1");
         return false;
       }
@@ -112,8 +107,8 @@ const MsgCreateValidatorForm = ({
       }
 
       // website validation it should be a valid url like "https://xx.com"
-      if (website && !website.startsWith("https://")) {
-        setWebsiteError("Website must be a valid url like https://xx.com");
+      if (website && (!website.startsWith("https://") || !website.startsWith("http://")) ) {
+        setWebsiteError("Website must be a valid url like https://xx.com or http://xx.com");
         return false;
       }
 
@@ -133,30 +128,44 @@ const MsgCreateValidatorForm = ({
         return { denom: chain.displayDenom, amount: "0" };
       }
     })();
-    
-    const msgValue = MsgCodecs[MsgTypeUrls.Validator].fromPartial({
-      delegatorAddress,
-      validatorAddress: validatorAddress,
-      pubkey: {
-        typeUrl: "/cosmos.crypto.ed25519.PubKey",
-        value: new TextEncoder().encode(validatorPubkey),
+
+    // 委任者アドレスのデコード
+    const { prefix, data } = fromBech32(delegatorAddress);
+    // バリデータオペレーターアドレスのエンコード
+    const valoperPrefix = chain.addressPrefix+'valoper';
+    const valoperAddress = toBech32(valoperPrefix, data);
+    const validatorPubkeyBase64 = Buffer.from("validatorPubkey").toString('base64');
+    const valConsAddress = toBech32(chain.addressPrefix+"valcons", Buffer.from(validatorPubkeyBase64, 'base64'));
+    console.log("valConsAddress", valConsAddress);
+
+    // Import validator Public Key from imputed validatorPubkey
+    const pubkey = fromBase64(validatorPubkey);
+
+    const msgValue = MsgCodecs[MsgTypeUrls.CreateValidator].fromJSON({
+      description: {
+        moniker,
+        website,
+        securityContact,
+        details,
       },
-      value: microCoin,
       commission: {
         rate: commissionRate,
         maxRate: commissionMax,
         maxChangeRate: commissionMaxChangeRate,
-      },
+      }, 
       minSelfDelegation,
-      description: {
-        moniker,
-        details,
-        website,
-        securityContact,
+      delegatorAddress,
+      // pubkey's typeUrl is "/cosmos.crypto.ed25519.PubKey". validatorPubkey is protobuf public key, it should be encoded to base64 string.
+      pubkey: {
+        typeUrl: "/cosmos.crypto.ed25519.PubKey",
+        value: validatorPubkeyBase64,
       },
+      // Generally, the validator address is the bech32 address of the pubkey. Generate validator address from pubkey.
+      validatorAddress: valoperAddress,
+      value: microCoin,
     });
 
-    const msg: MsgCreateValidatorEncodeObject  = { typeUrl: MsgTypeUrls.Validator, value: msgValue };
+    const msg: MsgCreateValidatorEncodeObject  = { typeUrl: MsgTypeUrls.CreateValidator, value: msgValue };
 
     setMsgGetter({ isMsgValid, msg });
   }, [
@@ -167,7 +176,6 @@ const MsgCreateValidatorForm = ({
     delegatorAddress,
     setMsgGetter,
     trimmedInputs,
-    validatorAddress, // Add 'validatorAddress' as a dependency
   ]);
 
   return (
@@ -178,19 +186,6 @@ const MsgCreateValidatorForm = ({
       <h2>MsgCreateValidator</h2>
       <div className="form-item">
         <Input
-          label="Validator Address"
-          name="validator-address"
-          value={validatorAddress}
-          onChange={({ target }) => {
-            setValidatorAddress(target.value);
-            setValidatorAddressError("");
-          }}
-          error={validatorAddressError}
-          placeholder={`E.g. ${exampleValidatorAddress(0, chain.addressPrefix)}`}
-        />
-      </div>
-      <div className="form-item">
-        <Input
           label="Validator Pubkey"
           name="validator-pubkey"
           value={validatorPubkey}
@@ -199,7 +194,7 @@ const MsgCreateValidatorForm = ({
             setValidatorPubkeyError("");
           }}
           error={validatorPubkeyError}
-          placeholder={`E.g. ${exampleValidatorAddress(0, chain.addressPrefix)}`}
+          placeholder={`Output from gaiad tendermint show-validator, E.g. wgXXXXX50XvGGwCY3gjdXE=`}
         />
       </div>
       <div className="form-item">
@@ -220,9 +215,9 @@ const MsgCreateValidatorForm = ({
           type="number"
           label={`Commission Rate`}
           name="commission-rate"
-          value={commissionRate}
+          value={parseFloat(commissionRate)/10**18}
           onChange={({ target }) => {
-            setCommissionRate(target.value);
+            setCommissionRate((parseFloat(target.value)*10**18).toString());
             setCommissionRateError("");
           }}
           error={commissionRateError}
@@ -233,9 +228,9 @@ const MsgCreateValidatorForm = ({
           type="number"
           label={`Commission Max`}
           name="commission-max"
-          value={commissionMax}
+          value={parseFloat(commissionMax)/10**18}
           onChange={({ target }) => {
-            setCommissionMax(target.value);
+            setCommissionMax((parseFloat(target.value)*10**18).toString());
             setCommissionMaxError("");
           }}
           error={commissionMaxError}
@@ -246,9 +241,9 @@ const MsgCreateValidatorForm = ({
           type="number"
           label={`Commission Max Change Rate`}
           name="commission-max-change-rate"
-          value={commissionMaxChangeRate}
+          value={parseFloat(commissionMaxChangeRate)/10**18}
           onChange={({ target }) => {
-            setCommissionMaxChangeRate(target.value);
+            setCommissionMaxChangeRate((parseFloat(target.value)*10**18).toString());
             setCommissionMaxChangeRateError("");
           }}
           error={commissionMaxChangeRateError}
