@@ -1,4 +1,3 @@
-import { assert } from "@cosmjs/utils";
 import { MsgUnjail } from "cosmjs-types/cosmos/slashing/v1beta1/tx";
 
 interface TxMsgUnjailDetailsProps {

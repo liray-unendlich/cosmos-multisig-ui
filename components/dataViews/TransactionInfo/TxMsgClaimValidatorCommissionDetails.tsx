@@ -1,4 +1,3 @@
-import { assert } from "@cosmjs/utils";
 import { MsgWithdrawValidatorCommission } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 
 interface TxMsgUnjailDetailsProps {

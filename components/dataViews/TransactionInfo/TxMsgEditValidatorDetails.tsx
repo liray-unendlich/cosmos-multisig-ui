@@ -1,4 +1,3 @@
-import { assert } from "@cosmjs/utils";
 import { MsgEditValidator } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 
 interface TxMsgEditValidatorDetailsProps {
