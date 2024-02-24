@@ -6,10 +6,6 @@ interface TxMsgUnjailDetailsProps {
 }
 
 const TxMsgUnjail = ({ msgValue }: TxMsgUnjailDetailsProps) => {
-  assert(
-    msgValue.validatorAddress,
-    "Proposal ID must be set, see https://github.com/osmosis-labs/telescope/issues/386",
-  );
   return (
     <>
       <li>
