@@ -182,6 +182,35 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           </ul>
         </div>
         <div className="btn-cluster">
+          <label>Validator</label>
+          <ul>
+          <li>
+              <Button
+                label="CreateValidator"
+                onClick={() => addMsgType(MsgTypeUrls.CreateValidator)}
+              />
+            </li>
+            <li>
+              <Button
+                label="EditValidator"
+                onClick={() => addMsgType(MsgTypeUrls.EditValidator)}
+              />
+            </li>
+            <li>
+              <Button
+                label="Unjail"
+                onClick={() => addMsgType(MsgTypeUrls.Unjail)}
+              />
+            </li>
+            <li>
+              <Button
+                label="WithdrawValidatorCommission"
+                onClick={() => addMsgType(MsgTypeUrls.WithdrawValidatorCommission)}
+              />
+            </li>
+          </ul>
+        </div>
+        <div className="btn-cluster">
           <label>Vesting</label>
           <ul>
             <li>
@@ -195,12 +224,6 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
         <div className="btn-cluster">
           <label>Staking</label>
           <ul>
-            <li>
-              <Button
-                label="CreateValidator"
-                onClick={() => addMsgType(MsgTypeUrls.Validator)}
-              />
-            </li>
             <li>
               <Button label="Delegate" onClick={() => addMsgType(MsgTypeUrls.Delegate)} />
             </li>

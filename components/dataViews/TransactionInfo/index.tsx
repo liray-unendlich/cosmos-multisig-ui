@@ -17,6 +17,9 @@ import TxMsgSetWithdrawAddressDetails from "./TxMsgSetWithdrawAddressDetails";
 import TxMsgTransferDetails from "./TxMsgTransferDetails";
 import TxMsgUndelegateDetails from "./TxMsgUndelegateDetails";
 import TxMsgVoteDetails from "./TxMsgVoteDetails";
+import TxMsgEditValidatorDetails from "./TxMsgEditValidatorDetails"
+import TxMsgUnjailDetails from "./TxMsgUnjailDetails";
+import TxMsgClaimValidatorCommissionDetails from "./TxMsgClaimValidatorCommissionDetails";
 
 const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
   switch (typeUrl) {
@@ -24,6 +27,12 @@ const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
       return <TxMsgSendDetails msgValue={msgValue} />;
     case MsgTypeUrls.Vote:
       return <TxMsgVoteDetails msgValue={msgValue} />;
+    case MsgTypeUrls.EditValidator:
+      return <TxMsgEditValidatorDetails msgValue={msgValue} />;
+    case MsgTypeUrls.Unjail:
+      return <TxMsgUnjailDetails msgValue={msgValue} />;
+    case MsgTypeUrls.WithdrawValidatorCommission:
+      return <TxMsgClaimValidatorCommissionDetails msgValue={msgValue} />;
     case MsgTypeUrls.Delegate:
       return <TxMsgDelegateDetails msgValue={msgValue} />;
     case MsgTypeUrls.Undelegate:

@@ -8,11 +8,17 @@ const gasOfMsg = (msgType: MsgTypeUrl): number => {
       return 100_000;
     case MsgTypeUrls.Vote:
       return 100_000;
-    case MsgTypeUrls.Validator:
+    case MsgTypeUrls.CreateValidator:
+      return 500_000;
+    case MsgTypeUrls.EditValidator:
+      return 400_000;
+    case MsgTypeUrls.Unjail:
       return 400_000;
     case MsgTypeUrls.SetWithdrawAddress:
       return 100_000;
     case MsgTypeUrls.WithdrawDelegatorReward:
+      return 100_000;
+    case MsgTypeUrls.WithdrawValidatorCommission:
       return 100_000;
     case MsgTypeUrls.BeginRedelegate:
       return 400_000;
