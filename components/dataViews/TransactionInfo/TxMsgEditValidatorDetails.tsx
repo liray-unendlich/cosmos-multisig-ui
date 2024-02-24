@@ -6,11 +6,6 @@ interface TxMsgEditValidatorDetailsProps {
 }
 
 const TxMsgEditValidatorDetails = ({ msgValue }: TxMsgEditValidatorDetailsProps) => {
-  assert(
-    msgValue.validatorAddress,
-    "Validator Address must be set, see https://github.com/osmosis-labs/telescope/issues/386",
-  );
-  console.log(msgValue);
   return (
     <>
       <li>

@@ -34,7 +34,7 @@ const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
     case MsgTypeUrls.CreateValidator:
       return <MsgCreateValidatorForm delegatorAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.EditValidator:
-      return <MsgEditValidatorForm {...restProps} />;
+      return <MsgEditValidatorForm delegatorAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Unjail:
       return <MsgUnjailForm delegatorAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.WithdrawValidatorCommission:

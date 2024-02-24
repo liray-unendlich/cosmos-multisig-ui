@@ -2,30 +2,31 @@ import { MsgEditValidatorEncodeObject } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
-import { exampleValidatorAddress, trimStringsObj } from "../../../../lib/displayHelpers";
+import { trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
+import { toBech32, fromBech32} from "@cosmjs/encoding";
 
 interface MsgEditValidatorFormProps {
+  readonly delegatorAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
 const MsgEditValidatorForm = ({
+  delegatorAddress,
   setMsgGetter,
   deleteMsg,
 }: MsgEditValidatorFormProps) => {
   const { chain } = useChains();
 
-  const [validatorAddress, setValidatorAddress] = useState("");
   const [commissionRate, setCommissionRate] = useState("");
   const [moniker, setMoniker] = useState("");
   const [details, setDetails] = useState("");
   const [website, setWebsite] = useState("");
   const [securityContact, setSecurityContact] = useState("");
 
-  const [validatorAddressError, setValidatorAddressError] = useState("");
   const [commissionRateError, setCommissionRateError] = useState("");
   const [monikerError, setMonikerError] = useState("");
   const [detailsError, setDetailsError] = useState("");
@@ -33,21 +34,19 @@ const MsgEditValidatorForm = ({
   const [securityContactError, setSecurityContactError] = useState("");
 
   const trimmedInputs = trimStringsObj({ commissionRate, moniker, details, website, securityContact });
+  
+  const { data } = fromBech32(delegatorAddress);
+  const valoperPrefix = chain.addressPrefix+'valoper';
+  const valoperAddress = toBech32(valoperPrefix, data);
 
   useEffect(() => {
     // eslint-disable-next-line no-shadow
     const { commissionRate, moniker, details, website, securityContact } = trimmedInputs;
 
     const isMsgValid = (): boolean => {
-      setValidatorAddressError("");
       setCommissionRateError("");
       setMonikerError("");
 
-      // validatorAddress validation it should be a valid bech32 address
-      if (!validatorAddress || !validatorAddress.startsWith(chain.addressPrefix+"valoper")) {
-        setValidatorAddressError("Validator Address must be a valid bech32 operator address");
-        return false;
-      }
       // commissionRate validation it should be greater than 0 and less than 1 and less than commissionMax
       if (Number(commissionRate) < 0 || Number(commissionRate) > 1 * 10**18) {
         setCommissionRateError("Commission Rate must be greater than 0 and less than 1 and less than Commission Max");
@@ -77,7 +76,7 @@ const MsgEditValidatorForm = ({
         details,
       },
       commissionRate: commissionRate || undefined,
-      validatorAddress,
+      validatorAddress: valoperAddress,
     });
     console.log("msgValue", msgValue);
     console.log(chain);
@@ -90,7 +89,7 @@ const MsgEditValidatorForm = ({
     chain.assets,
     chain.chainId,
     chain.displayDenom,
-    validatorAddress,
+    valoperAddress,
     setMsgGetter,
     trimmedInputs,
   ]);
@@ -102,17 +101,7 @@ const MsgEditValidatorForm = ({
       </button>
       <h2>MsgEditValidator</h2>
       <div className="form-item">
-        <Input
-          label="Validator Operator Address"
-          name="validator-pubkey"
-          value={validatorAddress}
-          onChange={({ target }) => {
-            setValidatorAddress(target.value);
-            setValidatorAddressError("");
-          }}
-          error={validatorAddressError}
-          placeholder={`E.g. ${exampleValidatorAddress(0, chain.addressPrefix)}`}
-        />
+        validatorAddress: {valoperAddress}
       </div>
       <div className="form-item">
         <Input
