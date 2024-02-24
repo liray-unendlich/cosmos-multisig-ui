@@ -8,7 +8,9 @@ import {
   AminoTypes,
   SigningStargateClient,
   createDefaultAminoConverters,
+  createStakingAminoConverters,
   defaultRegistryTypes,
+  AminoMsgUnjail,
 } from "@cosmjs/stargate";
 import { assert } from "@cosmjs/utils";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
@@ -20,6 +22,7 @@ import { DbSignature, DbTransaction, WalletAccount } from "../../types";
 import HashView from "../dataViews/HashView";
 import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
+import { MsgUnjail } from "cosmjs-types/cosmos/slashing/v1beta1/tx";
 
 interface TransactionSigningProps {
   readonly signatures: DbSignature[];
@@ -147,6 +150,20 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         aminoTypes: new AminoTypes({
           ...createDefaultAminoConverters(),
           ...createWasmAminoConverters(),
+          ...createStakingAminoConverters(),
+          "/cosmos.slashing.v1beta1.MsgUnjail": {
+            aminoType: "cosmos-sdk/MsgUnjail", 
+            toAmino: ({validatorAddr}: MsgUnjail): AminoMsgUnjail["value"] => {
+              return {
+                validator_addr: validatorAddr,
+              };
+            },
+            fromAmino: ({
+              validator_addr,
+            }: AminoMsgUnjail["value"]): MsgUnjail => ({
+              validatorAddr: validator_addr,
+            }),
+          },
         }),
       });
 
@@ -155,7 +172,6 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         sequence: props.tx.sequence,
         chainId: chain.chainId,
       };
-
       const { bodyBytes, signatures } = await signingClient.sign(
         signerAddress,
         props.tx.msgs,
