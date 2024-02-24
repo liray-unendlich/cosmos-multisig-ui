@@ -6,10 +6,6 @@ interface TxMsgUnjailDetailsProps {
 }
 
 const TxMsgUnjail = ({ msgValue }: TxMsgUnjailDetailsProps) => {
-  assert(
-    msgValue.validatorAddr,
-    "Validator Address must be set",
-  );
   return (
     <>
       <li>

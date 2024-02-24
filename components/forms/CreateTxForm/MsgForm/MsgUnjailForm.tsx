@@ -21,8 +21,6 @@ const MsgUnjailForm = ({
 }: MsgUnjailFormProps) => {
   const { chain } = useChains();
 
-  const [validatorAddress, setValidatorAddress] = useState("");
-  const [validatorAddressError, setValidatorAddressError] = useState("");
   // 委任者アドレスのデコード
   const { data } = fromBech32(delegatorAddress);
   // バリデータオペレーターアドレスのエンコード
@@ -33,17 +31,11 @@ const MsgUnjailForm = ({
   useEffect(() => {
     // eslint-disable-next-line no-shadow
     const isMsgValid = (): boolean => {
-      setValidatorAddressError("");
-      // validatorAddress validation it should be a valid bech32 address
-      if (!validatorAddress || !validatorAddress.startsWith(chain.addressPrefix+"valoper")) {
-        setValidatorAddressError("Validator Address must be a valid bech32 operator address");
-        return false;
-      }
       return true;
     };
 
     const msgValue = MsgCodecs[MsgTypeUrls.Unjail].fromPartial({
-      validatorAddr: validatorAddress,
+      validatorAddr: valoperAddress,
     });
 
     const msg: EncodeObject = { typeUrl: MsgTypeUrls.Unjail, value: msgValue };
@@ -51,7 +43,7 @@ const MsgUnjailForm = ({
     setMsgGetter({ isMsgValid, msg });
   }, [
     chain.addressPrefix,
-    validatorAddress,
+    valoperAddress,
     setMsgGetter,
   ]);
 
@@ -62,17 +54,7 @@ const MsgUnjailForm = ({
       </button>
       <h2>MsgUnjail</h2>
       <div className="form-item">
-        <Input
-          label="Validator Operator Address"
-          name="validator-pubkey"
-          value={validatorAddress}
-          onChange={({ target }) => {
-            setValidatorAddress(target.value);
-            setValidatorAddressError("");
-          }}
-          error={validatorAddressError}
-          placeholder={`E.g. ${exampleValidatorAddress(0, chain.addressPrefix)}`}
-        />
+        validatorAddress: {valoperAddress}
       </div>
       <style jsx>{`
         .form-item {
