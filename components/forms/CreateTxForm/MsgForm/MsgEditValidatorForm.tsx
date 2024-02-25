@@ -26,14 +26,16 @@ const MsgEditValidatorForm = ({
   const [details, setDetails] = useState("");
   const [website, setWebsite] = useState("");
   const [securityContact, setSecurityContact] = useState("");
+  const [identity, setIdentity] = useState("");
 
   const [commissionRateError, setCommissionRateError] = useState("");
   const [monikerError, setMonikerError] = useState("");
   const [detailsError, setDetailsError] = useState("");
   const [websiteError, setWebsiteError] = useState("");
   const [securityContactError, setSecurityContactError] = useState("");
+  const [identityError, setIdentityError] = useState("");
 
-  const trimmedInputs = trimStringsObj({ commissionRate, moniker, details, website, securityContact });
+  const trimmedInputs = trimStringsObj({ moniker, identity, commissionRate, details, website, securityContact });
   
   const { data } = fromBech32(delegatorAddress);
   const valoperPrefix = chain.addressPrefix+'valoper';
@@ -41,7 +43,7 @@ const MsgEditValidatorForm = ({
 
   useEffect(() => {
     // eslint-disable-next-line no-shadow
-    const { commissionRate, moniker, details, website, securityContact } = trimmedInputs;
+    const { moniker, identity, commissionRate, details, website, securityContact } = trimmedInputs;
 
     const isMsgValid = (): boolean => {
       setCommissionRateError("");
@@ -71,6 +73,7 @@ const MsgEditValidatorForm = ({
     const msgValue = MsgCodecs[MsgTypeUrls.EditValidator].fromPartial({
       description: {
         moniker,
+        identity,
         website,
         securityContact,
         details,
@@ -78,8 +81,6 @@ const MsgEditValidatorForm = ({
       commissionRate: commissionRate || undefined,
       validatorAddress: valoperAddress,
     });
-    console.log("msgValue", msgValue);
-    console.log(chain);
     const msg: MsgEditValidatorEncodeObject  = { typeUrl: MsgTypeUrls.EditValidator, value: msgValue };
 
     setMsgGetter({ isMsgValid, msg });
@@ -105,18 +106,6 @@ const MsgEditValidatorForm = ({
       </div>
       <div className="form-item">
         <Input
-          type="number"
-          label={`Commission Rate`}
-          name="commission-rate"
-          onChange={({ target }) => {
-            setCommissionRate((parseFloat(target.value)*10**18).toString());
-            setCommissionRateError("");
-          }}
-          error={commissionRateError}
-        />
-      </div>
-      <div className="form-item">
-        <Input
           label="Moniker"
           name="moniker"
           value={moniker}
@@ -125,6 +114,30 @@ const MsgEditValidatorForm = ({
             setMonikerError("");
           }}
           error={monikerError}
+        />
+      </div>
+      <div className="form-item">
+        <Input
+          label="Identity"
+          name="identity"
+          value={identity}
+          onChange={({ target }) => {
+            setIdentity(target.value);
+            setIdentityError("");
+          }}
+          error={identityError}
+        />
+      </div>
+      <div className="form-item">
+        <Input
+          label="Commission Rate"
+          name="commissionRate"
+          value={commissionRate}
+          onChange={({ target }) => {
+            setCommissionRate(target.value);
+            setCommissionRateError("");
+          }}
+          error={commissionRateError}
         />
       </div>
       <div className="form-item">

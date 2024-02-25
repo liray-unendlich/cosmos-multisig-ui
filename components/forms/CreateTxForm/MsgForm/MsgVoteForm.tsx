@@ -2,6 +2,7 @@ import { MsgVoteEncodeObject } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
+import { useChains } from "../../../../context/ChainsContext";
 import Input from "../../../inputs/Input";
 import Select from "../../../inputs/Select";
 import StackableContainer from "../../../layout/StackableContainer";
@@ -25,6 +26,7 @@ const MsgVoteForm = ({
   setMsgGetter,
   deleteMsg,
 }: MsgVoteFormProps) => {
+  const { chain } = useChains();
   const [proposalId, setProposalId] = useState("");
   // set option for vote
   const [option, setOption] = useState<VoteOption>();
@@ -56,9 +58,9 @@ const MsgVoteForm = ({
       proposalId: BigInt(proposalId),
       option: option,
     });
-    console.log("msgValue", msgValue);
 
     const msg: MsgVoteEncodeObject = { typeUrl: MsgTypeUrls.Vote, value: msgValue };
+    console.log(chain);
 
     setMsgGetter({ isMsgValid, msg });
   }, [voteAddress, proposalId, option, setMsgGetter]);

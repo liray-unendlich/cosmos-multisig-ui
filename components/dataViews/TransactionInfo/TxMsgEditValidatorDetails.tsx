@@ -16,7 +16,7 @@ const TxMsgEditValidatorDetails = ({ msgValue }: TxMsgEditValidatorDetailsProps)
       </li>
       <li>
         <label>Description Changed:</label>
-        <div>{(msgValue.description.moniker ? "moniker: "+String(msgValue.description.moniker) : "")+(msgValue.description.details ? "details: "+String(msgValue.description.details) : "")+(msgValue.description.identity ? "identity: "+String(msgValue.description.identity) : "")+(msgValue.description.website ? "website: "+String(msgValue.description.website) : "")+(msgValue.description.securityContact ? "securityContact: "+String(msgValue.description.securityContact) : "")}</div>
+        <div>{(msgValue.description.moniker ? "moniker: "+String(msgValue.description.moniker) : "")+(msgValue.description.identity ? "identity: "+String(msgValue.description.identity) : "")+(msgValue.description.details ? "details: "+String(msgValue.description.details) : "")+(msgValue.description.website ? "website: "+String(msgValue.description.website) : "")+(msgValue.description.securityContact ? "securityContact: "+String(msgValue.description.securityContact) : "")}</div>
       </li>
       <li>
         <label>Commission Rate Changed:</label>

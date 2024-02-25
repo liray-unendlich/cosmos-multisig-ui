@@ -1,10 +1,8 @@
 import { EncodeObject } from "@cosmjs/proto-signing";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
-import { exampleValidatorAddress } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
-import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 import { toBech32, fromBech32} from "@cosmjs/encoding";
 
