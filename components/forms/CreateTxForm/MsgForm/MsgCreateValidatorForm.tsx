@@ -9,6 +9,7 @@ import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
 import { toBech32, fromBase64, fromBech32} from "@cosmjs/encoding";
 
+
 interface MsgCreateValidatorFormProps {
   readonly delegatorAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
