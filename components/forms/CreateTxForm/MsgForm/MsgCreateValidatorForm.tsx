@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
 import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
-import { exampleValidatorAddress, trimStringsObj } from "../../../../lib/displayHelpers";
+import { trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
 import StackableContainer from "../../../layout/StackableContainer";
@@ -130,7 +130,7 @@ const MsgCreateValidatorForm = ({
     })();
 
     // 委任者アドレスのデコード
-    const { prefix, data } = fromBech32(delegatorAddress);
+    const { data } = fromBech32(delegatorAddress);
     // バリデータオペレーターアドレスのエンコード
     const valoperPrefix = chain.addressPrefix+'valoper';
     const valoperAddress = toBech32(valoperPrefix, data);
