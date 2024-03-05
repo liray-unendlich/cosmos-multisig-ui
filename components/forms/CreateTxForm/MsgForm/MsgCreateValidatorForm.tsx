@@ -2,7 +2,7 @@ import { MsgCreateValidatorEncodeObject } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
-import { macroCoinToMicroCoin } from "../../../../lib/coinHelpers";
+import { displayCoinToBaseCoin } from "../../../../lib/coinHelpers";
 import { trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
 import Input from "../../../inputs/Input";
@@ -124,7 +124,7 @@ const MsgCreateValidatorForm = ({
 
     const microCoin = (() => {
       try {
-        return macroCoinToMicroCoin({ denom: chain.displayDenom, amount }, chain.assets);
+        return displayCoinToBaseCoin({ denom: chain.displayDenom, amount }, chain.assets);
       } catch {
         return { denom: chain.displayDenom, amount: "0" };
       }
