@@ -5,6 +5,7 @@ import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useChains } from "../context/ChainsContext";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export default function MultiPage() {
   const router = useRouter();
@@ -39,6 +40,7 @@ export default function MultiPage() {
           </div>
         </div>
       </StackableContainer>
+      <SpeedInsights/>
     </Page>
   );
 }
