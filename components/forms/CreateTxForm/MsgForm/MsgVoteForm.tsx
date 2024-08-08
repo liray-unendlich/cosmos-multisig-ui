@@ -55,7 +55,7 @@ const MsgVoteForm = ({
 
     const msgValue = MsgCodecs[MsgTypeUrls.Vote].fromPartial({
       voter: voteAddress,
-      proposalId: BigInt(proposalId),
+      proposalId: proposalId.toString(),
       option: option,
     });
 
