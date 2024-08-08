@@ -155,26 +155,14 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       const signerAddress = walletAccount?.bech32Address;
       assert(signerAddress, "Missing signer address");
       const signingClient = await SigningStargateClient.offline(offlineSigner, {
-        registry: new Registry([...defaultRegistryTypes]),
+        registry: new Registry([...defaultRegistryTypes, ["/cosmos.slashing.v1beta1.MsgUnjail", MsgUnjail]]),
         aminoTypes: new AminoTypes({
-//          ...createDefaultAminoConverters(),
           ...createWasmAminoConverters(),
           ...createSdkStakingAminoConverters("cosmos"),
           ...createBankAminoConverters(),
-          "/cosmos.slashing.v1beta1.MsgUnjail": {
-            aminoType: "cosmos-sdk/MsgUnjail",
-            toAmino: ({validatorAddr}: MsgUnjail): AminoMsgUnjail["value"] => {
-              return {
-                validator_addr: validatorAddr,
-              };
-            },
-            fromAmino: ({
-              validator_addr,
-            }: AminoMsgUnjail["value"]): MsgUnjail => ({
-              validatorAddr: validator_addr,
-            }),
-          },
-
+          ...createGovAminoConverters(),
+          ...createAuthzAminoConverters(),
+          ...createSlashingAminoConverters(),
         }),
       });
 

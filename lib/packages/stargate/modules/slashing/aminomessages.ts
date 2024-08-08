@@ -3,6 +3,10 @@ import { AminoMsg } from "@/lib/packages/amino";
 
 import { AminoConverters } from "../../aminotypes";
 
+import {
+  MsgUnjail,
+} from "cosmjs-types/cosmos/slashing/v1beta1/tx";
+
 // See https://github.com/cosmos/cosmos-sdk/blob/v0.45.1/proto/cosmos/slashing/v1beta1/tx.proto
 
 /** Unjails a jailed validator */
@@ -19,5 +23,19 @@ export function isAminoMsgUnjail(msg: AminoMsg): msg is AminoMsgUnjail {
 }
 
 export function createSlashingAminoConverters(): AminoConverters {
-  throw new Error("Not implemented");
+  return {
+    "/cosmos.slashing.v1beta1.MsgUnjail": {
+      aminoType: "cosmos-sdk/MsgUnjail",
+      toAmino: ({validatorAddr}: MsgUnjail): AminoMsgUnjail["value"] => {
+        return {
+          validator_addr: validatorAddr,
+        };
+      },
+      fromAmino: ({ validator_addr }: AminoMsgUnjail["value"]): MsgUnjail => {
+        return {
+          validatorAddr: validator_addr,
+        };
+      },
+    }
+  }
 }

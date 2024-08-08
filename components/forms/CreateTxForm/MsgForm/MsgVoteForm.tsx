@@ -48,20 +48,27 @@ const MsgVoteForm = ({
         setProposalIdError("Proposal ID must be a valid integer");
         return false;
       }
+      // Validate option
+      if (option === undefined) {
+        setOptionError("You must select a vote option");
+        return false;
+      }
 
       return true;
     };
 
+    var msgValue;
 
-    const msgValue = MsgCodecs[MsgTypeUrls.Vote].fromPartial({
-      voter: voteAddress,
-      proposalId: proposalId.toString(),
-      option: option,
-    });
+    if (voteAddress && proposalId && option !== undefined) {
+      msgValue = MsgCodecs[MsgTypeUrls.Vote].fromPartial({
+        voter: voteAddress,
+        proposalId: proposalId,
+        option: option,
+      });
 
+    }
     const msg: MsgVoteEncodeObject = { typeUrl: MsgTypeUrls.Vote, value: msgValue };
     console.log(chain);
-
     setMsgGetter({ isMsgValid, msg });
   }, [voteAddress, proposalId, option, setMsgGetter]);
 
