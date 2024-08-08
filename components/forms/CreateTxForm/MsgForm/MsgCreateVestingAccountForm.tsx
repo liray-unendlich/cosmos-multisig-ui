@@ -1,4 +1,4 @@
-import { EncodeObject } from "@cosmjs/proto-signing";
+import { EncodeObject } from "@/lib/packages/proto-signing";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
@@ -89,8 +89,8 @@ const MsgCreateVestingAccountForm = ({
     const msgValue = MsgCodecs[MsgTypeUrls.CreateVestingAccount].fromPartial({
       fromAddress,
       toAddress,
-      amount: microCoin ? [microCoin] : [],
-      endTime: timestampFromDatetimeLocal(endTime, "s"),
+      amount: [microCoin],
+      endTime: timestampFromDatetimeLocal(endTime, "s") as unknown as number,
       delayed,
     });
 

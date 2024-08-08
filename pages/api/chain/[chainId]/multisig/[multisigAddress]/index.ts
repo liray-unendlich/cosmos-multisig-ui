@@ -1,20 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getMultisig } from "../../../../../../lib/graphqlHelpers";
+import { createMultisig } from "../../../../../../lib/graphqlHelpers";
 
-export default async function multisigAddressApi(req: NextApiRequest, res: NextApiResponse) {
+export default async function multisigApi(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {
-    case "GET":
+    case "POST":
       try {
-        const multisigAddress = req.query.multisigAddress?.toString() || "";
-        const chainId = req.query.chainId?.toString() || "";
-        console.log("Function `getMultisig` invoked", multisigAddress, chainId);
-        const multisig = await getMultisig(multisigAddress, chainId);
-        if (!multisig) {
-          res.status(404).send("Multisig not found");
-          return;
-        }
-        console.log("success", multisig);
-        res.status(200).send(multisig);
+        const data = req.body;
+        console.log("Function `createMultisig` invoked", data);
+        const saveRes = await createMultisig(data);
+        console.log("success", saveRes);
+        res.status(200).send(saveRes.data.addMultisig.multisig[0]);
         return;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {

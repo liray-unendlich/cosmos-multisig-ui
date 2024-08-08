@@ -1,18 +1,25 @@
 import { LoadingStates, SigningStatus } from "@/types/signing";
-import { MultisigThresholdPubkey, makeCosmoshubPath } from "@cosmjs/amino";
-import { createWasmAminoConverters, wasmTypes } from "@cosmjs/cosmwasm-stargate";
-import { toBase64 } from "@cosmjs/encoding";
-import { LedgerSigner } from "@cosmjs/ledger-amino";
-import { Registry } from "@cosmjs/proto-signing";
+import { MultisigThresholdPubkey, makeCosmoshubPath } from "@/lib/packages/amino";
+import { toBase64 } from "@/lib/packages/encoding";
+import { LedgerSigner } from "@/lib/packages/ledger-amino";
+import { Registry } from "@/lib/packages/proto-signing";
 import {
   AminoTypes,
   SigningStargateClient,
-  createDefaultAminoConverters,
-  createStakingAminoConverters,
+  createSdkStakingAminoConverters,
+  createBankAminoConverters,
+  createAuthzAminoConverters,
+  createDistributionAminoConverters,
+  createGovAminoConverters,
+  createSlashingAminoConverters,
   defaultRegistryTypes,
   AminoMsgUnjail,
-} from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
+} from "@/lib/packages/stargate";
+//import { createDefaultAminoConverters } from "@cosmjs/stargate";
+import {
+  createWasmAminoConverters,
+} from "@/lib/packages/cosmwasm-stargate";
+import { assert } from "@/lib/packages/utils";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { useCallback, useLayoutEffect, useState } from "react";
 import { useChains } from "../../context/ChainsContext";
@@ -56,6 +63,8 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       setWalletAccount(tempWalletAccount);
 
       const pubkey = toBase64(tempWalletAccount.pubKey);
+      // console.log("connectKeplr # 1", JSON.stringify({ tempWalletAccount, pubkey }, null, 2));
+
       const isMember = memberPubkeys.includes(pubkey);
       const hasSigned = isMember
         ? props.signatures.some((sig) => sig.address === tempWalletAccount.bech32Address)
@@ -139,31 +148,21 @@ const TransactionSigning = (props: TransactionSigningProps) => {
   const signTransaction = async () => {
     try {
       setLoading((newLoading) => ({ ...newLoading, signing: true }));
-
+      // debugger;
       const offlineSigner =
         walletType === "Keplr" ? window.getOfflineSignerOnlyAmino(chain.chainId) : ledgerSigner;
 
       const signerAddress = walletAccount?.bech32Address;
       assert(signerAddress, "Missing signer address");
       const signingClient = await SigningStargateClient.offline(offlineSigner, {
-        registry: new Registry([...defaultRegistryTypes, ...wasmTypes]),
+        registry: new Registry([...defaultRegistryTypes, ["/cosmos.slashing.v1beta1.MsgUnjail", MsgUnjail]]),
         aminoTypes: new AminoTypes({
-          ...createDefaultAminoConverters(),
           ...createWasmAminoConverters(),
-          ...createStakingAminoConverters(),
-          "/cosmos.slashing.v1beta1.MsgUnjail": {
-            aminoType: "cosmos-sdk/MsgUnjail", 
-            toAmino: ({validatorAddr}: MsgUnjail): AminoMsgUnjail["value"] => {
-              return {
-                validator_addr: validatorAddr,
-              };
-            },
-            fromAmino: ({
-              validator_addr,
-            }: AminoMsgUnjail["value"]): MsgUnjail => ({
-              validatorAddr: validator_addr,
-            }),
-          },
+          ...createSdkStakingAminoConverters("cosmos"),
+          ...createBankAminoConverters(),
+          ...createGovAminoConverters(),
+          ...createAuthzAminoConverters(),
+          ...createSlashingAminoConverters(),
         }),
       });
 

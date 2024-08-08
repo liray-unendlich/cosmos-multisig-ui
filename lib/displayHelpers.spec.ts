@@ -1,4 +1,4 @@
-import { Coin } from "@cosmjs/stargate";
+import { Coin } from "@/lib/packages/stargate";
 import { ChainInfo } from "../context/ChainsContext/types";
 import { printableCoin, printableCoins, thinSpace, trimStringsObj } from "./displayHelpers";
 

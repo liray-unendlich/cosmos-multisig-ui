@@ -1,6 +1,6 @@
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
-import { MultisigThresholdPubkey, SinglePubkey } from "@cosmjs/amino";
-import { Account, StargateClient } from "@cosmjs/stargate";
+import { MultisigThresholdPubkey, SinglePubkey } from "@/lib/packages/amino";
+import { Account, StargateClient } from "@/lib/packages/stargate";
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -45,6 +45,7 @@ const Multipage = () => {
         setHoldings(tempHoldings);
 
         const result = await getMultisigAccount(multisigAddress, chain.addressPrefix, client);
+        // console.log("getMultisigAccount", JSON.stringify({ result }, null, 2));
         setPubkey(result[0]);
         setAccountOnChain(result[1]);
         setHasAccountError(false);

@@ -1,5 +1,5 @@
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
-import { Account, StargateClient } from "@cosmjs/stargate";
+import { Account, StargateClient } from "@/lib/packages/stargate";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import CreateTxForm from "../../../../components/forms/CreateTxForm";

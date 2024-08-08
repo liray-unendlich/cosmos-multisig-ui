@@ -1,4 +1,4 @@
-import { StargateClient } from "@cosmjs/stargate";
+import { StargateClient } from "@/lib/packages/stargate";
 import { NextRouter, withRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useChains } from "../../context/ChainsContext";
@@ -30,6 +30,7 @@ const FindMultisigForm = (props: Props) => {
 
       try {
         const client = await StargateClient.connect(chain.nodeAddress);
+        // console.log({ address });
         await getMultisigAccount(address, chain.addressPrefix, client);
         setMultisigError("");
       } catch (error) {

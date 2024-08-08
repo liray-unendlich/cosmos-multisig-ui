@@ -1,7 +1,7 @@
 import { LoadingStates, WalletInfo, WalletType } from "@/types/signing";
-import { makeCosmoshubPath } from "@cosmjs/amino";
-import { toBase64 } from "@cosmjs/encoding";
-import { LedgerSigner } from "@cosmjs/ledger-amino";
+import { makeCosmoshubPath } from "@/lib/packages/amino";
+import { toBase64 } from "@/lib/packages/encoding";
+import { LedgerSigner } from "@/lib/packages/ledger-amino";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";

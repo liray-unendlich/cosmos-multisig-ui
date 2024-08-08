@@ -1,12 +1,12 @@
+import { checkAddress } from "./displayHelpers";
 import {
+  MultisigThresholdPubkey,
   createMultisigThresholdPubkey,
   isMultisigThresholdPubkey,
-  MultisigThresholdPubkey,
   pubkeyToAddress,
-} from "@cosmjs/amino";
-import { Account, StargateClient } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
-import { checkAddress } from "./displayHelpers";
+} from "./packages/amino";
+import { Account, StargateClient } from "./packages/stargate";
+import { assert } from "./packages/utils";
 import { requestJson } from "./request";
 
 interface CreateMultisigAccountResponse {
@@ -29,26 +29,58 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   addressPrefix: string,
   chainId: string,
 ): Promise<string> => {
+  // console.log(
+  //   "=== createMultisigFromCompressedSecp256k1Pubkeys",
+  //   JSON.stringify(
+  //     {
+  //       compressedPubkeys,
+  //       threshold,
+  //       addressPrefix,
+  //       chainId,
+  //     },
+  //     null,
+  //     2,
+  //   ),
+  // );
   const pubkeys = compressedPubkeys.map((compressedPubkey) => {
     return {
-      type: "tendermint/PubKeySecp256k1",
+      type: "/ethermint.crypto.v1.ethsecp256k1.PubKey",
+      // type: "/cosmos.crypto.secp256k1.PubKey",
+      // type: "tendermint/PubKeySecp256k1",
       value: compressedPubkey,
     };
   });
   const multisigPubkey = createMultisigThresholdPubkey(pubkeys, threshold);
+  // debugger;
   const multisigAddress = pubkeyToAddress(multisigPubkey, addressPrefix);
-
-  // save multisig to relational offchain database
+  // const multisigAddress = "haqq1jk7n65xev9ye7wljw95uhu2ghf4sgxf354s6p9";
+  // console.log(
+  //   "=== createMultisigFromCompressedSecp256k1Pubkeys2",
+  //   JSON.stringify(
+  //     {
+  //       pubkeys,
+  //       multisigPubkey,
+  //       multisigAddress,
+  //     },
+  //     null,
+  //     2,
+  //   ),
+  // );
+  // save multisig to fauna
   const multisig = {
     address: multisigAddress,
     pubkeyJSON: JSON.stringify(multisigPubkey),
     chainId,
   };
 
-  const { address }: CreateMultisigAccountResponse = await requestJson(
-    `/api/chain/${chainId}/multisig`,
-    { body: multisig },
-  );
+  const resp: CreateMultisigAccountResponse = await requestJson(`/api/chain/${chainId}/multisig`, {
+    body: multisig,
+  });
+  // console.log(
+  //   "=== createMultisigFromCompressedSecp256k1Pubkeys3",
+  //   JSON.stringify({ resp }, null, 2),
+  // );
+  const { address } = resp;
 
   return address;
 };
@@ -70,6 +102,7 @@ const getMultisigAccount = async (
   addressPrefix: string,
   client: StargateClient,
 ): Promise<[MultisigThresholdPubkey, Account | null]> => {
+  // console.log("getMultisigAccount # 1", JSON.stringify({ address, addressPrefix }, null, 2));
   // we need the multisig pubkeys to create transactions, if the multisig
   // is new, and has never submitted a transaction its pubkeys will not be
   // available from a node. If the multisig was created with this instance
@@ -80,6 +113,7 @@ const getMultisigAccount = async (
   }
 
   const accountOnChain = await client.getAccount(address);
+  // console.log("getMultisigAccount # 2", JSON.stringify({ accountOnChain }, null, 2));
   const chainId = await client.getChainId();
 
   let pubkey: MultisigThresholdPubkey;
@@ -91,14 +125,21 @@ const getMultisigAccount = async (
     pubkey = accountOnChain.pubkey;
   } else {
     try {
-      const { pubkeyJSON }: GetMultisigAccountResponse = await requestJson(
+      const resp: GetMultisigAccountResponse = await requestJson(
         `/api/chain/${chainId}/multisig/${address}`,
       );
+      // console.log("getMultisigAccount # 3", JSON.stringify({ resp }, null, 2));
+      const { pubkeyJSON } = resp;
       pubkey = JSON.parse(pubkeyJSON);
     } catch {
       throw new Error("Multisig has no pubkey on node, and was not created using this tool.");
     }
   }
+
+  // console.log(
+  //   "getMultisigAccount # 4: result",
+  //   JSON.stringify({ pubkey, accountOnChain }, null, 2),
+  // );
 
   return [pubkey, accountOnChain];
 };

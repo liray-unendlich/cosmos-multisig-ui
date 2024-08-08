@@ -1,4 +1,4 @@
-import { StargateClient } from "@cosmjs/stargate";
+import { StargateClient } from "@/lib/packages/stargate";
 import { NextRouter, withRouter } from "next/router";
 import { useState } from "react";
 import { useChains } from "../../context/ChainsContext";
@@ -58,7 +58,7 @@ const MultiSigForm = (props: Props) => {
   const getPubkeyFromNode = async (address: string) => {
     const client = await StargateClient.connect(chain.nodeAddress);
     const accountOnChain = await client.getAccount(address);
-    console.log(accountOnChain);
+    // console.log("getPubkeyFromNode", JSON.stringify({ accountOnChain }, null, 2));
     if (!accountOnChain || !accountOnChain.pubkey) {
       throw new Error(
         "Account has no pubkey on chain, this address will need to send a transaction to appear on chain.",
@@ -72,7 +72,7 @@ const MultiSigForm = (props: Props) => {
       const tempPubkeys = [...pubkeys];
       let pubkey;
       // use pubkey
-      console.log(tempPubkeys[index]);
+      // console.log(tempPubkeys[index]);
       if (tempPubkeys[index].isPubkey) {
         pubkey = e.target.value;
         if (pubkey.length !== 44) {

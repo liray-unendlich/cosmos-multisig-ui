@@ -1,4 +1,4 @@
-import { assert } from "@cosmjs/utils";
+import { assert } from "@/lib/packages/utils";
 import { MsgBeginRedelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 import { useChains } from "../../../context/ChainsContext";
 import { printableCoin } from "../../../lib/displayHelpers";
