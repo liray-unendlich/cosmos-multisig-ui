@@ -15,7 +15,7 @@ import {
   defaultRegistryTypes,
   AminoMsgUnjail,
 } from "@/lib/packages/stargate";
-import { createDefaultAminoConverters } from "@cosmjs/stargate";
+//import { createDefaultAminoConverters } from "@cosmjs/stargate";
 import {
   createWasmAminoConverters,
 } from "@/lib/packages/cosmwasm-stargate";
@@ -157,7 +157,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       const signingClient = await SigningStargateClient.offline(offlineSigner, {
         registry: new Registry([...defaultRegistryTypes]),
         aminoTypes: new AminoTypes({
-          ...createDefaultAminoConverters(),
+//          ...createDefaultAminoConverters(),
           ...createWasmAminoConverters(),
           ...createSdkStakingAminoConverters("cosmos"),
           ...createBankAminoConverters(),
