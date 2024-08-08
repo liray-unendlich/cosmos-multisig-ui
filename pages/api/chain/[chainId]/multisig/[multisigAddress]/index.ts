@@ -13,8 +13,9 @@ export default async function multisigAddressApi(req: NextApiRequest, res: NextA
           res.status(404).send("Multisig not found");
           return;
         }
-        console.log("success", multisig);
-        res.status(200).send(multisig);
+        console.log("getRes", JSON.stringify(getRes, null, 2));
+        console.log("success", getRes.data.getMultisig);
+        res.status(200).send(getRes.data.getMultisig);
         return;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {

@@ -1,4 +1,4 @@
-import { MultisigThresholdPubkey } from "@cosmjs/amino";
+import { MultisigThresholdPubkey } from "@/lib/packages/amino";
 import { useEffect, useState } from "react";
 import { DbSignature } from "../../types";
 import StackableContainer from "../layout/StackableContainer";

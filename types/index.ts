@@ -1,5 +1,5 @@
-import { StdFee } from "@cosmjs/amino";
-import { EncodeObject } from "@cosmjs/proto-signing";
+import { StdFee } from "@/lib/packages/amino";
+import { EncodeObject } from "@/lib/packages/proto-signing";
 
 declare global {
   interface Window {

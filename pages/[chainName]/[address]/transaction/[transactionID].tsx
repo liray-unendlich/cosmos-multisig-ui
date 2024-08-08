@@ -1,8 +1,8 @@
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
-import { MultisigThresholdPubkey } from "@cosmjs/amino";
-import { fromBase64 } from "@cosmjs/encoding";
-import { Account, StargateClient, makeMultisignedTxBytes } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
+import { MultisigThresholdPubkey } from "@/lib/packages/amino";
+import { fromBase64 } from "@/lib/packages/encoding";
+import { Account, StargateClient, makeMultisignedTxBytes } from "@/lib/packages/stargate";
+import { assert } from "@/lib/packages/utils";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -106,6 +106,7 @@ const TransactionPage = ({
   }, [chain, multisigAddress]);
 
   const broadcastTx = async () => {
+    // debugger;
     try {
       setIsBroadcasting(true);
       setBroadcastError("");
@@ -117,18 +118,32 @@ const TransactionPage = ({
       );
       assert(pubkey, "Pubkey not found on chain or in database");
       assert(txInfo, "Transaction not found in database");
+
+      // console.log(
+      //   "broadcastTx # 1",
+      //   JSON.stringify({ accountOnChain, pubkey, txInfo, currentSignatures }, null, 2),
+      // );
+
       const bodyBytes = fromBase64(currentSignatures[0].bodyBytes);
       const signedTxBytes = makeMultisignedTxBytes(
         pubkey,
         txInfo.sequence,
         txInfo.fee,
         bodyBytes,
-        new Map(currentSignatures.map((s) => [s.address, fromBase64(s.signature)])),
+        new Map(
+          currentSignatures.map((s: { address: string; signature: string }) => {
+            // console.log("broadcastTx # 2: signature", JSON.stringify({ signature: s }), null, 2);
+            return [s.address, fromBase64(s.signature)];
+          }),
+        ),
       );
+
+      // console.log("broadcastTx # 3", JSON.stringify({ signedTxBytes, bodyBytes }, null, 2));
 
       const broadcaster = await StargateClient.connect(chain.nodeAddress);
       const result = await broadcaster.broadcastTx(signedTxBytes);
-      console.log(result);
+
+      // console.log("broadcastTx # 4: result", JSON.stringify({ result }, null, 2));
       await requestJson(`/api/transaction/${transactionID}`, {
         body: { txHash: result.transactionHash },
       });

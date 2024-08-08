@@ -14,7 +14,7 @@ import { MsgCreateVestingAccount } from "cosmjs-types/cosmos/vesting/v1beta1/tx"
 import {
   MsgExecuteContract,
   MsgInstantiateContract,
-  MsgInstantiateContract2,
+  // MsgInstantiateContract2,
   MsgMigrateContract,
 } from "cosmjs-types/cosmwasm/wasm/v1/tx";
 import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
@@ -56,7 +56,7 @@ export const MsgCodecs = {
   [MsgTypeUrls.Transfer]: MsgTransfer,
   [MsgTypeUrls.Execute]: MsgExecuteContract,
   [MsgTypeUrls.Instantiate]: MsgInstantiateContract,
-  [MsgTypeUrls.Instantiate2]: MsgInstantiateContract2,
+  // [MsgTypeUrls.Instantiate2]: MsgInstantiateContract2,
   [MsgTypeUrls.Migrate]: MsgMigrateContract,
   [MsgTypeUrls.CreateValidator]: MsgCreateValidator,
   [MsgTypeUrls.EditValidator]: MsgEditValidator,

@@ -1,5 +1,5 @@
 import SelectValidator from "@/components/SelectValidator";
-import { EncodeObject } from "@cosmjs/proto-signing";
+import { EncodeObject } from "@/lib/packages/proto-signing";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";

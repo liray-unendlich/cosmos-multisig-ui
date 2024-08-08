@@ -1,6 +1,6 @@
-import { Decimal } from "@cosmjs/math";
-import { Coin } from "@cosmjs/stargate";
-import { assert } from "@cosmjs/utils";
+import { Decimal } from "./packages/math";
+import { Coin } from "./packages/stargate";
+import { assert } from "./packages/utils";
 import { RegistryAsset } from "../types/chainRegistry";
 
 const displayCoinToBaseCoin = (displayCoin: Coin, assets: readonly RegistryAsset[]): Coin => {
