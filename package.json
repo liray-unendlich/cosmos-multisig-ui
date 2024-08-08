@@ -64,7 +64,7 @@
     "clsx": "^2.0.0",
     "cmdk": "^0.2.0",
     "copy-to-clipboard": "^3.3.3",
-    "cosmjs-types": "^1.0.0",
+    "cosmjs-types": "^0.9.0",
     "date-fns": "^2.30.0",
     "elliptic": "^6.5.4",
     "eslint": "8.48.0",
