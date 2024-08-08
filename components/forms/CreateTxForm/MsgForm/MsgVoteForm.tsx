@@ -57,7 +57,7 @@ const MsgVoteForm = ({
       return true;
     };
 
-    var msgValue;
+    let msgValue;
 
     if (voteAddress && proposalId && option !== undefined) {
       msgValue = MsgCodecs[MsgTypeUrls.Vote].fromPartial({
