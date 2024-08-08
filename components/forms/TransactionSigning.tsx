@@ -6,13 +6,19 @@ import { Registry } from "@/lib/packages/proto-signing";
 import {
   AminoTypes,
   SigningStargateClient,
-  createDefaultAminoConverters,
-  createWasmAminoConverters,
-  createStakingAminoConverters,
+  createSdkStakingAminoConverters,
   createBankAminoConverters,
+  createAuthzAminoConverters,
+  createDistributionAminoConverters,
+  createGovAminoConverters,
+  createSlashingAminoConverters,
   defaultRegistryTypes,
   AminoMsgUnjail,
 } from "@/lib/packages/stargate";
+import { createDefaultAminoConverters } from "@cosmjs/stargate";
+import {
+  createWasmAminoConverters,
+} from "@/lib/packages/cosmwasm-stargate";
 import { assert } from "@/lib/packages/utils";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { useCallback, useLayoutEffect, useState } from "react";
@@ -153,7 +159,8 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         aminoTypes: new AminoTypes({
           ...createDefaultAminoConverters(),
           ...createWasmAminoConverters(),
-          ...createStakingAminoConverters(),
+          ...createSdkStakingAminoConverters("cosmos"),
+          ...createBankAminoConverters(),
           "/cosmos.slashing.v1beta1.MsgUnjail": {
             aminoType: "cosmos-sdk/MsgUnjail",
             toAmino: ({validatorAddr}: MsgUnjail): AminoMsgUnjail["value"] => {
@@ -167,7 +174,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
               validatorAddr: validator_addr,
             }),
           },
-          ...createBankAminoConverters(),
+
         }),
       });
 
