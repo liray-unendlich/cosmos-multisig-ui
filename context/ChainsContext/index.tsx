@@ -77,7 +77,7 @@ export const ChainsProvider = ({ children }: ChainsProviderProps) => {
     const loadedChain = getChain(chainItems);
 
     if (chainItems.mainnets.size && loadedChain === emptyChain) {
-      setChain(dispatch, chainItems.mainnets.get("haqq") ?? emptyChain);
+      setChain(dispatch, chainItems.mainnets.get("sei") ?? emptyChain);
     } else {
       setChain(dispatch, loadedChain);
     }
