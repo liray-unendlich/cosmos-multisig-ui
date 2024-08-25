@@ -14,7 +14,7 @@ export interface AminoMsgUnjail extends AminoMsg {
   readonly type: "cosmos-sdk/MsgUnjail";
   readonly value: {
     /** Bech32 account address */
-    readonly validator_addr: string;
+    readonly address: string;
   };
 }
 
@@ -28,12 +28,12 @@ export function createSlashingAminoConverters(): AminoConverters {
       aminoType: "cosmos-sdk/MsgUnjail",
       toAmino: ({validatorAddr}: MsgUnjail): AminoMsgUnjail["value"] => {
         return {
-          validator_addr: validatorAddr,
+          address: validatorAddr,
         };
       },
-      fromAmino: ({ validator_addr }: AminoMsgUnjail["value"]): MsgUnjail => {
+      fromAmino: ({ address }: AminoMsgUnjail["value"]): MsgUnjail => {
         return {
-          validatorAddr: validator_addr,
+          validatorAddr: address,
         };
       },
     }
