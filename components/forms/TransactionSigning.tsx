@@ -163,6 +163,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
           ...createGovAminoConverters(),
           ...createAuthzAminoConverters(),
           ...createSlashingAminoConverters(),
+          ...createDistributionAminoConverters(),
         }),
       });
 
