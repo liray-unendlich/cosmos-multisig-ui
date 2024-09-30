@@ -135,12 +135,12 @@ export function createDistributionAminoConverters(): Record<
       toAmino: ({
         validatorAddress,
       }: MsgWithdrawValidatorCommission): AminoMsgWithdrawValidatorCommission["value"] => ({
-        validator_address: validatorAddress,
+        address: validatorAddress,
       }),
       fromAmino: ({
-        validator_address,
+        address,
       }: AminoMsgWithdrawValidatorCommission["value"]): MsgWithdrawValidatorCommission => ({
-        validatorAddress: validator_address,
+        validatorAddress: address,
       }),
     },
   };
