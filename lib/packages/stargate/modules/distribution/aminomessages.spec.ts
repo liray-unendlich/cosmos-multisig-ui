@@ -5,7 +5,7 @@ import {
   MsgSetWithdrawAddress,
   MsgWithdrawDelegatorReward,
   MsgWithdrawValidatorCommission,
-} from "cosmjs-types/cosmos/distribution/v1beta1/tx";
+} from "@/lib/packages/cosmos/distribution/v1beta1/tx";
 
 import { AminoTypes } from "../../aminotypes";
 import {
