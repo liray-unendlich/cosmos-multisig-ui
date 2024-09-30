@@ -50,7 +50,7 @@ export interface AminoMsgWithdrawValidatorCommission extends AminoMsg {
   readonly type: "cosmos-sdk/MsgWithdrawValidatorCommission";
   readonly value: {
     /** Bech32 account address */
-    readonly validator_address: string;
+    readonly address: string;
   };
 }
 
