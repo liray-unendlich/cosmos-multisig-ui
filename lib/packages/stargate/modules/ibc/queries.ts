@@ -272,14 +272,14 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           channelQueryService.ChannelConsensusState({
             portId: portId,
             channelId: channelId,
-            revisionNumber: Long.fromNumber(revisionNumber, true),
-            revisionHeight: Long.fromNumber(revisionHeight, true),
+            revisionNumber: BigInt(revisionNumber),
+            revisionHeight: BigInt(revisionHeight),
           }),
         packetCommitment: async (portId: string, channelId: string, sequence: number) =>
           channelQueryService.PacketCommitment({
             portId: portId,
             channelId: channelId,
-            sequence: Long.fromNumber(sequence, true),
+            sequence: BigInt(sequence),
           }),
         packetCommitments: async (portId: string, channelId: string, paginationKey?: Uint8Array) =>
           channelQueryService.PacketCommitments({
@@ -309,13 +309,13 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           channelQueryService.PacketReceipt({
             portId: portId,
             channelId: channelId,
-            sequence: Long.fromNumber(sequence, true),
+            sequence: BigInt(sequence),
           }),
         packetAcknowledgement: async (portId: string, channelId: string, sequence: number) =>
           channelQueryService.PacketAcknowledgement({
             portId: portId,
             channelId: channelId,
-            sequence: Long.fromNumber(sequence, true),
+            sequence: BigInt(sequence),
           }),
         packetAcknowledgements: async (
           portId: string,
@@ -357,7 +357,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             portId: portId,
             channelId: channelId,
             packetCommitmentSequences: packetCommitmentSequences.map((s) =>
-              Long.fromNumber(s, true),
+              BigInt(s),
             ),
           }),
         unreceivedAcks: async (
@@ -368,7 +368,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           channelQueryService.UnreceivedAcks({
             portId: portId,
             channelId: channelId,
-            packetAckSequences: packetAckSequences.map((s) => Long.fromNumber(s, true)),
+            packetAckSequences: packetAckSequences.map((s) => BigInt(s)),
           }),
         nextSequenceReceive: async (portId: string, channelId: string) =>
           channelQueryService.NextSequenceReceive({
@@ -402,7 +402,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
             QueryConsensusStateRequest.fromPartial({
               clientId: clientId,
               revisionHeight:
-                consensusHeight !== undefined ? Long.fromNumber(consensusHeight, true) : undefined,
+                consensusHeight !== undefined ? BigInt(consensusHeight) : undefined,
               latestHeight: consensusHeight === undefined,
             }),
           ),
@@ -500,7 +500,7 @@ export function setupIbcExtension(base: QueryClient): IbcExtension {
           connectionQueryService.ConnectionConsensusState(
             QueryConnectionConsensusStateRequest.fromPartial({
               connectionId: connectionId,
-              revisionHeight: Long.fromNumber(revisionHeight, true),
+              revisionHeight: BigInt(revisionHeight),
             }),
           ),
       },

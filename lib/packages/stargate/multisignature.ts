@@ -63,14 +63,14 @@ export function makeMultisignedTx(
         })),
       },
     },
-    sequence: Long.fromNumber(sequence),
+    sequence: BigInt(sequence),
   };
 
   const authInfo = AuthInfo.fromPartial({
     signerInfos: [signerInfo],
     fee: {
       amount: [...fee.amount],
-      gasLimit: Long.fromString(fee.gas),
+      gasLimit: BigInt(fee.gas),
     },
   });
 

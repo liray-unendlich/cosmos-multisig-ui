@@ -45,13 +45,17 @@ export function isAminoMsgTransfer(msg: AminoMsg): msg is AminoMsgTransfer {
   return msg.type === "cosmos-sdk/MsgTransfer";
 }
 
-function omitDefault<T extends string | number | Long>(input: T): T | undefined {
+function omitDefault<T extends string | number | Long | bigint>(input: T): T | undefined {
   if (typeof input === "string") {
     return input === "" ? undefined : input;
   }
 
   if (typeof input === "number") {
     return input === 0 ? undefined : input;
+  }
+
+  if (typeof input === "bigint") {
+    return input === 0n ? undefined : input;
   }
 
   if (Long.isLong(input)) {
@@ -81,8 +85,8 @@ export function createIbcAminoConverters(): AminoConverters {
         receiver: receiver,
         timeout_height: timeoutHeight
           ? {
-              revision_height: omitDefault(timeoutHeight.revisionHeight)?.toString(),
-              revision_number: omitDefault(timeoutHeight.revisionNumber)?.toString(),
+              revision_height: timeoutHeight.revisionHeight ? timeoutHeight.revisionHeight.toString() : "0",
+              revision_number: timeoutHeight.revisionNumber ? timeoutHeight.revisionNumber.toString() : "0",
             }
           : {},
         timeout_timestamp: omitDefault(timeoutTimestamp)?.toString(),
@@ -103,11 +107,11 @@ export function createIbcAminoConverters(): AminoConverters {
         receiver: receiver,
         timeoutHeight: timeout_height
           ? {
-              revisionHeight: Long.fromString(timeout_height.revision_height || "0", true),
-              revisionNumber: Long.fromString(timeout_height.revision_number || "0", true),
+              revisionHeight: BigInt(timeout_height.revision_height || "0"),
+              revisionNumber: BigInt(timeout_height.revision_number || "0"),
             }
           : undefined,
-        timeoutTimestamp: Long.fromString(timeout_timestamp || "0", true),
+        timeoutTimestamp: BigInt(timeout_timestamp || "0"),
         memo: "",
       }),
     },

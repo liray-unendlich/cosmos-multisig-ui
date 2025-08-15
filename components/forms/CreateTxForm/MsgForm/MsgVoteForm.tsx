@@ -32,7 +32,7 @@ const MsgVoteForm = ({
   const [option, setOption] = useState<VoteOption>();
 
   const [proposalIdError, setProposalIdError] = useState("");
-  const [optionError, setOptionError] = useState("");
+  const [_optionError, _setOptionError] = useState("");
 
   useEffect(() => {
     // eslint-disable-next-line no-shadow
@@ -40,7 +40,7 @@ const MsgVoteForm = ({
     const isMsgValid = (): boolean => {
 
       setProposalIdError("");
-      setOptionError("");
+      _setOptionError("");
 
       // check the proposalId is a valid integer
       const isProposalIdValid = Number.isInteger(Number(proposalId));
@@ -50,7 +50,7 @@ const MsgVoteForm = ({
       }
       // Validate option
       if (option === undefined) {
-        setOptionError("You must select a vote option");
+        _setOptionError("You must select a vote option");
         return false;
       }
 
@@ -70,7 +70,7 @@ const MsgVoteForm = ({
     const msg: MsgVoteEncodeObject = { typeUrl: MsgTypeUrls.Vote, value: msgValue };
     console.log(chain);
     setMsgGetter({ isMsgValid, msg });
-  }, [voteAddress, proposalId, option, setMsgGetter]);
+  }, [voteAddress, proposalId, option, setMsgGetter, chain]);
 
   return (
     <StackableContainer lessPadding lessMargin>
@@ -99,7 +99,7 @@ const MsgVoteForm = ({
           options={[ { value: 0, label: "Unspecified" }, { value: 1, label: "Yes" }, { value: 3, label: "No" }, { value: 4, label: "No with veto" }, { value: 2, label: "Abstain" } ]}
           onChange={( selectedOption: SelectOption ) => {
             setOption(selectedOption.value as VoteOption);
-            setOptionError("");
+            _setOptionError("");
           }}
         />
       </div>

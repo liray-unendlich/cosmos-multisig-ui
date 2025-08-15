@@ -140,7 +140,7 @@ const MsgCreateValidatorForm = ({
     console.log("valConsAddress", valConsAddress);
 
     // Import validator Public Key from imputed validatorPubkey
-    const pubkey = fromBase64(validatorPubkey);
+    const _pubkey = fromBase64(validatorPubkey);
 
     const msgValue = MsgCodecs[MsgTypeUrls.CreateValidator].fromJSON({
       description: {

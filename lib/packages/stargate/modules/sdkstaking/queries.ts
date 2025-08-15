@@ -132,7 +132,7 @@ export function setupSdkStakingExtension(base: QueryClient): SdkStakingExtension
       },
       historicalInfo: async (height: number) => {
         const response = await queryService.HistoricalInfo({
-          height: Long.fromNumber(height, true),
+          height: BigInt(height),
         });
         return response;
       },

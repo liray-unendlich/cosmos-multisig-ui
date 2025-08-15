@@ -16,18 +16,14 @@ import { DelegationResponse } from "cosmjs-types/cosmos/staking/v1beta1/staking"
 import { Account, accountFromAny, AccountParser } from "./accounts";
 import { Event, fromTendermint34Event } from "./events";
 import {
-  Aiozrc20Extension,
   AuthExtension,
   BankExtension,
-  Bech32ibcExtension,
   DistributionExtension,
   GravityExtension,
   IbcExtension,
   SdkStakingExtension,
-  setupAiozrc20Extension,
   setupAuthExtension,
   setupBankExtension,
-  setupBech32ibcExtension,
   setupDistributionExtension,
   setupGravityExtension,
   setupIbcExtension,
@@ -205,9 +201,7 @@ export class StargateClient {
         SdkStakingExtension &
         StakingExtension &
         DistributionExtension &
-        Aiozrc20Extension &
         IbcExtension &
-        Bech32ibcExtension &
         GravityExtension &
         TxExtension)
     | undefined;
@@ -232,9 +226,7 @@ export class StargateClient {
         setupSdkStakingExtension,
         setupStakingExtension,
         setupDistributionExtension,
-        setupAiozrc20Extension,
         setupIbcExtension,
-        setupBech32ibcExtension,
         setupGravityExtension,
         setupTxExtension,
       );
@@ -263,9 +255,7 @@ export class StargateClient {
         SdkStakingExtension &
         StakingExtension &
         DistributionExtension &
-        Aiozrc20Extension &
         IbcExtension &
-        Bech32ibcExtension &
         GravityExtension &
         TxExtension)
     | undefined {
@@ -278,9 +268,7 @@ export class StargateClient {
     SdkStakingExtension &
     StakingExtension &
     DistributionExtension &
-    Aiozrc20Extension &
     IbcExtension &
-    Bech32ibcExtension &
     GravityExtension &
     TxExtension {
     if (!this.queryClient) {

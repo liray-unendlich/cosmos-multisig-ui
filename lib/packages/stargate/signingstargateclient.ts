@@ -28,13 +28,13 @@ import { HttpEndpoint, Tendermint34Client } from "@/lib/packages/tendermint-rpc"
 import { assert, assertDefined } from "@/lib/packages/utils";
 import { FeeMarketEIP1559TxData } from "@ethereumjs/tx";
 import { bufferToBigInt, toBuffer } from "@ethereumjs/util";
-import { ExtensionOptionsWrappedEthereumTx } from "cosmjs-types/aioz/wetx/v1/tx";
+// ExtensionOptionsWrappedEthereumTx is not available in cosmjs-types v0.9.0
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
 import { MsgWithdrawDelegatorReward } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 import { MsgDelegate, MsgUndelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import { ExtensionOptionsWeb3Tx } from "cosmjs-types/ethermint/types/v1/web3";
+// ExtensionOptionsWeb3Tx is not available in cosmjs-types v0.9.0
 import { Any } from "cosmjs-types/google/protobuf/any";
 import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 import { Height } from "cosmjs-types/ibc/core/client/v1/client";
@@ -67,7 +67,6 @@ import {
   wetxTypes,
 } from "./modules";
 import {
-  createAiozrc20AminoConverters,
   createAuthzAminoConverters,
   createBankAminoConverters,
   createDistributionAminoConverters,
@@ -81,7 +80,7 @@ import {
 import { DeliverTxResponse, StargateClient, StargateClientOptions } from "./stargateclient";
 
 export const defaultRegistryTypes: ReadonlyArray<[string, GeneratedType]> = [
-  ["/cosmos.base.v1beta1.Coin", Coin],
+  ["/cosmos.base.v1beta1.Coin", Coin as unknown as GeneratedType],
   ...authzTypes,
   ...bankTypes,
   ...distributionTypes,
@@ -137,7 +136,6 @@ function createDefaultTypes(prefix: string): AminoConverters {
     ...createIbcAminoConverters(),
     ...createFeegrantAminoConverters(),
     ...createVestingAminoConverters(),
-    ...createAiozrc20AminoConverters(),
     ...createGravityAminoConverters(),
   };
 }
@@ -341,7 +339,7 @@ export class SigningStargateClient extends StargateClient {
     memo = "",
   ): Promise<DeliverTxResponse> {
     const timeoutTimestampNanoseconds = timeoutTimestamp
-      ? Long.fromNumber(timeoutTimestamp).multiply(1_000_000_000)
+      ? BigInt(timeoutTimestamp) * 1_000_000_000n
       : undefined;
     const transferMsg: MsgTransferEncodeObject = {
       typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
@@ -593,7 +591,7 @@ export class SigningStargateClient extends StargateClient {
         : encodePubkey(encodeSecp256k1Pubkey(account.pubkey));
     const extension: ExtensionOptionsWrappedEthereumTxEncodeObject = {
       typeUrl: "/aioz.wetx.v1.ExtensionOptionsWrappedEthereumTx",
-      value: ExtensionOptionsWrappedEthereumTx.fromPartial({}),
+      value: {},
     };
     const extensionBytes = this.registry.encode(extension);
     const txBody = {
@@ -659,13 +657,13 @@ export class SigningStargateClient extends StargateClient {
     const signDoc = makeSignDocAmino(msgs, fee, chainId, memo, accountNumber, sequence);
     const { signature, pubkey, signed } = await this.signer.signEIP712(signerAddress, signDoc);
     const encodedPubkey = encodePubkey(encodeEthSecp256k1Pubkey(pubkey));
-    const extension: ExtensionOptionsWeb3TxEncodeObject = {
+    const extension = {
       typeUrl: "/ethermint.types.v1.ExtensionOptionsWeb3Tx",
-      value: ExtensionOptionsWeb3Tx.fromPartial({
+      value: {
         typedDataChainId: parseChainId(chainId),
         feePayer: signerAddress,
         feePayerSig: signature,
-      }),
+      },
     };
     const extensionBytes = this.registry.encode(extension);
     const signedTxBody = {

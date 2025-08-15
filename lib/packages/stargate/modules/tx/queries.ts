@@ -56,7 +56,7 @@ export function setupTxExtension(base: QueryClient): TxExtension {
             signerInfos: [
               {
                 publicKey: encodePubkey(signer),
-                sequence: Long.fromNumber(sequence, true),
+                sequence: BigInt(sequence),
                 modeInfo: { single: { mode: SignMode.SIGN_MODE_UNSPECIFIED } },
               },
             ],

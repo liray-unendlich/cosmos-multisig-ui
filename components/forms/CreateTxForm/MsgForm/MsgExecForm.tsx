@@ -65,19 +65,19 @@ const MsgExecForm = ({ granteeAddress, setMsgGetter, deleteMsg }: MsgExecFormPro
         return true;
       }
 
-      const fromAddressError = checkAddress(fromAddress, chain.addressPrefix);
-      if (fromAddressError) {
+      const fromAddressErr = checkAddress(fromAddress, chain.addressPrefix);
+      if (fromAddressErr) {
         setFromAddressError(
-          `Invalid from address for network ${chain.chainId}: ${fromAddressError}`,
+          `Invalid from address for network ${chain.chainId}: ${fromAddressErr}`,
         );
         return false;
       }
 
       if (msgType === "send") {
-        const toAddressError = checkAddress(toAddress, chain.addressPrefix);
-        if (toAddressError) {
+        const toAddressErr = checkAddress(toAddress, chain.addressPrefix);
+        if (toAddressErr) {
           setToAddressError(
-            `Invalid to address for network ${chain.chainId}: ${toAddressError}`,
+            `Invalid to address for network ${chain.chainId}: ${toAddressErr}`,
           );
           return false;
         }

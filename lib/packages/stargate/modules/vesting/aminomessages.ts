@@ -49,7 +49,7 @@ export function createVestingAminoConverters(): AminoConverters {
         fromAddress: from_address,
         toAddress: to_address,
         amount: [...amount],
-        endTime: Long.fromString(end_time),
+        endTime: BigInt(end_time),
         delayed: delayed,
       }),
     },
