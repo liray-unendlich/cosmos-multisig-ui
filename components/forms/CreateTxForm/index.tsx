@@ -192,6 +192,18 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
                 onClick={() => addMsgType(MsgTypeUrls.Vote)}
               />
             </li>
+            <li>
+              <Button
+                label="Deposit"
+                onClick={() => addMsgType(MsgTypeUrls.Deposit)}
+              />
+            </li>
+            <li>
+              <Button
+                label="Submit Proposal"
+                onClick={() => addMsgType(MsgTypeUrls.SubmitProposal)}
+              />
+            </li>
           </ul>
         </div>
         <div className="btn-cluster">
@@ -281,6 +293,17 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
             </li>
             <li>
               <Button label="Exec" onClick={() => addMsgType(MsgTypeUrls.Exec)} />
+            </li>
+          </ul>
+        </div>
+        <div className="btn-cluster">
+          <label>Fee Grant</label>
+          <ul>
+            <li>
+              <Button label="Grant Allowance" onClick={() => addMsgType(MsgTypeUrls.GrantAllowance)} />
+            </li>
+            <li>
+              <Button label="Revoke Allowance" onClick={() => addMsgType(MsgTypeUrls.RevokeAllowance)} />
             </li>
           </ul>
         </div>

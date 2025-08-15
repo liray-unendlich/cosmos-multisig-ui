@@ -23,6 +23,10 @@ import TxMsgClaimValidatorCommissionDetails from "./TxMsgClaimValidatorCommissio
 import TxMsgGrantDetails from "./TxMsgGrantDetails";
 import TxMsgRevokeDetails from "./TxMsgRevokeDetails";
 import TxMsgExecDetails from "./TxMsgExecDetails";
+import TxMsgDepositDetails from "./TxMsgDepositDetails";
+import TxMsgSubmitProposalDetails from "./TxMsgSubmitProposalDetails";
+import TxMsgGrantAllowanceDetails from "./TxMsgGrantAllowanceDetails";
+import TxMsgRevokeAllowanceDetails from "./TxMsgRevokeAllowanceDetails";
 
 const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
   switch (typeUrl) {
@@ -64,6 +68,14 @@ const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
       return <TxMsgRevokeDetails msgValue={msgValue} />;
     case MsgTypeUrls.Exec:
       return <TxMsgExecDetails msgValue={msgValue} />;
+    case MsgTypeUrls.Deposit:
+      return <TxMsgDepositDetails msgValue={msgValue} />;
+    case MsgTypeUrls.SubmitProposal:
+      return <TxMsgSubmitProposalDetails msgValue={msgValue} />;
+    case MsgTypeUrls.GrantAllowance:
+      return <TxMsgGrantAllowanceDetails msgValue={msgValue} />;
+    case MsgTypeUrls.RevokeAllowance:
+      return <TxMsgRevokeAllowanceDetails msgValue={msgValue} />;
     default:
       return null;
   }

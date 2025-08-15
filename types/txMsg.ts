@@ -9,7 +9,7 @@ import {
   MsgDelegate,
   MsgUndelegate,
 } from "cosmjs-types/cosmos/staking/v1beta1/tx";
-import { MsgVote } from "cosmjs-types/cosmos/gov/v1beta1/tx";
+import { MsgVote, MsgDeposit, MsgSubmitProposal, MsgVoteWeighted } from "cosmjs-types/cosmos/gov/v1beta1/tx";
 import { MsgCreateVestingAccount } from "cosmjs-types/cosmos/vesting/v1beta1/tx";
 import {
   MsgExecuteContract,
@@ -21,6 +21,7 @@ import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 import { MsgCreateValidator,MsgEditValidator } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 import { MsgUnjail } from "cosmjs-types/cosmos/slashing/v1beta1/tx";
 import { MsgGrant, MsgRevoke, MsgExec } from "cosmjs-types/cosmos/authz/v1beta1/tx";
+import { MsgGrantAllowance, MsgRevokeAllowance } from "cosmjs-types/cosmos/feegrant/v1beta1/tx";
 
 export const MsgTypeUrls = {
   Send: "/cosmos.bank.v1beta1.MsgSend",
@@ -30,6 +31,9 @@ export const MsgTypeUrls = {
   Delegate: "/cosmos.staking.v1beta1.MsgDelegate",
   Undelegate: "/cosmos.staking.v1beta1.MsgUndelegate",
   Vote: "/cosmos.gov.v1beta1.MsgVote",
+  Deposit: "/cosmos.gov.v1beta1.MsgDeposit",
+  SubmitProposal: "/cosmos.gov.v1beta1.MsgSubmitProposal",
+  VoteWeighted: "/cosmos.gov.v1beta1.MsgVoteWeighted",
   CreateVestingAccount: "/cosmos.vesting.v1beta1.MsgCreateVestingAccount",
   Transfer: "/ibc.applications.transfer.v1.MsgTransfer",
   Execute: "/cosmwasm.wasm.v1.MsgExecuteContract",
@@ -43,6 +47,8 @@ export const MsgTypeUrls = {
   Grant: "/cosmos.authz.v1beta1.MsgGrant",
   Revoke: "/cosmos.authz.v1beta1.MsgRevoke",
   Exec: "/cosmos.authz.v1beta1.MsgExec",
+  GrantAllowance: "/cosmos.feegrant.v1beta1.MsgGrantAllowance",
+  RevokeAllowance: "/cosmos.feegrant.v1beta1.MsgRevokeAllowance",
 } as const;
 
 export type MsgTypeUrl = (typeof MsgTypeUrls)[keyof typeof MsgTypeUrls];
@@ -56,6 +62,9 @@ export const MsgCodecs = {
   [MsgTypeUrls.Delegate]: MsgDelegate,
   [MsgTypeUrls.Undelegate]: MsgUndelegate,
   [MsgTypeUrls.Vote]: MsgVote,
+  [MsgTypeUrls.Deposit]: MsgDeposit,
+  [MsgTypeUrls.SubmitProposal]: MsgSubmitProposal,
+  [MsgTypeUrls.VoteWeighted]: MsgVoteWeighted,
   [MsgTypeUrls.CreateVestingAccount]: MsgCreateVestingAccount,
   [MsgTypeUrls.Transfer]: MsgTransfer,
   [MsgTypeUrls.Execute]: MsgExecuteContract,
@@ -68,4 +77,6 @@ export const MsgCodecs = {
   [MsgTypeUrls.Grant]: MsgGrant,
   [MsgTypeUrls.Revoke]: MsgRevoke,
   [MsgTypeUrls.Exec]: MsgExec,
+  [MsgTypeUrls.GrantAllowance]: MsgGrantAllowance,
+  [MsgTypeUrls.RevokeAllowance]: MsgRevokeAllowance,
 };

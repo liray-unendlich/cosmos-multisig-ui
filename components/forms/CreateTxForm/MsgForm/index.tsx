@@ -20,6 +20,10 @@ import MsgClaimValidatorCommissionForm from "./MsgClaimValidatorCommissionForm";
 import MsgGrantForm from "./MsgGrantForm";
 import MsgRevokeForm from "./MsgRevokeForm";
 import MsgExecForm from "./MsgExecForm";
+import MsgDepositForm from "./MsgDepositForm";
+import MsgSubmitProposalForm from "./MsgSubmitProposalForm";
+import MsgGrantAllowanceForm from "./MsgGrantAllowanceForm";
+import MsgRevokeAllowanceForm from "./MsgRevokeAllowanceForm";
 
 interface MsgFormProps {
   readonly msgType: MsgTypeUrl;
@@ -70,6 +74,14 @@ const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
       return <MsgRevokeForm granterAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Exec:
       return <MsgExecForm granteeAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.Deposit:
+      return <MsgDepositForm {...restProps} />;
+    case MsgTypeUrls.SubmitProposal:
+      return <MsgSubmitProposalForm {...restProps} />;
+    case MsgTypeUrls.GrantAllowance:
+      return <MsgGrantAllowanceForm {...restProps} />;
+    case MsgTypeUrls.RevokeAllowance:
+      return <MsgRevokeAllowanceForm {...restProps} />;
     default:
       return null;
   }
