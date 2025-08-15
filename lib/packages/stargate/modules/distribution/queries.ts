@@ -11,7 +11,6 @@ import {
   QueryValidatorOutstandingRewardsResponse,
   QueryValidatorSlashesResponse,
 } from "cosmjs-types/cosmos/distribution/v1beta1/query";
-import Long from "long";
 
 import { createPagination, createProtobufRpcClient, QueryClient } from "../../queryclient";
 
@@ -104,8 +103,8 @@ export function setupDistributionExtension(base: QueryClient): DistributionExten
       ) => {
         const response = await queryService.ValidatorSlashes({
           validatorAddress: validatorAddress,
-          startingHeight: Long.fromNumber(startingHeight, true),
-          endingHeight: Long.fromNumber(endingHeight, true),
+          startingHeight: BigInt(startingHeight),
+          endingHeight: BigInt(endingHeight),
           pagination: createPagination(paginationKey),
         });
         return response;

@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input";
 import { useChains } from "@/context/ChainsContext";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { TxMsgDetails } from "../TxMsgDetails";
 import { Any } from "cosmjs-types/google/protobuf/any";
 import { BasicAllowance, PeriodicAllowance, AllowedMsgAllowance } from "cosmjs-types/cosmos/feegrant/v1beta1/feegrant";
 import { Timestamp } from "cosmjs-types/google/protobuf/timestamp";
@@ -24,7 +23,7 @@ interface MsgGrantAllowanceFormProps {
   readonly setMsgGetter: (
     msgGetter: (senderAddress: string) => Promise<{
       readonly typeUrl: string;
-      readonly value: any;
+      readonly value: Record<string, unknown>;
     }>
   ) => void;
   readonly deleteMsg: () => void;
@@ -51,12 +50,15 @@ const MsgGrantAllowanceForm = ({ setMsgGetter, deleteMsg }: MsgGrantAllowanceFor
     },
   });
 
-  const [msgJson, setMsgJson] = useState<any>();
+  const [msgJson, setMsgJson] = useState<Record<string, unknown>>();
   const [showMsg, setShowMsg] = useState(false);
 
   const allowanceType = watch("allowanceType");
 
-  const createMsgGetter = (values: MsgGrantAllowanceFormValues) => async (senderAddress: string) => {
+  const createMsgGetter = (values: MsgGrantAllowanceFormValues) => async (senderAddress: string): Promise<{
+    readonly typeUrl: string;
+    readonly value: Record<string, unknown>;
+  }> => {
     const granter = values.granterAddress || senderAddress;
     
     let allowance: Any;
@@ -65,7 +67,7 @@ const MsgGrantAllowanceForm = ({ setMsgGetter, deleteMsg }: MsgGrantAllowanceFor
       const microAmount = values.spendLimit ? (Number(values.spendLimit) * 10 ** chain.displayDenomExponent).toString() : "0";
       const basicAllowance = BasicAllowance.fromPartial({
         spendLimit: microAmount ? [{
-          denom: chain.feeCurrencies[0].coinMinimalDenom,
+          denom: chain.assets?.[0]?.base || "uatom",
           amount: microAmount,
         }] : [],
         expiration: values.expiration ? Timestamp.fromPartial({
@@ -83,7 +85,7 @@ const MsgGrantAllowanceForm = ({ setMsgGetter, deleteMsg }: MsgGrantAllowanceFor
       const periodicAllowance = PeriodicAllowance.fromPartial({
         basic: BasicAllowance.fromPartial({
           spendLimit: values.spendLimit ? [{
-            denom: chain.feeCurrencies[0].coinMinimalDenom,
+            denom: chain.assets?.[0]?.base || "uatom",
             amount: (Number(values.spendLimit) * 10 ** chain.displayDenomExponent).toString(),
           }] : [],
           expiration: values.expiration ? Timestamp.fromPartial({
@@ -96,7 +98,7 @@ const MsgGrantAllowanceForm = ({ setMsgGetter, deleteMsg }: MsgGrantAllowanceFor
           nanos: 0,
         } : undefined,
         periodSpendLimit: microAmount ? [{
-          denom: chain.feeCurrencies[0].coinMinimalDenom,
+          denom: chain.assets?.[0]?.base || "uatom",
           amount: microAmount,
         }] : [],
         periodCanSpend: [],
@@ -117,7 +119,7 @@ const MsgGrantAllowanceForm = ({ setMsgGetter, deleteMsg }: MsgGrantAllowanceFor
       
       const basicAllowance = BasicAllowance.fromPartial({
         spendLimit: microAmount ? [{
-          denom: chain.feeCurrencies[0].coinMinimalDenom,
+          denom: chain.assets?.[0]?.base || "uatom",
           amount: microAmount,
         }] : [],
         expiration: values.expiration ? Timestamp.fromPartial({
@@ -147,8 +149,8 @@ const MsgGrantAllowanceForm = ({ setMsgGetter, deleteMsg }: MsgGrantAllowanceFor
     });
 
     const msg = {
-      typeUrl: MsgTypeUrls.GrantAllowance,
-      value: msgValue,
+      typeUrl: MsgTypeUrls.GrantAllowance as string,
+      value: msgValue as unknown as Record<string, unknown>,
     };
 
     setMsgJson(msg.value);
@@ -284,8 +286,8 @@ const MsgGrantAllowanceForm = ({ setMsgGetter, deleteMsg }: MsgGrantAllowanceFor
       </form>
 
       {showMsg && msgJson && (
-        <div className="mt-4">
-          <TxMsgDetails msgValue={msgJson} />
+        <div className="mt-4 p-4 bg-gray-100 rounded">
+          <pre>{JSON.stringify(msgJson, null, 2)}</pre>
         </div>
       )}
     </div>

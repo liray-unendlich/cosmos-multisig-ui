@@ -20,9 +20,8 @@ import {
   feegrantTypes,
   vestingTypes,
   authzTypes,
-  AminoMsgUnjail,
 } from "@/lib/packages/stargate";
-//import { createDefaultAminoConverters } from "@cosmjs/stargate";
+// import { createDefaultAminoConverters } from "@cosmjs/stargate";
 import {
   createWasmAminoConverters,
 } from "@/lib/packages/cosmwasm-stargate";
@@ -36,7 +35,6 @@ import { DbSignature, DbTransaction, WalletAccount } from "../../types";
 import HashView from "../dataViews/HashView";
 import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
-import { MsgUnjail } from "cosmjs-types/cosmos/slashing/v1beta1/tx";
 
 interface TransactionSigningProps {
   readonly signatures: DbSignature[];
@@ -163,7 +161,6 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       const signingClient = await SigningStargateClient.offline(offlineSigner, {
         registry: new Registry([
           ...defaultRegistryTypes, 
-          ["/cosmos.slashing.v1beta1.MsgUnjail", MsgUnjail],
           // Add IBC, Feegrant, and Vesting message types
           ...ibcTypes,
           ...feegrantTypes,

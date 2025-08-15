@@ -7,10 +7,10 @@ import {
 } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 
 export const distributionTypes: ReadonlyArray<[string, GeneratedType]> = [
-  ["/cosmos.distribution.v1beta1.MsgFundCommunityPool", MsgFundCommunityPool as unknown as GeneratedType],
-  ["/cosmos.distribution.v1beta1.MsgSetWithdrawAddress", MsgSetWithdrawAddress as unknown as GeneratedType],
-  ["/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward", MsgWithdrawDelegatorReward as unknown as GeneratedType],
-  ["/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission", MsgWithdrawValidatorCommission as unknown as GeneratedType],
+  ["/cosmos.distribution.v1beta1.MsgFundCommunityPool", MsgFundCommunityPool],
+  ["/cosmos.distribution.v1beta1.MsgSetWithdrawAddress", MsgSetWithdrawAddress],
+  ["/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward", MsgWithdrawDelegatorReward],
+  ["/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission", MsgWithdrawValidatorCommission],
 ];
 
 export interface MsgWithdrawDelegatorRewardEncodeObject extends EncodeObject {

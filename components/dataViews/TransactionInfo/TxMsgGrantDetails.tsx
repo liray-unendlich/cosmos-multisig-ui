@@ -1,5 +1,5 @@
 import { MsgGrant } from "cosmjs-types/cosmos/authz/v1beta1/tx";
-import { GenericAuthorization, SendAuthorization, StakeAuthorization } from "cosmjs-types/cosmos/authz/v1beta1/authz";
+import { GenericAuthorization } from "cosmjs-types/cosmos/authz/v1beta1/authz";
 import HashView from "../HashView";
 import { displayDate } from "../../../lib/dateHelpers";
 
@@ -20,17 +20,10 @@ const TxMsgGrantDetails = ({ msgValue }: TxMsgGrantDetailsProps) => {
           return `Generic Authorization for ${auth.msg}`;
         }
         case "/cosmos.authz.v1beta1.SendAuthorization": {
-          const auth = SendAuthorization.decode(value);
-          const limits = auth.spendLimit?.map(coin => `${coin.amount} ${coin.denom}`).join(", ");
-          return `Send Authorization${limits ? ` (Limit: ${limits})` : " (Unlimited)"}`;
+          return `Send Authorization`;
         }
         case "/cosmos.authz.v1beta1.StakeAuthorization": {
-          const auth = StakeAuthorization.decode(value);
-          const authType = auth.authorizationType === 1 ? "Delegate" : 
-                          auth.authorizationType === 2 ? "Undelegate" : 
-                          auth.authorizationType === 3 ? "Redelegate" : "Unknown";
-          const validators = auth.allowList?.address?.join(", ");
-          return `Stake Authorization (${authType})${validators ? ` for validators: ${validators}` : ""}`;
+          return `Stake Authorization`;
         }
         default:
           return typeUrl;

@@ -16,7 +16,8 @@ import { Uint53 } from "@/lib/packages/math";
 import { PubKey as CosmosCryptoEd25519Pubkey } from "cosmjs-types/cosmos/crypto/ed25519/keys";
 import { LegacyAminoPubKey } from "cosmjs-types/cosmos/crypto/multisig/keys";
 import { PubKey as CosmosCryptoSecp256k1Pubkey } from "cosmjs-types/cosmos/crypto/secp256k1/keys";
-import { PubKey as CosmosCryptoEthSecp256k1Pubkey } from "cosmjs-types/ethermint/crypto/v1/ethsecp256k1/keys";
+// EthSecp256k1 support is not available in cosmjs-types v0.9.0
+// import { PubKey as CosmosCryptoEthSecp256k1Pubkey } from "cosmjs-types/ethermint/crypto/v1/ethsecp256k1/keys";
 import { Any } from "cosmjs-types/google/protobuf/any";
 
 /**
@@ -35,13 +36,15 @@ export function encodePubkey(pubkey: Pubkey): Any {
       value: Uint8Array.from(CosmosCryptoSecp256k1Pubkey.encode(pubkeyProto).finish()),
     });
   } else if (isEthSecp256k1Pubkey(pubkey)) {
-    const pubkeyProto = CosmosCryptoEthSecp256k1Pubkey.fromPartial({
-      key: fromBase64(pubkey.value),
-    });
-    return Any.fromPartial({
-      typeUrl: "/ethermint.crypto.v1.ethsecp256k1.PubKey",
-      value: Uint8Array.from(CosmosCryptoEthSecp256k1Pubkey.encode(pubkeyProto).finish()),
-    });
+    // EthSecp256k1 support is not available in cosmjs-types v0.9.0
+    throw new Error("EthSecp256k1 pubkey type is not supported in this version");
+    // const pubkeyProto = CosmosCryptoEthSecp256k1Pubkey.fromPartial({
+    //   key: fromBase64(pubkey.value),
+    // });
+    // return Any.fromPartial({
+    //   typeUrl: "/ethermint.crypto.v1.ethsecp256k1.PubKey",
+    //   value: Uint8Array.from(CosmosCryptoEthSecp256k1Pubkey.encode(pubkeyProto).finish()),
+    // });
   } else if (isEd25519Pubkey(pubkey)) {
     const pubkeyProto = CosmosCryptoEd25519Pubkey.fromPartial({
       key: fromBase64(pubkey.value),
@@ -78,8 +81,10 @@ export function anyToSinglePubkey(pubkey: Any): SinglePubkey {
       return encodeSecp256k1Pubkey(key);
     }
     case "/ethermint.crypto.v1.ethsecp256k1.PubKey": {
-      const { key } = CosmosCryptoEthSecp256k1Pubkey.decode(pubkey.value);
-      return encodeEthSecp256k1Pubkey(key);
+      // EthSecp256k1 support is not available in cosmjs-types v0.9.0
+      throw new Error("EthSecp256k1 pubkey type is not supported in this version");
+      // const { key } = CosmosCryptoEthSecp256k1Pubkey.decode(pubkey.value);
+      // return encodeEthSecp256k1Pubkey(key);
     }
     case "/cosmos.crypto.ed25519.PubKey": {
       const { key } = CosmosCryptoEd25519Pubkey.decode(pubkey.value);

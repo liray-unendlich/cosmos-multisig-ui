@@ -1,10 +1,8 @@
 import { MsgCodecs, MsgTypeUrls } from "@/types/txMsg";
 import { Input } from "@/components/ui/input";
-import { assert } from "@/lib/packages/utils";
 import { useChains } from "@/context/ChainsContext";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { TxMsgDetails } from "../TxMsgDetails";
 import { Any } from "cosmjs-types/google/protobuf/any";
 import { TextProposal } from "cosmjs-types/cosmos/gov/v1beta1/gov";
 
@@ -20,7 +18,7 @@ interface MsgSubmitProposalFormProps {
   readonly setMsgGetter: (
     msgGetter: (senderAddress: string) => Promise<{
       readonly typeUrl: string;
-      readonly value: any;
+      readonly value: Record<string, unknown>;
     }>
   ) => void;
   readonly deleteMsg: () => void;
@@ -31,7 +29,6 @@ const MsgSubmitProposalForm = ({ setMsgGetter, deleteMsg }: MsgSubmitProposalFor
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<MsgSubmitProposalFormValues>({
     defaultValues: {
@@ -43,12 +40,13 @@ const MsgSubmitProposalForm = ({ setMsgGetter, deleteMsg }: MsgSubmitProposalFor
     },
   });
 
-  const [msgJson, setMsgJson] = useState<any>();
+  const [msgJson, setMsgJson] = useState<Record<string, unknown>>();
   const [showMsg, setShowMsg] = useState(false);
 
-  const proposalType = watch("proposalType");
-
-  const createMsgGetter = (values: MsgSubmitProposalFormValues) => async (senderAddress: string) => {
+  const createMsgGetter = (values: MsgSubmitProposalFormValues) => async (senderAddress: string): Promise<{
+    readonly typeUrl: string;
+    readonly value: Record<string, unknown>;
+  }> => {
     const proposer = values.proposerAddress || senderAddress;
     const microAmount = values.initialDepositAmount 
       ? (Number(values.initialDepositAmount) * 10 ** chain.displayDenomExponent).toString() 
@@ -85,7 +83,7 @@ const MsgSubmitProposalForm = ({ setMsgGetter, deleteMsg }: MsgSubmitProposalFor
       content,
       initialDeposit: microAmount ? [
         {
-          denom: chain.feeCurrencies[0].coinMinimalDenom,
+          denom: chain.assets?.[0]?.base || "uatom",
           amount: microAmount,
         },
       ] : [],
@@ -93,8 +91,8 @@ const MsgSubmitProposalForm = ({ setMsgGetter, deleteMsg }: MsgSubmitProposalFor
     });
 
     const msg = {
-      typeUrl: MsgTypeUrls.SubmitProposal,
-      value: msgValue,
+      typeUrl: MsgTypeUrls.SubmitProposal as string,
+      value: msgValue as unknown as Record<string, unknown>,
     };
 
     setMsgJson(msg.value);
@@ -207,8 +205,8 @@ const MsgSubmitProposalForm = ({ setMsgGetter, deleteMsg }: MsgSubmitProposalFor
       </form>
 
       {showMsg && msgJson && (
-        <div className="mt-4">
-          <TxMsgDetails msgValue={msgJson} />
+        <div className="mt-4 p-4 bg-gray-100 rounded">
+          <pre>{JSON.stringify(msgJson, null, 2)}</pre>
         </div>
       )}
     </div>

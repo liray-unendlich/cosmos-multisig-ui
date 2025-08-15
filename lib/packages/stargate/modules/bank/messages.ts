@@ -2,8 +2,8 @@ import { EncodeObject, GeneratedType } from "@/lib/packages/proto-signing";
 import { MsgMultiSend, MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
 
 export const bankTypes: ReadonlyArray<[string, GeneratedType]> = [
-  ["/cosmos.bank.v1beta1.MsgMultiSend", MsgMultiSend],
-  ["/cosmos.bank.v1beta1.MsgSend", MsgSend],
+  ["/cosmos.bank.v1beta1.MsgMultiSend", MsgMultiSend as unknown as GeneratedType],
+  ["/cosmos.bank.v1beta1.MsgSend", MsgSend as unknown as GeneratedType],
 ];
 
 export interface MsgSendEncodeObject extends EncodeObject {

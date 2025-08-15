@@ -9,7 +9,6 @@ import {
   MsgStoreCode,
   MsgUpdateAdmin,
 } from "cosmjs-types/cosmwasm/wasm/v1/tx";
-import Long from "long";
 
 // TODO: implement
 /**
@@ -164,7 +163,7 @@ export function createWasmAminoConverters(): AminoConverters {
         admin,
       }: AminoMsgInstantiateContract["value"]): MsgInstantiateContract => ({
         sender: sender,
-        codeId: Long.fromString(code_id),
+        codeId: BigInt(code_id),
         label: label,
         msg: toUtf8(JSON.stringify(msg)),
         funds: [...funds],
@@ -245,7 +244,7 @@ export function createWasmAminoConverters(): AminoConverters {
       }: AminoMsgMigrateContract["value"]): MsgMigrateContract => ({
         sender: sender,
         contract: contract,
-        codeId: Long.fromString(code_id),
+        codeId: BigInt(code_id),
         msg: toUtf8(JSON.stringify(msg)),
       }),
     },

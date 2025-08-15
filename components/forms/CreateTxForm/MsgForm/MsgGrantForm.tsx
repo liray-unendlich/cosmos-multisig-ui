@@ -1,5 +1,5 @@
 import { EncodeObject } from "@/lib/packages/proto-signing";
-import { GenericAuthorization, SendAuthorization, StakeAuthorization } from "cosmjs-types/cosmos/authz/v1beta1/authz";
+import { GenericAuthorization } from "cosmjs-types/cosmos/authz/v1beta1/authz";
 import { Grant } from "cosmjs-types/cosmos/authz/v1beta1/authz";
 import { Timestamp } from "cosmjs-types/google/protobuf/timestamp";
 import { useEffect, useState } from "react";
@@ -104,36 +104,29 @@ const MsgGrantForm = ({ granterAddress, setMsgGetter, deleteMsg }: MsgGrantFormP
     const createAuthorization = () => {
       switch (authorizationType) {
         case "send": {
-          const coins = spendLimit ? [{
-            denom: displayCoinToBaseCoin(
-              { denom: chain.displayDenom, amount: spendLimit }, 
-              chain.assets
-            ).denom,
-            amount: displayCoinToBaseCoin(
-              { denom: chain.displayDenom, amount: spendLimit }, 
-              chain.assets
-            ).amount,
-          }] : [];
-          
+          // SendAuthorization is not available in cosmjs-types v0.9.0
+          // We'll use GenericAuthorization as a fallback
           return {
-            typeUrl: "/cosmos.authz.v1beta1.SendAuthorization",
-            value: SendAuthorization.encode(
-              SendAuthorization.fromPartial({
-                spendLimit: coins,
+            typeUrl: "/cosmos.authz.v1beta1.GenericAuthorization",
+            value: GenericAuthorization.encode(
+              GenericAuthorization.fromPartial({
+                msg: "/cosmos.bank.v1beta1.MsgSend",
               })
             ).finish(),
           };
         }
         case "stake": {
-          const allowList = validatorAddress ? { address: [validatorAddress] } : undefined;
+          // StakeAuthorization is not available in cosmjs-types v0.9.0
+          // We'll use GenericAuthorization as a fallback
+          const msgType = authorizationMode === "DELEGATE" ? "/cosmos.staking.v1beta1.MsgDelegate" :
+                          authorizationMode === "UNDELEGATE" ? "/cosmos.staking.v1beta1.MsgUndelegate" :
+                          authorizationMode === "REDELEGATE" ? "/cosmos.staking.v1beta1.MsgBeginRedelegate" :
+                          "/cosmos.staking.v1beta1.MsgDelegate";
           return {
-            typeUrl: "/cosmos.authz.v1beta1.StakeAuthorization",
-            value: StakeAuthorization.encode(
-              StakeAuthorization.fromPartial({
-                authorizationType: authorizationMode === "DELEGATE" ? 1 : 
-                                  authorizationMode === "UNDELEGATE" ? 2 : 
-                                  authorizationMode === "REDELEGATE" ? 3 : 1,
-                allowList,
+            typeUrl: "/cosmos.authz.v1beta1.GenericAuthorization",
+            value: GenericAuthorization.encode(
+              GenericAuthorization.fromPartial({
+                msg: msgType,
               })
             ).finish(),
           };

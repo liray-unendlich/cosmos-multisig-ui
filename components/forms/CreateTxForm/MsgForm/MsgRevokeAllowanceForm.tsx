@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input";
 import { useChains } from "@/context/ChainsContext";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { TxMsgDetails } from "../TxMsgDetails";
 
 interface MsgRevokeAllowanceFormValues {
   granterAddress: string;
@@ -14,7 +13,7 @@ interface MsgRevokeAllowanceFormProps {
   readonly setMsgGetter: (
     msgGetter: (senderAddress: string) => Promise<{
       readonly typeUrl: string;
-      readonly value: any;
+      readonly value: Record<string, unknown>;
     }>
   ) => void;
   readonly deleteMsg: () => void;
@@ -33,10 +32,13 @@ const MsgRevokeAllowanceForm = ({ setMsgGetter, deleteMsg }: MsgRevokeAllowanceF
     },
   });
 
-  const [msgJson, setMsgJson] = useState<any>();
+  const [msgJson, setMsgJson] = useState<Record<string, unknown>>();
   const [showMsg, setShowMsg] = useState(false);
 
-  const createMsgGetter = (values: MsgRevokeAllowanceFormValues) => async (senderAddress: string) => {
+  const createMsgGetter = (values: MsgRevokeAllowanceFormValues) => async (senderAddress: string): Promise<{
+    readonly typeUrl: string;
+    readonly value: Record<string, unknown>;
+  }> => {
     const granter = values.granterAddress || senderAddress;
 
     const msgValue = MsgCodecs[MsgTypeUrls.RevokeAllowance].fromPartial({
@@ -45,8 +47,8 @@ const MsgRevokeAllowanceForm = ({ setMsgGetter, deleteMsg }: MsgRevokeAllowanceF
     });
 
     const msg = {
-      typeUrl: MsgTypeUrls.RevokeAllowance,
-      value: msgValue,
+      typeUrl: MsgTypeUrls.RevokeAllowance as string,
+      value: msgValue as unknown as Record<string, unknown>,
     };
 
     setMsgJson(msg.value);
@@ -107,8 +109,8 @@ const MsgRevokeAllowanceForm = ({ setMsgGetter, deleteMsg }: MsgRevokeAllowanceF
       </form>
 
       {showMsg && msgJson && (
-        <div className="mt-4">
-          <TxMsgDetails msgValue={msgJson} />
+        <div className="mt-4 p-4 bg-gray-100 rounded">
+          <pre>{JSON.stringify(msgJson, null, 2)}</pre>
         </div>
       )}
     </div>

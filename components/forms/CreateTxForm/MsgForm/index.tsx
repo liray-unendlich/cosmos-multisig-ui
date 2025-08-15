@@ -1,5 +1,6 @@
 import { MsgGetter } from "..";
 import { MsgTypeUrl, MsgTypeUrls } from "../../../../types/txMsg";
+import { EncodeObject } from "@/lib/packages/proto-signing";
 import MsgClaimRewardsForm from "./MsgClaimRewardsForm";
 import MsgCreateVestingAccountForm from "./MsgCreateVestingAccountForm";
 import MsgDelegateForm from "./MsgDelegateForm";
@@ -74,14 +75,54 @@ const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
       return <MsgRevokeForm granterAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Exec:
       return <MsgExecForm granteeAddress={senderAddress} {...restProps} />;
-    case MsgTypeUrls.Deposit:
-      return <MsgDepositForm {...restProps} />;
-    case MsgTypeUrls.SubmitProposal:
-      return <MsgSubmitProposalForm {...restProps} />;
-    case MsgTypeUrls.GrantAllowance:
-      return <MsgGrantAllowanceForm {...restProps} />;
-    case MsgTypeUrls.RevokeAllowance:
-      return <MsgRevokeAllowanceForm {...restProps} />;
+    case MsgTypeUrls.Deposit: {
+      const wrappedSetMsgGetter = (msgGetter: (senderAddr: string) => Promise<{ readonly typeUrl: string; readonly value: Record<string, unknown>; }>) => {
+        msgGetter(senderAddress).then(msg => {
+          const newMsgGetter: MsgGetter = {
+            isMsgValid: () => true,
+            msg: msg as EncodeObject
+          };
+          restProps.setMsgGetter(newMsgGetter);
+        });
+      };
+      return <MsgDepositForm setMsgGetter={wrappedSetMsgGetter} deleteMsg={restProps.deleteMsg} />;
+    }
+    case MsgTypeUrls.SubmitProposal: {
+      const wrappedSetMsgGetter = (msgGetter: (senderAddr: string) => Promise<{ readonly typeUrl: string; readonly value: Record<string, unknown>; }>) => {
+        msgGetter(senderAddress).then(msg => {
+          const newMsgGetter: MsgGetter = {
+            isMsgValid: () => true,
+            msg: msg as EncodeObject
+          };
+          restProps.setMsgGetter(newMsgGetter);
+        });
+      };
+      return <MsgSubmitProposalForm setMsgGetter={wrappedSetMsgGetter} deleteMsg={restProps.deleteMsg} />;
+    }
+    case MsgTypeUrls.GrantAllowance: {
+      const wrappedSetMsgGetter = (msgGetter: (senderAddr: string) => Promise<{ readonly typeUrl: string; readonly value: Record<string, unknown>; }>) => {
+        msgGetter(senderAddress).then(msg => {
+          const newMsgGetter: MsgGetter = {
+            isMsgValid: () => true,
+            msg: msg as EncodeObject
+          };
+          restProps.setMsgGetter(newMsgGetter);
+        });
+      };
+      return <MsgGrantAllowanceForm setMsgGetter={wrappedSetMsgGetter} deleteMsg={restProps.deleteMsg} />;
+    }
+    case MsgTypeUrls.RevokeAllowance: {
+      const wrappedSetMsgGetter = (msgGetter: (senderAddr: string) => Promise<{ readonly typeUrl: string; readonly value: Record<string, unknown>; }>) => {
+        msgGetter(senderAddress).then(msg => {
+          const newMsgGetter: MsgGetter = {
+            isMsgValid: () => true,
+            msg: msg as EncodeObject
+          };
+          restProps.setMsgGetter(newMsgGetter);
+        });
+      };
+      return <MsgRevokeAllowanceForm setMsgGetter={wrappedSetMsgGetter} deleteMsg={restProps.deleteMsg} />;
+    }
     default:
       return null;
   }

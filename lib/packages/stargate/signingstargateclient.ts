@@ -43,14 +43,14 @@ import Long from "long";
 import { AminoConverters, AminoTypes } from "./aminotypes";
 import { calculateFee, GasPrice } from "./fee";
 import {
-  aiozrc20Types,
+  // aiozrc20Types,
   authzTypes,
   bankTypes,
   createMsgWrappedEthereumTxEncodeObjectFromTxData,
   distributionTypes,
-  ethermintTypes,
-  evmTypes,
-  ExtensionOptionsWeb3TxEncodeObject,
+  // ethermintTypes,
+  // evmTypes,
+  // ExtensionOptionsWeb3TxEncodeObject,
   ExtensionOptionsWrappedEthereumTxEncodeObject,
   feegrantTypes,
   govTypes,
@@ -90,10 +90,10 @@ export const defaultRegistryTypes: ReadonlyArray<[string, GeneratedType]> = [
   ...stakingTypes,
   ...ibcTypes,
   ...vestingTypes,
-  ...aiozrc20Types,
+  // ...aiozrc20Types,
   ...gravityTypes,
-  ...ethermintTypes,
-  ...evmTypes,
+  // ...ethermintTypes,
+  // ...evmTypes,
   ...wetxTypes,
 ];
 

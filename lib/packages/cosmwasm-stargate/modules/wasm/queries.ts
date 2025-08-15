@@ -10,7 +10,6 @@ import {
   QueryContractsByCodeResponse,
   QueryRawContractStateResponse,
 } from "cosmjs-types/cosmwasm/wasm/v1/query";
-import Long from "long";
 
 /**
  * An object containing a parsed JSON document. The result of JSON.parse().
@@ -83,12 +82,12 @@ export function setupWasmExtension(base: QueryClient): WasmExtension {
         return queryService.Codes(request);
       },
       getCode: async (id: number) => {
-        const request = { codeId: Long.fromNumber(id) };
+        const request = { codeId: BigInt(id) };
         return queryService.Code(request);
       },
       listContractsByCodeId: async (id: number, paginationKey?: Uint8Array) => {
         const request = {
-          codeId: Long.fromNumber(id),
+          codeId: BigInt(id),
           pagination: createPagination(paginationKey),
         };
         return queryService.ContractsByCode(request);

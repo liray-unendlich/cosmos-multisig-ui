@@ -12,8 +12,8 @@ import Long from "long";
 import { DynamicFeeTxEncodeObject } from "../ethermint/messages";
 
 export const wetxTypes: ReadonlyArray<[string, GeneratedType]> = [
-  ["/aioz.wetx.v1.MsgWrappedEthereumTx", MsgWrappedEthereumTx as unknown as GeneratedType],
-  ["/aioz.wetx.v1.ExtensionOptionsWrappedEthereumTx", ExtensionOptionsWrappedEthereumTx as unknown as GeneratedType],
+  ["/aioz.wetx.v1.MsgWrappedEthereumTx", MsgWrappedEthereumTx],
+  ["/aioz.wetx.v1.ExtensionOptionsWrappedEthereumTx", ExtensionOptionsWrappedEthereumTx],
 ];
 
 export interface MsgWrappedEthereumTxEncodeObject extends EncodeObject {

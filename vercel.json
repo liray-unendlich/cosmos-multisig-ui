@@ -1,0 +1,10 @@
+{
+  "buildCommand": "yarn install --immutable --immutable-cache --check-cache && yarn build",
+  "installCommand": "yarn install --immutable",
+  "framework": "nextjs",
+  "functions": {
+    "pages/api/*": {
+      "maxDuration": 60
+    }
+  }
+}

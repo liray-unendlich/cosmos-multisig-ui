@@ -1,10 +1,8 @@
 import { MsgCodecs, MsgTypeUrls } from "@/types/txMsg";
 import { Input } from "@/components/ui/input";
-import { assert } from "@/lib/packages/utils";
 import { useChains } from "@/context/ChainsContext";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { TxMsgDetails } from "../TxMsgDetails";
 
 interface MsgDepositFormValues {
   proposalId: string;
@@ -17,7 +15,7 @@ interface MsgDepositFormProps {
   readonly setMsgGetter: (
     msgGetter: (senderAddress: string) => Promise<{
       readonly typeUrl: string;
-      readonly value: any;
+      readonly value: Record<string, unknown>;
     }>
   ) => void;
   readonly deleteMsg: () => void;
@@ -38,10 +36,13 @@ const MsgDepositForm = ({ setMsgGetter, deleteMsg }: MsgDepositFormProps) => {
     },
   });
 
-  const [msgJson, setMsgJson] = useState<any>();
+  const [msgJson, setMsgJson] = useState<Record<string, unknown>>();
   const [showMsg, setShowMsg] = useState(false);
 
-  const createMsgGetter = (values: MsgDepositFormValues) => async (senderAddress: string) => {
+  const createMsgGetter = (values: MsgDepositFormValues) => async (senderAddress: string): Promise<{
+    readonly typeUrl: string;
+    readonly value: Record<string, unknown>;
+  }> => {
     const depositor = values.depositorAddress || senderAddress;
     const microAmount = values.amount ? (Number(values.amount) * 10 ** chain.displayDenomExponent).toString() : "0";
 
@@ -50,15 +51,15 @@ const MsgDepositForm = ({ setMsgGetter, deleteMsg }: MsgDepositFormProps) => {
       depositor,
       amount: [
         {
-          denom: chain.feeCurrencies[0].coinMinimalDenom,
+          denom: chain.assets?.[0]?.base || "uatom",
           amount: microAmount,
         },
       ],
     });
 
     const msg = {
-      typeUrl: MsgTypeUrls.Deposit,
-      value: msgValue,
+      typeUrl: MsgTypeUrls.Deposit as string,
+      value: msgValue as unknown as Record<string, unknown>,
     };
 
     setMsgJson(msg.value);
@@ -141,8 +142,8 @@ const MsgDepositForm = ({ setMsgGetter, deleteMsg }: MsgDepositFormProps) => {
       </form>
 
       {showMsg && msgJson && (
-        <div className="mt-4">
-          <TxMsgDetails msgValue={msgJson} />
+        <div className="mt-4 p-4 bg-gray-100 rounded">
+          <pre>{JSON.stringify(msgJson, null, 2)}</pre>
         </div>
       )}
     </div>

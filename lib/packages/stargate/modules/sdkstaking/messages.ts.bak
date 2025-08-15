@@ -8,11 +8,11 @@ import {
 } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 
 export const stakingTypes: ReadonlyArray<[string, GeneratedType]> = [
-  ["/cosmos.staking.v1beta1.MsgBeginRedelegate", MsgBeginRedelegate as unknown as GeneratedType],
-  ["/cosmos.staking.v1beta1.MsgCreateValidator", MsgCreateValidator as unknown as GeneratedType],
-  ["/cosmos.staking.v1beta1.MsgDelegate", MsgDelegate as unknown as GeneratedType],
-  ["/cosmos.staking.v1beta1.MsgEditValidator", MsgEditValidator as unknown as GeneratedType],
-  ["/cosmos.staking.v1beta1.MsgUndelegate", MsgUndelegate as unknown as GeneratedType],
+  ["/cosmos.staking.v1beta1.MsgBeginRedelegate", MsgBeginRedelegate],
+  ["/cosmos.staking.v1beta1.MsgCreateValidator", MsgCreateValidator],
+  ["/cosmos.staking.v1beta1.MsgDelegate", MsgDelegate],
+  ["/cosmos.staking.v1beta1.MsgEditValidator", MsgEditValidator],
+  ["/cosmos.staking.v1beta1.MsgUndelegate", MsgUndelegate],
 ];
 
 export interface MsgBeginRedelegateEncodeObject extends EncodeObject {

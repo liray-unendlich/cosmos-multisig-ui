@@ -45,7 +45,6 @@ import {
   MsgStoreCode,
   MsgUpdateAdmin,
 } from "cosmjs-types/cosmwasm/wasm/v1/tx";
-import Long from "long";
 import pako from "pako";
 
 import { CosmWasmClient } from "./cosmwasmclient";
@@ -303,7 +302,7 @@ export class SigningCosmWasmClient extends CosmWasmClient {
       typeUrl: "/cosmwasm.wasm.v1.MsgInstantiateContract",
       value: MsgInstantiateContract.fromPartial({
         sender: senderAddress,
-        codeId: Long.fromString(new Uint53(codeId).toString()),
+        codeId: BigInt(codeId),
         label: label,
         msg: toUtf8(JSON.stringify(msg)),
         funds: [...(options.funds || [])],
@@ -401,7 +400,7 @@ export class SigningCosmWasmClient extends CosmWasmClient {
       value: MsgMigrateContract.fromPartial({
         sender: senderAddress,
         contract: contractAddress,
-        codeId: Long.fromString(new Uint53(codeId).toString()),
+        codeId: BigInt(codeId),
         msg: toUtf8(JSON.stringify(migrateMsg)),
       }),
     };

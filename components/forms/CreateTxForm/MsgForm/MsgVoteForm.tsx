@@ -62,7 +62,7 @@ const MsgVoteForm = ({
     if (voteAddress && proposalId && option !== undefined) {
       msgValue = MsgCodecs[MsgTypeUrls.Vote].fromPartial({
         voter: voteAddress,
-        proposalId: proposalId,
+        proposalId: BigInt(proposalId),
         option: option,
       });
 

@@ -9,7 +9,8 @@ import {
   DelayedVestingAccount,
   PeriodicVestingAccount,
 } from "cosmjs-types/cosmos/vesting/v1beta1/vesting";
-import { EthAccount } from "cosmjs-types/ethermint/types/v1/account";
+// EthAccount is not available in cosmjs-types v0.9.0
+// import { EthAccount } from "cosmjs-types/ethermint/types/v1/account";
 import { Any } from "cosmjs-types/google/protobuf/any";
 import Long from "long";
 
@@ -21,7 +22,7 @@ export interface Account {
   readonly sequence: number;
 }
 
-function uint64FromProto(input: number | Long): Uint64 {
+function uint64FromProto(input: number | Long | bigint): Uint64 {
   return Uint64.fromString(input.toString());
 }
 
@@ -87,9 +88,11 @@ export function accountFromAny(input: Any): Account {
     // evm
 
     case "/ethermint.types.v1.EthAccount": {
-      const baseAccount = EthAccount.decode(value)?.baseAccount;
-      assert(baseAccount);
-      return accountFromBaseAccount(baseAccount);
+      // EthAccount is not available in cosmjs-types v0.9.0
+      throw new Error("EthAccount is not supported in this version");
+      // const baseAccount = EthAccount.decode(value)?.baseAccount;
+      // assert(baseAccount);
+      // return accountFromBaseAccount(baseAccount);
     }
 
     default:

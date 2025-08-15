@@ -65,7 +65,7 @@ export interface EncodeObject {
 interface TxBodyValue {
   readonly messages: readonly EncodeObject[];
   readonly memo?: string;
-  readonly timeoutHeight?: Long;
+  readonly timeoutHeight?: Long | bigint;
   readonly extensionOptions?: Any[];
   readonly nonCriticalExtensionOptions?: Any[];
 }
@@ -101,8 +101,8 @@ export class Registry {
     this.types = customTypes
       ? new Map<string, GeneratedType>([...customTypes])
       : new Map<string, GeneratedType>([
-          [cosmosCoin, Coin],
-          [cosmosMsgSend, MsgSend],
+          [cosmosCoin, Coin as unknown as GeneratedType],
+          [cosmosMsgSend, MsgSend as unknown as GeneratedType],
         ]);
   }
 
@@ -172,6 +172,11 @@ export class Registry {
     const txBody = TxBody.fromPartial({
       ...txBodyFields,
       messages: wrappedMessages,
+      timeoutHeight: txBodyFields.timeoutHeight ? 
+        (typeof txBodyFields.timeoutHeight === 'bigint' ? 
+          txBodyFields.timeoutHeight : 
+          BigInt(txBodyFields.timeoutHeight.toString())) : 
+        undefined,
     });
     return TxBody.encode(txBody).finish();
   }

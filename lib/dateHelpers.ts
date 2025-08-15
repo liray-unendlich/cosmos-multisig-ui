@@ -47,3 +47,8 @@ export const datetimeLocalFromTimestamp = (timestamp: number): string => {
 
   return `${minDate.getFullYear()}-${minMonthStr}-${minDayStr}T${minHoursStr}:${minMinutesStr}`;
 };
+
+export const displayDate = (dateStr: string): string => {
+  const date = new Date(dateStr);
+  return date.toLocaleString();
+};
