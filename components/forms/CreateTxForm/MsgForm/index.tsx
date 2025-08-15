@@ -17,6 +17,9 @@ import MsgCreateValidatorForm from "./MsgCreateValidatorForm";
 import MsgEditValidatorForm from "./MsgEditValidatorForm";
 import MsgUnjailForm from "./MsgUnjailForm";
 import MsgClaimValidatorCommissionForm from "./MsgClaimValidatorCommissionForm";
+import MsgGrantForm from "./MsgGrantForm";
+import MsgRevokeForm from "./MsgRevokeForm";
+import MsgExecForm from "./MsgExecForm";
 
 interface MsgFormProps {
   readonly msgType: MsgTypeUrl;
@@ -61,6 +64,12 @@ const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
       return <MsgInstantiateContract2Form fromAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Migrate:
       return <MsgMigrateContractForm fromAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.Grant:
+      return <MsgGrantForm granterAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.Revoke:
+      return <MsgRevokeForm granterAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.Exec:
+      return <MsgExecForm granteeAddress={senderAddress} {...restProps} />;
     default:
       return null;
   }

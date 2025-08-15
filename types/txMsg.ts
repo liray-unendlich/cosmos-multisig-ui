@@ -20,6 +20,7 @@ import {
 import { MsgTransfer } from "cosmjs-types/ibc/applications/transfer/v1/tx";
 import { MsgCreateValidator,MsgEditValidator } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 import { MsgUnjail } from "cosmjs-types/cosmos/slashing/v1beta1/tx";
+import { MsgGrant, MsgRevoke, MsgExec } from "cosmjs-types/cosmos/authz/v1beta1/tx";
 
 export const MsgTypeUrls = {
   Send: "/cosmos.bank.v1beta1.MsgSend",
@@ -39,6 +40,9 @@ export const MsgTypeUrls = {
   EditValidator: "/cosmos.staking.v1beta1.MsgEditValidator",
   Unjail: "/cosmos.slashing.v1beta1.MsgUnjail",
   WithdrawValidatorCommission: "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission",
+  Grant: "/cosmos.authz.v1beta1.MsgGrant",
+  Revoke: "/cosmos.authz.v1beta1.MsgRevoke",
+  Exec: "/cosmos.authz.v1beta1.MsgExec",
 } as const;
 
 export type MsgTypeUrl = (typeof MsgTypeUrls)[keyof typeof MsgTypeUrls];
@@ -61,4 +65,7 @@ export const MsgCodecs = {
   [MsgTypeUrls.CreateValidator]: MsgCreateValidator,
   [MsgTypeUrls.EditValidator]: MsgEditValidator,
   [MsgTypeUrls.Unjail]: MsgUnjail,
+  [MsgTypeUrls.Grant]: MsgGrant,
+  [MsgTypeUrls.Revoke]: MsgRevoke,
+  [MsgTypeUrls.Exec]: MsgExec,
 };

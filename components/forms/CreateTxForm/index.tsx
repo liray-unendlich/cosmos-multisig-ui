@@ -271,6 +271,20 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
           </ul>
         </div>
         <div className="btn-cluster">
+          <label>Authorization</label>
+          <ul>
+            <li>
+              <Button label="Grant" onClick={() => addMsgType(MsgTypeUrls.Grant)} />
+            </li>
+            <li>
+              <Button label="Revoke" onClick={() => addMsgType(MsgTypeUrls.Revoke)} />
+            </li>
+            <li>
+              <Button label="Exec" onClick={() => addMsgType(MsgTypeUrls.Exec)} />
+            </li>
+          </ul>
+        </div>
+        <div className="btn-cluster">
           <label>CosmWasm</label>
           <ul>
             <li>

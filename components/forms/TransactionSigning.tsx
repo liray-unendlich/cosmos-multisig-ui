@@ -12,7 +12,14 @@ import {
   createDistributionAminoConverters,
   createGovAminoConverters,
   createSlashingAminoConverters,
+  createIbcAminoConverters,
+  createFeegrantAminoConverters,
+  createVestingAminoConverters,
   defaultRegistryTypes,
+  ibcTypes,
+  feegrantTypes,
+  vestingTypes,
+  authzTypes,
   AminoMsgUnjail,
 } from "@/lib/packages/stargate";
 //import { createDefaultAminoConverters } from "@cosmjs/stargate";
@@ -148,14 +155,21 @@ const TransactionSigning = (props: TransactionSigningProps) => {
   const signTransaction = async () => {
     try {
       setLoading((newLoading) => ({ ...newLoading, signing: true }));
-      // debugger;
       const offlineSigner =
         walletType === "Keplr" ? window.getOfflineSignerOnlyAmino(chain.chainId) : ledgerSigner;
 
       const signerAddress = walletAccount?.bech32Address;
       assert(signerAddress, "Missing signer address");
       const signingClient = await SigningStargateClient.offline(offlineSigner, {
-        registry: new Registry([...defaultRegistryTypes, ["/cosmos.slashing.v1beta1.MsgUnjail", MsgUnjail]]),
+        registry: new Registry([
+          ...defaultRegistryTypes, 
+          ["/cosmos.slashing.v1beta1.MsgUnjail", MsgUnjail],
+          // Add IBC, Feegrant, and Vesting message types
+          ...ibcTypes,
+          ...feegrantTypes,
+          ...vestingTypes,
+          ...authzTypes,
+        ]),
         aminoTypes: new AminoTypes({
           ...createWasmAminoConverters(),
           ...createSdkStakingAminoConverters("cosmos"),
@@ -164,6 +178,10 @@ const TransactionSigning = (props: TransactionSigningProps) => {
           ...createAuthzAminoConverters(),
           ...createSlashingAminoConverters(),
           ...createDistributionAminoConverters(),
+          // Add IBC, Feegrant, and Vesting amino converters
+          ...createIbcAminoConverters(),
+          ...createFeegrantAminoConverters(),
+          ...createVestingAminoConverters(),
         }),
       });
 
@@ -200,7 +218,8 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         setSigning("signed");
       }
     } catch (e) {
-      console.log("signing err: ", e);
+      console.error("signing transaction failed", e);
+      setSigError(e.message || e);
     } finally {
       setLoading((newLoading) => ({ ...newLoading, signing: false }));
     }
