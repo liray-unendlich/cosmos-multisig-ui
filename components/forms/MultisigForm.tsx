@@ -56,13 +56,18 @@ const MultiSigForm = (props: Props) => {
   };
 
   const getPubkeyFromNode = async (address: string) => {
+    // Check if nodeAddress is available
+    if (!chain.nodeAddress) {
+      throw new Error("RPC endpoint not available");
+    }
+    
     // Force HTTPS-only connection to prevent WebSocket security errors
     const client = await StargateClient.connect({ url: chain.nodeAddress, headers: {} });
     const accountOnChain = await client.getAccount(address);
     // console.log("getPubkeyFromNode", JSON.stringify({ accountOnChain }, null, 2));
 
     return accountOnChain && accountOnChain.pubkey;
-  };;
+  };;;
 
   const handleKeyBlur = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     try {

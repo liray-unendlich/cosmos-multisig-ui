@@ -34,6 +34,12 @@ export class HttpClient implements RpcClient {
       this.url = endpoint.url;
       this.headers = endpoint.headers;
     }
+    
+    // Validate URL is not empty
+    if (!this.url || this.url.trim() === "") {
+      throw new Error("RPC endpoint URL cannot be empty");
+    }
+    
     // Debug log for connection URL
     console.log("HttpClient connecting to:", this.url);
   }

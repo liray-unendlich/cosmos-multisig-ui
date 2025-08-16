@@ -28,6 +28,12 @@ const FindMultisigForm = (props: Props) => {
         return;
       }
 
+      // Check if nodeAddress is available
+      if (!chain.nodeAddress) {
+        setMultisigError("RPC endpoint not available. Please wait or select a different chain.");
+        return;
+      }
+
       try {
         // Force HTTPS-only connection to prevent WebSocket security errors
         const client = await StargateClient.connect({ url: chain.nodeAddress, headers: {} });
@@ -49,7 +55,7 @@ const FindMultisigForm = (props: Props) => {
     <StackableContainer>
       <StackableContainer lessPadding>
         <p>
-          Already have a multisig address? Enter it below. If it’s a valid address, you will be able
+          Already have a multisig address? Enter it below. If it's a valid address, you will be able
           to view its transactions and create new ones.
         </p>
       </StackableContainer>
