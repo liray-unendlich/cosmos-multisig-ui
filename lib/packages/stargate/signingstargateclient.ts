@@ -473,12 +473,11 @@ export class SigningStargateClient extends StargateClient {
     }
     const account = {
       ...accountFromSigner,
-      // algo: this.pubkeyAlgo || accountFromSigner.algo,
-      algo: "ethsecp256k1",
+      algo: accountFromSigner.algo,
     };
     // console.log("signAmino # 2: account", JSON.stringify({ account }, null, 2));
     const pubkey =
-      account.algo == "ethsecp256k1"
+      account.algo == "eth_secp256k1"
         ? encodePubkey(encodeEthSecp256k1Pubkey(account.pubkey))
         : encodePubkey(encodeSecp256k1Pubkey(account.pubkey));
     // console.log("signAmino # 3: pubkey", JSON.stringify({ account }, null, 2));

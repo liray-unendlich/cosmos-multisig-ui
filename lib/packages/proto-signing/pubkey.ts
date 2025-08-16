@@ -36,15 +36,15 @@ export function encodePubkey(pubkey: Pubkey): Any {
       value: Uint8Array.from(CosmosCryptoSecp256k1Pubkey.encode(pubkeyProto).finish()),
     });
   } else if (isEthSecp256k1Pubkey(pubkey)) {
-    // EthSecp256k1 support is not available in cosmjs-types v0.9.0
-    throw new Error("EthSecp256k1 pubkey type is not supported in this version");
-    // const pubkeyProto = CosmosCryptoEthSecp256k1Pubkey.fromPartial({
-    //   key: fromBase64(pubkey.value),
-    // });
-    // return Any.fromPartial({
-    //   typeUrl: "/ethermint.crypto.v1.ethsecp256k1.PubKey",
-    //   value: Uint8Array.from(CosmosCryptoEthSecp256k1Pubkey.encode(pubkeyProto).finish()),
-    // });
+    // For EthSecp256k1, we use the same structure as secp256k1 since they're identical
+    // The only difference is the type URL
+    const pubkeyProto = CosmosCryptoSecp256k1Pubkey.fromPartial({
+      key: fromBase64(pubkey.value),
+    });
+    return Any.fromPartial({
+      typeUrl: "/ethermint.crypto.v1.ethsecp256k1.PubKey",
+      value: Uint8Array.from(CosmosCryptoSecp256k1Pubkey.encode(pubkeyProto).finish()),
+    });
   } else if (isEd25519Pubkey(pubkey)) {
     const pubkeyProto = CosmosCryptoEd25519Pubkey.fromPartial({
       key: fromBase64(pubkey.value),
@@ -81,10 +81,11 @@ export function anyToSinglePubkey(pubkey: Any): SinglePubkey {
       return encodeSecp256k1Pubkey(key);
     }
     case "/ethermint.crypto.v1.ethsecp256k1.PubKey": {
-      // EthSecp256k1 support is not available in cosmjs-types v0.9.0
-      throw new Error("EthSecp256k1 pubkey type is not supported in this version");
-      // const { key } = CosmosCryptoEthSecp256k1Pubkey.decode(pubkey.value);
-      // return encodeEthSecp256k1Pubkey(key);
+      // For EthSecp256k1, we need to manually decode since it's not in cosmjs-types v0.9.0
+      // The structure is the same as secp256k1 (just a key field)
+      // We'll decode it as if it's a secp256k1 key since the proto structure is identical
+      const { key } = CosmosCryptoSecp256k1Pubkey.decode(pubkey.value);
+      return encodeEthSecp256k1Pubkey(key);
     }
     case "/cosmos.crypto.ed25519.PubKey": {
       const { key } = CosmosCryptoEd25519Pubkey.decode(pubkey.value);
