@@ -86,6 +86,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
 
       setWalletType("Keplr");
       setConnectError("");
+      setSigError(""); // Clear any previous signature errors
     } catch (e) {
       console.error(e);
       setConnectError(getConnectError(e));
@@ -142,6 +143,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       setLedgerSigner(offlineSigner);
       setWalletType("Ledger");
       setConnectError("");
+      setSigError(""); // Clear any previous signature errors
     } catch (e) {
       console.error(e);
       setConnectError(getConnectError(e));
@@ -153,6 +155,8 @@ const TransactionSigning = (props: TransactionSigningProps) => {
   const signTransaction = async () => {
     try {
       setLoading((newLoading) => ({ ...newLoading, signing: true }));
+      setSigError(""); // Clear any previous errors before signing
+      
       const offlineSigner =
         walletType === "Keplr" ? window.getOfflineSignerOnlyAmino(chain.chainId) : ledgerSigner;
 
@@ -195,15 +199,19 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         signerData,
       );
 
-      // check existing signatures
+      // check existing signatures - compare both signature and address
       const bases64EncodedSignature = toBase64(signatures[0]);
       const bases64EncodedBodyBytes = toBase64(bodyBytes);
-      const prevSigMatch = props.signatures.findIndex(
-        (signature) => signature.signature === bases64EncodedSignature,
+      
+      // Check if this address has already signed (not just if signature matches)
+      const hasAlreadySigned = props.signatures.some(
+        (sig) => sig.address === signerAddress
       );
 
-      if (prevSigMatch > -1) {
-        setSigError("This account has already signed.");
+      if (hasAlreadySigned) {
+        setSigError("This account has already signed this transaction.");
+        // Still mark as signed since the account has indeed signed
+        setSigning("signed");
       } else {
         const signature = {
           bodyBytes: bases64EncodedBodyBytes,
@@ -226,12 +234,15 @@ const TransactionSigning = (props: TransactionSigningProps) => {
     <>
       <StackableContainer lessPadding lessMargin lessRadius>
         <h2>Current Signers</h2>
-        {props.signatures.map((signature, i) => (
-          <StackableContainer lessPadding lessRadius lessMargin key={`${signature.address}_${i}`}>
-            <HashView hash={signature.address} />
-          </StackableContainer>
-        ))}
-        {!props.signatures.length ? <p>No signatures yet</p> : null}
+        {props.signatures.length === 0 ? (
+          <p>No signatures yet</p>
+        ) : (
+          props.signatures.map((signature, i) => (
+            <StackableContainer lessPadding lessRadius lessMargin key={`${signature.address}_${i}`}>
+              <HashView hash={signature.address} />
+            </StackableContainer>
+          ))
+        )}
       </StackableContainer>
       <StackableContainer lessPadding lessMargin lessRadius>
         {signing === "signed" ? (
@@ -277,7 +288,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         {sigError ? (
           <StackableContainer lessPadding lessRadius lessMargin>
             <div className="signature-error">
-              <p>This account has already signed this transaction</p>
+              <p>{sigError}</p>
             </div>
           </StackableContainer>
         ) : null}
