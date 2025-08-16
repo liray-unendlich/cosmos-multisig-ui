@@ -43,12 +43,30 @@ export class HttpClient implements RpcClient {
   }
 
   public async execute(request: JsonRpcRequest): Promise<JsonRpcSuccessResponse> {
-    // Ensure URL ends with / for proper JSON-RPC endpoint
-    const rpcUrl = this.url.endsWith("/") ? this.url : `${this.url}/`;
-    const response = parseJsonRpcResponse(await http("POST", rpcUrl, this.headers, request));
-    if (isJsonRpcErrorResponse(response)) {
-      throw new Error(JSON.stringify(response.error));
+    // For debugging: log the request details
+    console.log("HttpClient.execute - URL:", this.url, "Method:", request.method);
+    
+    // Try the URL as-is first, don't automatically append /
+    // Some RPC endpoints might have specific paths or query parameters
+    try {
+      const response = parseJsonRpcResponse(await http("POST", this.url, this.headers, request));
+      if (isJsonRpcErrorResponse(response)) {
+        throw new Error(JSON.stringify(response.error));
+      }
+      return response;
+    } catch (error: any) {
+      // If we get a 405 and the URL doesn't end with /, try adding it
+      if (error.message && error.message.includes("405") && !this.url.endsWith("/")) {
+        console.log("Got 405 error, retrying with trailing slash");
+        const urlWithSlash = `${this.url}/`;
+        const response = parseJsonRpcResponse(await http("POST", urlWithSlash, this.headers, request));
+        if (isJsonRpcErrorResponse(response)) {
+          throw new Error(JSON.stringify(response.error));
+        }
+        return response;
+      }
+      // Re-throw the original error
+      throw error;
     }
-    return response;
   }
 }
