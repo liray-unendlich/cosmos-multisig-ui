@@ -8,7 +8,6 @@ import TxMsgClaimRewardsDetails from "./TxMsgClaimRewardsDetails";
 import TxMsgCreateVestingAccountDetails from "./TxMsgCreateVestingAccountDetails";
 import TxMsgDelegateDetails from "./TxMsgDelegateDetails";
 import TxMsgExecuteContractDetails from "./TxMsgExecuteContractDetails";
-import TxMsgInstantiateContract2Details from "./TxMsgInstantiateContract2Details";
 import TxMsgInstantiateContractDetails from "./TxMsgInstantiateContractDetails";
 import TxMsgMigrateContractDetails from "./TxMsgMigrateContractDetails";
 import TxMsgRedelegateDetails from "./TxMsgRedelegateDetails";
@@ -58,8 +57,8 @@ const TxMsgDetails = ({ typeUrl, value: msgValue }: EncodeObject) => {
       return <TxMsgExecuteContractDetails msgValue={msgValue} />;
     case MsgTypeUrls.Instantiate:
       return <TxMsgInstantiateContractDetails msgValue={msgValue} />;
-    case MsgTypeUrls.Instantiate2:
-      return <TxMsgInstantiateContract2Details msgValue={msgValue} />;
+    // case MsgTypeUrls.Instantiate2: // Not available in cosmjs-types
+    //   return <TxMsgInstantiateContract2Details msgValue={msgValue} />;
     case MsgTypeUrls.Migrate:
       return <TxMsgMigrateContractDetails msgValue={msgValue} />;
     case MsgTypeUrls.Grant:

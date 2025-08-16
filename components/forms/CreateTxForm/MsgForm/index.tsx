@@ -5,7 +5,6 @@ import MsgClaimRewardsForm from "./MsgClaimRewardsForm";
 import MsgCreateVestingAccountForm from "./MsgCreateVestingAccountForm";
 import MsgDelegateForm from "./MsgDelegateForm";
 import MsgExecuteContractForm from "./MsgExecuteContractForm";
-import MsgInstantiateContract2Form from "./MsgInstantiateContract2Form";
 import MsgInstantiateContractForm from "./MsgInstantiateContractForm";
 import MsgMigrateContractForm from "./MsgMigrateContractForm";
 import MsgRedelegateForm from "./MsgRedelegateForm";
@@ -65,8 +64,8 @@ const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
       return <MsgExecuteContractForm fromAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Instantiate:
       return <MsgInstantiateContractForm fromAddress={senderAddress} {...restProps} />;
-    case MsgTypeUrls.Instantiate2:
-      return <MsgInstantiateContract2Form fromAddress={senderAddress} {...restProps} />;
+    // case MsgTypeUrls.Instantiate2: // Not available in cosmjs-types v0.9.0
+    //   return <MsgInstantiateContract2Form fromAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Migrate:
       return <MsgMigrateContractForm fromAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Grant:

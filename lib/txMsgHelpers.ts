@@ -36,10 +36,29 @@ const gasOfMsg = (msgType: MsgTypeUrl): number => {
       return 150_000;
     case MsgTypeUrls.Instantiate:
       return 150_000;
-    case MsgTypeUrls.Instantiate2:
-      return 150_000;
+    // case MsgTypeUrls.Instantiate2: // Not available in cosmjs-types
+    //   return 150_000;
     case MsgTypeUrls.Migrate:
       return 150_000;
+    // Authz messages
+    case MsgTypeUrls.Grant:
+      return 100_000;
+    case MsgTypeUrls.Revoke:
+      return 100_000;
+    case MsgTypeUrls.Exec:
+      return 150_000;
+    // Feegrant messages
+    case MsgTypeUrls.GrantAllowance:
+      return 100_000;
+    case MsgTypeUrls.RevokeAllowance:
+      return 100_000;
+    // Gov messages that were missing
+    case MsgTypeUrls.Deposit:
+      return 100_000;
+    case MsgTypeUrls.SubmitProposal:
+      return 150_000;
+    case MsgTypeUrls.VoteWeighted:
+      return 100_000;
     default:
       throw new Error("Unknown msg type");
   }

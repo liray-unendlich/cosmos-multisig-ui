@@ -38,7 +38,7 @@ export const MsgTypeUrls = {
   Transfer: "/ibc.applications.transfer.v1.MsgTransfer",
   Execute: "/cosmwasm.wasm.v1.MsgExecuteContract",
   Instantiate: "/cosmwasm.wasm.v1.MsgInstantiateContract",
-  Instantiate2: "/cosmwasm.wasm.v1.MsgInstantiateContract2",
+  // Instantiate2: "/cosmwasm.wasm.v1.MsgInstantiateContract2", // Not available in cosmjs-types
   Migrate: "/cosmwasm.wasm.v1.MsgMigrateContract",
   CreateValidator: "/cosmos.staking.v1beta1.MsgCreateValidator",
   EditValidator: "/cosmos.staking.v1beta1.MsgEditValidator",

@@ -316,12 +316,14 @@ const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormPro
                 onClick={() => addMsgType(MsgTypeUrls.Instantiate)}
               />
             </li>
-            <li>
+            {/* <li>
               <Button
                 label="InstantiateContract2"
                 onClick={() => addMsgType(MsgTypeUrls.Instantiate2)}
+                disabled={true}
+                title="Not available in cosmjs-types v0.9.0"
               />
-            </li>
+            </li> */}
             <li>
               <Button label="ExecuteContract" onClick={() => addMsgType(MsgTypeUrls.Execute)} />
             </li>
