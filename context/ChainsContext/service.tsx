@@ -70,27 +70,46 @@ export const useChainsFromRegistry = () => {
 };
 
 export const getNodeFromArray = async (nodeArray: readonly string[]) => {
+  // Normalize URLs by removing default HTTPS port
+  const normalizeUrl = (url: string): string => {
+    // Remove :443 from HTTPS URLs as it's the default port
+    if (url.startsWith("https://") && url.includes(":443")) {
+      return url.replace(":443", "");
+    }
+    return url;
+  };
+
   // only return https connections
   const secureNodes = nodeArray
     .filter((address) => address.startsWith("https://"))
-    .map((address) => address);
+    .map((address) => normalizeUrl(address));
 
   if (!secureNodes.length) {
     throw new Error("No SSL enabled RPC nodes available for this chain");
   }
 
+  console.log("Testing RPC nodes:", secureNodes);
+  const errors: { node: string; error: any }[] = [];
+
   for (const node of secureNodes) {
     try {
+      console.log(`Testing node: ${node}`);
       // test client connection using HttpEndpoint to force HTTP connection
       // This prevents WebSocket connection attempts which fail in HTTPS environments
       const client = await StargateClient.connect({ url: node, headers: {} });
-      await client.getHeight();
+      const height = await client.getHeight();
+      console.log(`Successfully connected to: ${node}, height: ${height}`);
       return node;
-    } catch {}
+    } catch (error) {
+      console.error(`Failed to connect to ${node}:`, error);
+      errors.push({ node, error });
+    }
   }
 
-  throw new Error("No RPC nodes available for this chain");
-};;
+  // Provide detailed error information
+  console.error("All RPC nodes failed. Details:", errors);
+  throw new Error(`No RPC nodes available for this chain. Tested ${errors.length} nodes.`);
+};
 
 export const getChain = (chains: ChainItems) => {
   if (typeof window === "undefined") return emptyChain;
