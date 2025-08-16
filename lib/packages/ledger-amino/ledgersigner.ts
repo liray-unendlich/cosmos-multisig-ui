@@ -69,11 +69,16 @@ export class LedgerSigner implements OfflineAminoSigner {
     
     // Use the appropriate signature encoding based on the key algorithm
     if (this.keyAlgo === "eth_secp256k1") {
-      // For EthSecp256k1, we need to handle the signature differently
-      // The signature from Ledger for Ethereum-compatible chains includes recovery byte
+      // For EthSecp256k1, we need to add a recovery byte to make it 65 bytes
+      // Ledger returns 64 bytes (r + s), we need to append recovery byte (v)
+      // For Cosmos chains, the recovery byte is typically 0x00
+      const signatureWithRecovery = new Uint8Array(65);
+      signatureWithRecovery.set(signature, 0); // Copy the 64-byte signature
+      signatureWithRecovery[64] = 0x00; // Add recovery byte at the end
+      
       return {
         signed: signDoc,
-        signature: encodeEthSecp256k1Signature(accountForAddress.pubkey, signature),
+        signature: encodeEthSecp256k1Signature(accountForAddress.pubkey, signatureWithRecovery),
       };
     } else {
       return {
@@ -83,3 +88,4 @@ export class LedgerSigner implements OfflineAminoSigner {
     }
   }
 }
+
