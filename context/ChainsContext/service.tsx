@@ -81,15 +81,16 @@ export const getNodeFromArray = async (nodeArray: readonly string[]) => {
 
   for (const node of secureNodes) {
     try {
-      // test client connection
-      const client = await StargateClient.connect(node);
+      // test client connection using HttpEndpoint to force HTTP connection
+      // This prevents WebSocket connection attempts which fail in HTTPS environments
+      const client = await StargateClient.connect({ url: node, headers: {} });
       await client.getHeight();
       return node;
     } catch {}
   }
 
   throw new Error("No RPC nodes available for this chain");
-};
+};;
 
 export const getChain = (chains: ChainItems) => {
   if (typeof window === "undefined") return emptyChain;

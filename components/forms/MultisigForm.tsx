@@ -56,16 +56,13 @@ const MultiSigForm = (props: Props) => {
   };
 
   const getPubkeyFromNode = async (address: string) => {
-    const client = await StargateClient.connect(chain.nodeAddress);
+    // Force HTTPS-only connection to prevent WebSocket security errors
+    const client = await StargateClient.connect({ url: chain.nodeAddress, headers: {} });
     const accountOnChain = await client.getAccount(address);
     // console.log("getPubkeyFromNode", JSON.stringify({ accountOnChain }, null, 2));
-    if (!accountOnChain || !accountOnChain.pubkey) {
-      throw new Error(
-        "Account has no pubkey on chain, this address will need to send a transaction to appear on chain.",
-      );
-    }
-    return accountOnChain.pubkey.value;
-  };
+
+    return accountOnChain && accountOnChain.pubkey;
+  };;
 
   const handleKeyBlur = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     try {

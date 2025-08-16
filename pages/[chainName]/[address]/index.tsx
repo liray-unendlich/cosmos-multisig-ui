@@ -39,7 +39,8 @@ const Multipage = () => {
           return;
         }
 
-        const client = await StargateClient.connect(chain.nodeAddress);
+        // Force HTTPS-only connection to prevent WebSocket security errors
+        const client = await StargateClient.connect({ url: chain.nodeAddress, headers: {} });
 
         const tempHoldings = await client.getAllBalances(multisigAddress);
         setHoldings(tempHoldings);

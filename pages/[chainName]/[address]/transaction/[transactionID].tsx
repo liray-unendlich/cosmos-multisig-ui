@@ -90,7 +90,8 @@ const TransactionPage = ({
           return;
         }
 
-        const client = await StargateClient.connect(chain.nodeAddress);
+        // Force HTTPS-only connection to prevent WebSocket security errors
+        const client = await StargateClient.connect({ url: chain.nodeAddress, headers: {} });
         const result = await getMultisigAccount(multisigAddress, chain.addressPrefix, client);
 
         setPubkey(result[0]);
@@ -140,7 +141,8 @@ const TransactionPage = ({
 
       // console.log("broadcastTx # 3", JSON.stringify({ signedTxBytes, bodyBytes }, null, 2));
 
-      const broadcaster = await StargateClient.connect(chain.nodeAddress);
+      // Force HTTPS-only connection to prevent WebSocket security errors
+      const broadcaster = await StargateClient.connect({ url: chain.nodeAddress, headers: {} });
       const result = await broadcaster.broadcastTx(signedTxBytes);
 
       // console.log("broadcastTx # 4: result", JSON.stringify({ result }, null, 2));

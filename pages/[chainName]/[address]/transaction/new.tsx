@@ -22,7 +22,8 @@ const NewTransactionPage = () => {
           return;
         }
 
-        const client = await StargateClient.connect(chain.nodeAddress);
+        // Force HTTPS-only connection to prevent WebSocket security errors
+        const client = await StargateClient.connect({ url: chain.nodeAddress, headers: {} });
         const result = await getMultisigAccount(multisigAddress, chain.addressPrefix, client);
 
         setAccountOnChain(result[1]);

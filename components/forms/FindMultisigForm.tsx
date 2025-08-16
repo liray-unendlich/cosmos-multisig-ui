@@ -29,7 +29,8 @@ const FindMultisigForm = (props: Props) => {
       }
 
       try {
-        const client = await StargateClient.connect(chain.nodeAddress);
+        // Force HTTPS-only connection to prevent WebSocket security errors
+        const client = await StargateClient.connect({ url: chain.nodeAddress, headers: {} });
         // console.log({ address });
         await getMultisigAccount(address, chain.addressPrefix, client);
         setMultisigError("");

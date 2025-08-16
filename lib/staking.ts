@@ -10,7 +10,8 @@ const getValidatorsPage = (
 export const getAllValidators = async (rpcUrl: string): Promise<readonly Validator[]> => {
   const validators: Validator[] = [];
 
-  const cometClient = await Tendermint34Client.connect(rpcUrl);
+  // Force HTTPS-only connection to prevent WebSocket security errors
+  const cometClient = await Tendermint34Client.connect({ url: rpcUrl, headers: {} });
   const queryClient = QueryClient.withExtensions(cometClient, setupSdkStakingExtension);
 
   let paginationKey: Uint8Array | undefined = undefined;

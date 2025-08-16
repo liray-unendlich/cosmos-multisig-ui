@@ -21,7 +21,8 @@ export default function BalancesList({ walletAddress, setError }: BalancesListPr
       }
 
       try {
-        const client = await StargateClient.connect(chain.nodeAddress);
+        // Force HTTPS-only connection to prevent WebSocket security errors
+        const client = await StargateClient.connect({ url: chain.nodeAddress, headers: {} });
         const newBalances = await client.getAllBalances(walletAddress);
         setBalances(newBalances);
       } catch (e: unknown) {
