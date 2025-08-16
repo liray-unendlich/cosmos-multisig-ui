@@ -28,9 +28,9 @@ import {
   setupGravityExtension,
   setupIbcExtension,
   setupSdkStakingExtension,
-  setupStakingExtension,
+  // setupStakingExtension, // Removed: Not available in cosmjs-types v0.9.0
   setupTxExtension,
-  StakingExtension,
+  // StakingExtension, // Removed: Not available in cosmjs-types v0.9.0
   TxExtension,
 } from "./modules";
 import { QueryClient } from "./queryclient";
@@ -199,7 +199,7 @@ export class StargateClient {
         AuthExtension &
         BankExtension &
         SdkStakingExtension &
-        StakingExtension &
+        // StakingExtension & // Removed: Not available in cosmjs-types v0.9.0
         DistributionExtension &
         IbcExtension &
         GravityExtension &
@@ -224,7 +224,7 @@ export class StargateClient {
         setupAuthExtension,
         setupBankExtension,
         setupSdkStakingExtension,
-        setupStakingExtension,
+        // setupStakingExtension, // Removed: Not available in cosmjs-types v0.9.0
         setupDistributionExtension,
         setupIbcExtension,
         setupGravityExtension,
@@ -253,7 +253,7 @@ export class StargateClient {
         AuthExtension &
         BankExtension &
         SdkStakingExtension &
-        StakingExtension &
+        // StakingExtension & // Removed: Not available in cosmjs-types v0.9.0
         DistributionExtension &
         IbcExtension &
         GravityExtension &
@@ -266,7 +266,7 @@ export class StargateClient {
     AuthExtension &
     BankExtension &
     SdkStakingExtension &
-    StakingExtension &
+    // StakingExtension & // Removed: Not available in cosmjs-types v0.9.0
     DistributionExtension &
     IbcExtension &
     GravityExtension &
