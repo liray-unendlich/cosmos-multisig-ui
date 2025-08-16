@@ -51,7 +51,14 @@ function sortedObject(obj: any): any {
 /** Returns a JSON string with objects sorted by key */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function sortedJsonStringify(obj: any): string {
-  return JSON.stringify(sortedObject(obj));
+  // Handle BigInt serialization
+  const replacer = (_key: string, value: any) => {
+    if (typeof value === 'bigint') {
+      return value.toString();
+    }
+    return value;
+  };
+  return JSON.stringify(sortedObject(obj), replacer);
 }
 
 export function makeSignDoc(
