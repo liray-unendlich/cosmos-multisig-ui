@@ -22,7 +22,7 @@ const MsgGrantForm = ({ granterAddress, setMsgGetter, deleteMsg }: MsgGrantFormP
   const { chain } = useChains();
 
   const [granteeAddress, setGranteeAddress] = useState("");
-  const [authorizationType, setAuthorizationType] = useState("send");
+  const [authorizationType, setAuthorizationType] = useState("generic");
   const [msgTypeUrl, setMsgTypeUrl] = useState("");
   const [spendLimit, setSpendLimit] = useState("");
   const [validatorAddress, setValidatorAddress] = useState("");
@@ -42,6 +42,22 @@ const MsgGrantForm = ({ granterAddress, setMsgGetter, deleteMsg }: MsgGrantFormP
     validatorAddress,
     expirationDate 
   });
+
+  // Pre-defined message type suggestions for Generic Authorization
+  const commonMsgTypes = [
+    { value: "/cosmos.bank.v1beta1.MsgSend", label: "MsgSend (Bank)" },
+    { value: "/cosmos.staking.v1beta1.MsgDelegate", label: "MsgDelegate (Staking)" },
+    { value: "/cosmos.staking.v1beta1.MsgUndelegate", label: "MsgUndelegate (Staking)" },
+    { value: "/cosmos.staking.v1beta1.MsgBeginRedelegate", label: "MsgBeginRedelegate (Staking)" },
+    { value: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward", label: "MsgWithdrawDelegatorReward" },
+    { value: "/cosmos.gov.v1beta1.MsgVote", label: "MsgVote (Governance)" },
+    { value: "/cosmwasm.wasm.v1.MsgExecuteContract", label: "MsgExecuteContract (CosmWasm)" },
+    { value: "/ibc.applications.transfer.v1.MsgTransfer", label: "MsgTransfer (IBC)" },
+    { value: "custom", label: "Custom (Enter manually)" }
+  ];
+
+  const [selectedMsgType, setSelectedMsgType] = useState<{ value: string; label: string } | null>(null);
+  const [isCustomMsgType, setIsCustomMsgType] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line no-shadow
@@ -174,6 +190,26 @@ const MsgGrantForm = ({ granterAddress, setMsgGetter, deleteMsg }: MsgGrantFormP
     authorizationMode,
   ]);
 
+  // Handle message type selection change
+  const handleMsgTypeChange = (selectedOption: { value: string; label: string } | null) => {
+    if (!selectedOption) {
+      setSelectedMsgType(null);
+      setMsgTypeUrl("");
+      setIsCustomMsgType(false);
+      return;
+    }
+
+    setSelectedMsgType(selectedOption);
+    
+    if (selectedOption.value === "custom") {
+      setIsCustomMsgType(true);
+      setMsgTypeUrl("");
+    } else {
+      setIsCustomMsgType(false);
+      setMsgTypeUrl(selectedOption.value);
+    }
+  };
+
   return (
     <StackableContainer lessPadding lessMargin>
       <button className="remove" onClick={() => deleteMsg()}>
@@ -195,12 +231,26 @@ const MsgGrantForm = ({ granterAddress, setMsgGetter, deleteMsg }: MsgGrantFormP
         />
       </div>
 
-      <div className="form-item">
+      <div className="form-item form-select">
+        <label>Authorization Type</label>
         <Select
-          label="Authorization Type"
           name="authorization-type"
-          value={authorizationType}
-          onChange={({ target }) => setAuthorizationType(target.value)}
+          value={{ value: authorizationType, label: 
+            authorizationType === "generic" ? "Generic Authorization" :
+            authorizationType === "send" ? "Send Authorization" :
+            "Stake Authorization"
+          }}
+          onChange={(selectedOption: { value: string; label: string } | null) => {
+            if (selectedOption) {
+              setAuthorizationType(selectedOption.value);
+              // Reset message type when switching authorization types
+              if (selectedOption.value !== "generic") {
+                setSelectedMsgType(null);
+                setMsgTypeUrl("");
+                setIsCustomMsgType(false);
+              }
+            }
+          }}
           options={[
             { value: "generic", label: "Generic Authorization" },
             { value: "send", label: "Send Authorization" },
@@ -210,19 +260,35 @@ const MsgGrantForm = ({ granterAddress, setMsgGetter, deleteMsg }: MsgGrantFormP
       </div>
 
       {authorizationType === "generic" && (
-        <div className="form-item">
-          <Input
-            label="Message Type URL"
-            name="msg-type-url"
-            value={msgTypeUrl}
-            onChange={({ target }) => {
-              setMsgTypeUrl(target.value);
-              setMsgTypeUrlError("");
-            }}
-            error={msgTypeUrlError}
-            placeholder="E.g. /cosmos.bank.v1beta1.MsgSend"
-          />
-        </div>
+        <>
+          <div className="form-item form-select">
+            <label>Message Type</label>
+            <Select
+              name="msg-type-select"
+              value={selectedMsgType}
+              onChange={handleMsgTypeChange}
+              options={commonMsgTypes}
+              placeholder="Select a message type..."
+              isClearable
+            />
+          </div>
+          
+          {(isCustomMsgType || !selectedMsgType) && (
+            <div className="form-item">
+              <Input
+                label="Custom Message Type URL"
+                name="msg-type-url"
+                value={msgTypeUrl}
+                onChange={({ target }) => {
+                  setMsgTypeUrl(target.value);
+                  setMsgTypeUrlError("");
+                }}
+                error={msgTypeUrlError}
+                placeholder="E.g. /cosmos.bank.v1beta1.MsgSend"
+              />
+            </div>
+          )}
+        </>
       )}
 
       {authorizationType === "send" && (
@@ -244,12 +310,20 @@ const MsgGrantForm = ({ granterAddress, setMsgGetter, deleteMsg }: MsgGrantFormP
 
       {authorizationType === "stake" && (
         <>
-          <div className="form-item">
+          <div className="form-item form-select">
+            <label>Authorization Mode</label>
             <Select
-              label="Authorization Mode"
               name="authorization-mode"
-              value={authorizationMode}
-              onChange={({ target }) => setAuthorizationMode(target.value)}
+              value={{ value: authorizationMode, label: 
+                authorizationMode === "DELEGATE" ? "Delegate" :
+                authorizationMode === "UNDELEGATE" ? "Undelegate" :
+                "Redelegate"
+              }}
+              onChange={(selectedOption: { value: string; label: string } | null) => {
+                if (selectedOption) {
+                  setAuthorizationMode(selectedOption.value);
+                }
+              }}
               options={[
                 { value: "DELEGATE", label: "Delegate" },
                 { value: "UNDELEGATE", label: "Undelegate" },
@@ -290,6 +364,15 @@ const MsgGrantForm = ({ granterAddress, setMsgGetter, deleteMsg }: MsgGrantFormP
       <style jsx>{`
         .form-item {
           margin-top: 1.5em;
+        }
+        .form-item label {
+          font-style: italic;
+          font-size: 12px;
+        }
+        .form-select {
+          display: flex;
+          flex-direction: column;
+          gap: 0.8em;
         }
         button.remove {
           background: rgba(255, 255, 255, 0.2);
