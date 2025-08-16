@@ -2,6 +2,7 @@ import {
   AccountData,
   AminoSignResponse,
   encodeSecp256k1Signature,
+  encodeEthSecp256k1Signature,
   makeCosmoshubPath,
   OfflineAminoSigner,
   serializeSignDoc,
@@ -16,10 +17,13 @@ export class LedgerSigner implements OfflineAminoSigner {
   private readonly connector: LedgerConnector;
   private readonly hdPaths: readonly HdPath[];
   private accounts?: readonly AccountData[];
+  private readonly keyAlgo: "secp256k1" | "eth_secp256k1";
 
-  public constructor(transport: Transport, options: LedgerConnectorOptions = {}) {
+  public constructor(transport: Transport, options: LedgerConnectorOptions & { keyAlgo?: "secp256k1" | "eth_secp256k1" } = {}) {
     this.hdPaths = options.hdPaths || [makeCosmoshubPath(0)];
     this.connector = new LedgerConnector(transport, options);
+    // Default to secp256k1, but allow eth_secp256k1 for chains like Sei
+    this.keyAlgo = options.keyAlgo || "secp256k1";
   }
 
   public async getAccounts(): Promise<readonly AccountData[]> {
@@ -27,7 +31,7 @@ export class LedgerSigner implements OfflineAminoSigner {
       const pubkeys = await this.connector.getPubkeys();
       this.accounts = await Promise.all(
         pubkeys.map(async (pubkey) => ({
-          algo: "secp256k1" as const,
+          algo: this.keyAlgo,
           address: await this.connector.getCosmosAddress(pubkey),
           addressHex: await this.connector.getHexAddress(pubkey),
           pubkey: pubkey,
@@ -62,9 +66,20 @@ export class LedgerSigner implements OfflineAminoSigner {
     const accountForAddress = accounts[accountIndex];
     const hdPath = this.hdPaths[accountIndex];
     const signature = await this.connector.sign(message, hdPath);
-    return {
-      signed: signDoc,
-      signature: encodeSecp256k1Signature(accountForAddress.pubkey, signature),
-    };
+    
+    // Use the appropriate signature encoding based on the key algorithm
+    if (this.keyAlgo === "eth_secp256k1") {
+      // For EthSecp256k1, we need to handle the signature differently
+      // The signature from Ledger for Ethereum-compatible chains includes recovery byte
+      return {
+        signed: signDoc,
+        signature: encodeEthSecp256k1Signature(accountForAddress.pubkey, signature),
+      };
+    } else {
+      return {
+        signed: signDoc,
+        signature: encodeSecp256k1Signature(accountForAddress.pubkey, signature),
+      };
+    }
   }
 }

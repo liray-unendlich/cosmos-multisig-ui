@@ -112,10 +112,16 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       // Prepare ledger
       const ledgerTransport = await TransportWebUSB.create(120000, 120000);
 
-      // Setup signer
+      // Detect if this chain uses EthSecp256k1 (like Sei)
+      // Sei chain uses EthSecp256k1 for compatibility with Ethereum ecosystem
+      const isEthSecp256k1Chain = chain.chainId.toLowerCase().includes('sei') || 
+                                  chain.addressPrefix === 'sei';
+      
+      // Setup signer with the appropriate key algorithm
       const offlineSigner = new LedgerSigner(ledgerTransport, {
         hdPaths: [makeCosmoshubPath(0)],
         prefix: chain.addressPrefix,
+        keyAlgo: isEthSecp256k1Chain ? "eth_secp256k1" : "secp256k1",
       });
       const accounts = await offlineSigner.getAccounts();
       const tempWalletAccount: WalletAccount = {
