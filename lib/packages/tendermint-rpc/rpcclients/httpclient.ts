@@ -34,6 +34,8 @@ export class HttpClient implements RpcClient {
       this.url = endpoint.url;
       this.headers = endpoint.headers;
     }
+    // Debug log for connection URL
+    console.log("HttpClient connecting to:", this.url);
   }
 
   public disconnect(): void {
@@ -41,7 +43,9 @@ export class HttpClient implements RpcClient {
   }
 
   public async execute(request: JsonRpcRequest): Promise<JsonRpcSuccessResponse> {
-    const response = parseJsonRpcResponse(await http("POST", this.url, this.headers, request));
+    // Ensure URL ends with / for proper JSON-RPC endpoint
+    const rpcUrl = this.url.endsWith("/") ? this.url : `${this.url}/`;
+    const response = parseJsonRpcResponse(await http("POST", rpcUrl, this.headers, request));
     if (isJsonRpcErrorResponse(response)) {
       throw new Error(JSON.stringify(response.error));
     }

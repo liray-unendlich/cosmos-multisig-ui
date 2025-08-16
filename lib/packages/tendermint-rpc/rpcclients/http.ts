@@ -6,7 +6,7 @@ declare const fetch: any | undefined;
 
 function filterBadStatus(res: any): any {
   if (res.status >= 400) {
-    throw new Error(`Bad status on response: ${res.status}`);
+    throw new Error(`Bad status on response: ${res.status}. ${res.statusText || ''}`);
   }
   return res;
 }
