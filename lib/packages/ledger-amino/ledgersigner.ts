@@ -71,10 +71,11 @@ export class LedgerSigner implements OfflineAminoSigner {
     if (this.keyAlgo === "eth_secp256k1") {
       // For EthSecp256k1, we need to add a recovery byte to make it 65 bytes
       // Ledger returns 64 bytes (r + s), we need to append recovery byte (v)
-      // For Cosmos chains, the recovery byte is typically 0x00
+      // For Ethereum-style signatures, the recovery byte is typically 27 or 28
+      // We use 27 as the default for the first recovery id (0 + 27)
       const signatureWithRecovery = new Uint8Array(65);
       signatureWithRecovery.set(signature, 0); // Copy the 64-byte signature
-      signatureWithRecovery[64] = 0x00; // Add recovery byte at the end
+      signatureWithRecovery[64] = 27; // Add recovery byte (27 for recovery id 0)
       
       return {
         signed: signDoc,
