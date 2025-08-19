@@ -1,5 +1,7 @@
 import { MsgCodecs, MsgTypeUrls } from "@/types/txMsg";
-import { Input } from "@/components/ui/input";
+import Input from "@/components/inputs/Input";
+import Select from "@/components/inputs/Select";
+import StackableContainer from "@/components/layout/StackableContainer";
 import { useChains } from "@/context/ChainsContext";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -32,9 +34,9 @@ interface MsgGrantAllowanceFormProps {
 const MsgGrantAllowanceForm = ({ setMsgGetter, deleteMsg }: MsgGrantAllowanceFormProps) => {
   const { chain } = useChains();
   const {
-    register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<MsgGrantAllowanceFormValues>({
     defaultValues: {
@@ -52,8 +54,16 @@ const MsgGrantAllowanceForm = ({ setMsgGetter, deleteMsg }: MsgGrantAllowanceFor
 
   const [msgJson, setMsgJson] = useState<Record<string, unknown>>();
   const [showMsg, setShowMsg] = useState(false);
+  const [granterAddressError, setGranterAddressError] = useState("");
+  const [granteeAddressError, setGranteeAddressError] = useState("");
 
   const allowanceType = watch("allowanceType");
+
+  const allowanceOptions = [
+    { label: "Basic Allowance", value: "basic" },
+    { label: "Periodic Allowance", value: "periodic" },
+    { label: "Allowed Message Allowance", value: "allowed_msg" },
+  ];
 
   const createMsgGetter = (values: MsgGrantAllowanceFormValues) => async (senderAddress: string): Promise<{
     readonly typeUrl: string;
@@ -161,136 +171,144 @@ const MsgGrantAllowanceForm = ({ setMsgGetter, deleteMsg }: MsgGrantAllowanceFor
     setMsgGetter(createMsgGetter(values));
   };
 
+  const selectedAllowanceType = allowanceOptions.find(option => option.value === allowanceType) || allowanceOptions[0];
+
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">MsgGrantAllowance</h3>
-      <form onSubmit={handleSubmit(submitForm)} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Granter Address (leave empty for connected account)
-          </label>
+    <StackableContainer lessPadding lessMargin>
+      <button className="remove" onClick={() => deleteMsg()}>
+        ✕
+      </button>
+      <h2>MsgGrantAllowance</h2>
+      <form onSubmit={handleSubmit(submitForm)}>
+        <div className="form-item">
           <Input
-            {...register("granterAddress")}
+            label="Granter Address (leave empty for connected account)"
+            name="granter-address"
+            value={watch("granterAddress")}
+            error={granterAddressError}
             placeholder={`${chain.addressPrefix}1...`}
+            onChange={(e) => {
+              setGranterAddressError("");
+              setValue("granterAddress", e.target.value);
+            }}
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Grantee Address *</label>
+        <div className="form-item">
           <Input
-            {...register("granteeAddress", { required: "Grantee address is required" })}
+            label="Grantee Address *"
+            name="grantee-address"
+            value={watch("granteeAddress")}
+            error={granteeAddressError || errors.granteeAddress?.message}
             placeholder={`${chain.addressPrefix}1...`}
+            onChange={(e) => {
+              setGranteeAddressError("");
+              setValue("granteeAddress", e.target.value);
+            }}
           />
-          {errors.granteeAddress && (
-            <p className="text-red-500 text-sm mt-1">{errors.granteeAddress.message}</p>
-          )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Allowance Type *</label>
-          <select
-            {...register("allowanceType", { required: "Allowance type is required" })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-          >
-            <option value="basic">Basic Allowance</option>
-            <option value="periodic">Periodic Allowance</option>
-            <option value="allowed_msg">Allowed Message Allowance</option>
-          </select>
+        <div className="form-item form-select">
+          <label>Allowance Type:</label>
+          <Select
+            label="Select allowance type"
+            name="allowance-type"
+            options={allowanceOptions}
+            value={selectedAllowanceType}
+            onChange={(option: typeof allowanceOptions[number]) => {
+              setValue("allowanceType", option.value as "basic" | "periodic" | "allowed_msg");
+            }}
+          />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Spend Limit ({chain.displayDenom})
-          </label>
+        <div className="form-item">
           <Input
+            label={`Spend Limit (${chain.displayDenom})`}
+            name="spend-limit"
             type="number"
             step="0.000001"
-            {...register("spendLimit")}
+            value={watch("spendLimit")}
             placeholder="100"
+            onChange={(e) => setValue("spendLimit", e.target.value)}
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Expiration Date</label>
+        <div className="form-item">
           <Input
+            label="Expiration Date"
+            name="expiration"
             type="datetime-local"
-            {...register("expiration")}
+            value={watch("expiration")}
+            onChange={(e) => setValue("expiration", e.target.value)}
           />
         </div>
 
         {allowanceType === "periodic" && (
           <>
-            <div>
-              <label className="block text-sm font-medium mb-1">Period (seconds)</label>
+            <div className="form-item">
               <Input
+                label="Period (seconds)"
+                name="period-seconds"
                 type="number"
-                {...register("periodSeconds")}
+                value={watch("periodSeconds")}
                 placeholder="86400"
+                onChange={(e) => setValue("periodSeconds", e.target.value)}
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Period Spend Limit ({chain.displayDenom})
-              </label>
+            <div className="form-item">
               <Input
+                label={`Period Spend Limit (${chain.displayDenom})`}
+                name="period-spend-limit"
                 type="number"
                 step="0.000001"
-                {...register("periodSpendLimit")}
+                value={watch("periodSpendLimit")}
                 placeholder="10"
+                onChange={(e) => setValue("periodSpendLimit", e.target.value)}
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Period Reset</label>
+            <div className="form-item">
               <Input
+                label="Period Reset"
+                name="period-reset"
                 type="datetime-local"
-                {...register("periodReset")}
+                value={watch("periodReset")}
+                onChange={(e) => setValue("periodReset", e.target.value)}
               />
             </div>
           </>
         )}
 
         {allowanceType === "allowed_msg" && (
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Allowed Messages (comma-separated)
-            </label>
+          <div className="form-item">
             <Input
-              {...register("allowedMessages")}
+              label="Allowed Messages (comma-separated)"
+              name="allowed-messages"
+              value={watch("allowedMessages")}
               placeholder="/cosmos.bank.v1beta1.MsgSend, /cosmos.staking.v1beta1.MsgDelegate"
+              onChange={(e) => setValue("allowedMessages", e.target.value)}
             />
           </div>
         )}
 
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Create
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowMsg(!showMsg)}
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-          >
-            {showMsg ? "Hide" : "Show"} Message
-          </button>
-          <button
-            type="button"
-            onClick={deleteMsg}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          >
-            Delete
-          </button>
-        </div>
+        <button type="submit" className="create">
+          Create
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setShowMsg(!showMsg)}
+          className="show"
+        >
+          {showMsg ? "Hide" : "Show"} Message
+        </button>
       </form>
 
       {showMsg && msgJson && (
-        <div className="mt-4 p-4 bg-gray-100 rounded">
+        <div className="form-item">
           <pre>{JSON.stringify(msgJson, null, 2)}</pre>
         </div>
       )}
-    </div>
+    </StackableContainer>
   );
 };
 
