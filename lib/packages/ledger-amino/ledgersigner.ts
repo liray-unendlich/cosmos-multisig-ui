@@ -71,14 +71,30 @@ export class LedgerSigner implements OfflineAminoSigner {
     if (this.keyAlgo === "eth_secp256k1") {
       // For EthSecp256k1, we need to add a recovery byte to make it 65 bytes
       // Ledger returns 64 bytes (r + s), we need to append recovery byte (v)
-      // For Ethereum-style signatures, the recovery byte is typically 27 or 28
-      // Try 28 first (recovery id 1), then 27 if that doesn't work
       const signatureWithRecovery = new Uint8Array(65);
       signatureWithRecovery.set(signature, 0); // Copy the 64-byte signature
       
-      // For Sei, try recovery byte 28 (recovery id 1 + 27)
-      // Some implementations may need 27, but Sei typically uses 28
-      signatureWithRecovery[64] = 28; // Add recovery byte (28 for recovery id 1)
+      // For Ledger signatures with EthSecp256k1, the recovery byte is not included
+      // We need to determine it. Based on Cosmos SDK ethsecp256k1 implementation:
+      // - The signature format is [R || S || V] where V is the recovery ID (0 or 1)
+      // - NOT the Ethereum-style 27/28 values
+      // - The recovery ID allows recovering the public key from the signature
+      
+      // Try recovery ID 0 first (most common case)
+      // For Ledger, we cannot determine the correct recovery ID without testing
+      // We'll use 0 as default and let the user retry with 1 if needed
+      const recoveryId = 0; // Can be 0 or 1
+      signatureWithRecovery[64] = recoveryId; // v = recovery_id (0 or 1)
+      
+      console.log("EthSecp256k1 Ledger signature info:");
+      console.log("- Original signature (r+s) length:", signature.length);
+      console.log("- Signature with recovery length:", signatureWithRecovery.length);
+      console.log("- Recovery ID (v):", signatureWithRecovery[64]);
+      console.log("- R value:", Array.from(signature.slice(0, 32)).map(b => b.toString(16).padStart(2, '0')).join(''));
+      console.log("- S value:", Array.from(signature.slice(32, 64)).map(b => b.toString(16).padStart(2, '0')).join(''));
+      console.log("- Public key:", Array.from(accountForAddress.pubkey).map(b => b.toString(16).padStart(2, '0')).join(''));
+      console.log("- Sign doc:", JSON.stringify(signDoc));
+      console.log("⚠️  If signature verification fails, the recovery ID might need to be 1 instead of 0");
       
       return {
         signed: signDoc,

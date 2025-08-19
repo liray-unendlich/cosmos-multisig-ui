@@ -112,10 +112,11 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       // Prepare ledger
       const ledgerTransport = await TransportWebUSB.create(120000, 120000);
 
-      // Detect if this chain uses EthSecp256k1 (like Sei)
-      // Sei chain uses EthSecp256k1 for compatibility with Ethereum ecosystem
-      const isEthSecp256k1Chain = chain.chainId.toLowerCase().includes('sei') || 
-                                  chain.addressPrefix === 'sei';
+      // For now, use standard secp256k1 for all chains
+      // The EthSecp256k1 detection was causing issues with existing multisigs
+      // that were created with standard secp256k1 keys
+      // TODO: Properly detect based on actual pubkey types of multisig members
+      const isEthSecp256k1Chain = false; // Disabled for now
       
       // Setup signer with the appropriate key algorithm
       const offlineSigner = new LedgerSigner(ledgerTransport, {
