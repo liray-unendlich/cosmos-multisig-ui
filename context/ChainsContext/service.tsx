@@ -89,7 +89,7 @@ export const getNodeFromArray = async (nodeArray: readonly string[]) => {
   }
 
   console.log("Testing RPC nodes:", secureNodes);
-  const errors: { node: string; error: any }[] = [];
+  const errors: { node: string; error: Error }[] = [];
 
   for (const node of secureNodes) {
     try {
