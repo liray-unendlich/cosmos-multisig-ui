@@ -11,7 +11,7 @@ export function createAuthzAminoConverters(): AminoConverters {
           grantee: value.grantee,
           grant: {
             authorization: value.grant?.authorization ? {
-              type_url: value.grant.authorization.typeUrl,
+              "@type": value.grant.authorization.typeUrl,
               value: toBase64(value.grant.authorization.value),
             } : undefined,
             expiration: value.grant?.expiration,
@@ -24,7 +24,7 @@ export function createAuthzAminoConverters(): AminoConverters {
           grantee: value.grantee,
           grant: {
             authorization: value.grant?.authorization ? {
-              typeUrl: value.grant.authorization.type_url,
+              typeUrl: value.grant.authorization["@type"],
               value: fromBase64(value.grant.authorization.value),
             } : undefined,
             expiration: value.grant?.expiration,
@@ -55,7 +55,7 @@ export function createAuthzAminoConverters(): AminoConverters {
         return {
           grantee: value.grantee,
           msgs: value.msgs?.map((msg: any) => ({
-            type_url: msg.typeUrl,
+            "@type": msg.typeUrl,
             value: toBase64(msg.value),
           })) || [],
         };
@@ -64,7 +64,7 @@ export function createAuthzAminoConverters(): AminoConverters {
         return {
           grantee: value.grantee,
           msgs: value.msgs?.map((msg: any) => ({
-            typeUrl: msg.type_url,
+            typeUrl: msg["@type"],
             value: fromBase64(msg.value),
           })) || [],
         };

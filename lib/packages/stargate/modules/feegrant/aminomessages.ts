@@ -11,7 +11,7 @@ export function createFeegrantAminoConverters(): AminoConverters {
           granter: value.granter,
           grantee: value.grantee,
           allowance: value.allowance ? {
-            type_url: value.allowance.typeUrl,
+            "@type": value.allowance.typeUrl,
             value: toBase64(value.allowance.value),
           } : undefined,
         };
@@ -21,7 +21,7 @@ export function createFeegrantAminoConverters(): AminoConverters {
           granter: value.granter,
           grantee: value.grantee,
           allowance: value.allowance ? {
-            typeUrl: value.allowance.type_url,
+            typeUrl: value.allowance["@type"],
             value: fromBase64(value.allowance.value),
           } : undefined,
         };
