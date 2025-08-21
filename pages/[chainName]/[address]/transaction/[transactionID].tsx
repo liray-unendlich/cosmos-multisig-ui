@@ -135,6 +135,8 @@ const TransactionPage = ({
       console.log("マルチシグアドレス:", multisigAddress);
       console.log("メンバー公開鍵数:", memberPubkeys.length);
       console.log("署名数:", currentSignatures.length);
+      console.log("マルチシグ公開鍵タイプ:", pubkey.type);
+      console.log("マルチシグ闾値:", pubkey.value.threshold);
       
       // For each member pubkey, generate its address and create mapping
       for (let i = 0; i < memberPubkeys.length; i++) {
@@ -142,6 +144,7 @@ const TransactionPage = ({
         const memberAddress = pubkeyToAddress(memberPubkey, chain.addressPrefix);
         addressToPubkeyMap.set(memberAddress, memberPubkey);
         console.log(`メンバー${i}: 公開鍵=${memberPubkey.value} -> アドレス=${memberAddress}`);
+        console.log(`  メンバー${i}公開鍵タイプ: ${memberPubkey.type}`);
       }
       
       console.log("署名情報:");
@@ -189,12 +192,35 @@ const TransactionPage = ({
       );
       
       console.log("署名されたトランザクションバイト作成完了");
+      console.log("トランザクションバイトサイズ:", signedTxBytes.length);
+      
+      // トランザクションバイトのHexダンプ(最初の200バイト)
+      const hexDump = Array.from(signedTxBytes.slice(0, 200))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+      console.log("トランザクションHex(最初200バイト):", hexDump);
 
       // console.log("broadcastTx # 3", JSON.stringify({ signedTxBytes, bodyBytes }, null, 2));
 
       // Force HTTPS-only connection to prevent WebSocket security errors
       const broadcaster = await StargateClient.connect({ url: chain.nodeAddress, headers: {} });
+      
+      console.log("ブロードキャスト開始:", {
+        nodeUrl: chain.nodeAddress,
+        txBytesLength: signedTxBytes.length,
+        timestamp: new Date().toISOString()
+      });
+      
       const result = await broadcaster.broadcastTx(signedTxBytes);
+      
+      console.log("ブロードキャスト結果:", {
+        code: result.code,
+        transactionHash: result.transactionHash,
+        rawLog: result.rawLog,
+        gasUsed: result.gasUsed,
+        gasWanted: result.gasWanted,
+        height: result.height
+      });
 
       // console.log("broadcastTx # 4: result", JSON.stringify({ result }, null, 2));
       await requestJson(`/api/transaction/${transactionID}`, {
@@ -203,8 +229,26 @@ const TransactionPage = ({
       setTransactionHash(result.transactionHash);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
+      console.error("ブロードキャストエラー詳細:", {
+        error: e,
+        message: e.message || e.toString(),
+        code: e.code || 'unknown',
+        rawLog: e.rawLog || 'no raw log',
+        stack: e.stack,
+        timestamp: new Date().toISOString()
+      });
+      
+      // 特定のエラータイプの詳細分析
+      if (e.message && e.message.includes('pubKey does not match')) {
+        console.error("公開鍵ミスマッチエラー - 詳細情報:");
+        console.error("- マルチシグアドレス:", multisigAddress);
+        console.error("- 署名数:", currentSignatures.length);
+        console.error("- メンバー数:", pubkey?.value.pubkeys.length);
+        console.error("- 閾値:", pubkey?.value.threshold);
+      }
+      
       setIsBroadcasting(false);
-      setBroadcastError(e.toString());
+      setBroadcastError(`ブロードキャストエラー: ${e.message || e.toString()}`);
     }
   };
 
