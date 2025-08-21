@@ -198,12 +198,13 @@ const TransactionPage = ({
                 {broadcastError ? <div className="broadcast-error">{broadcastError}</div> : null}
               </>
             ) : null}
-            {pubkey && txInfo ? (
+            {pubkey && txInfo && multisigAddress ? (
               <TransactionSigning
                 tx={txInfo}
                 transactionID={transactionID}
                 pubkey={pubkey}
                 signatures={currentSignatures}
+                multisigAddress={multisigAddress}
                 addSignature={addSignature}
               />
             ) : null}

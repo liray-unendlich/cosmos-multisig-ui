@@ -41,6 +41,7 @@ interface TransactionSigningProps {
   readonly tx: DbTransaction;
   readonly pubkey: MultisigThresholdPubkey;
   readonly transactionID: string;
+  readonly multisigAddress: string;
   readonly addSignature: (signature: DbSignature) => void;
 }
 
