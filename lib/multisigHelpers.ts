@@ -56,21 +56,14 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
     throw new Error(`Not enough valid public keys. Found ${validPubkeys.length}, need at least 2`);
   }
   
-  // console.log(
-  //   "=== createMultisigFromCompressedSecp256k1Pubkeys",
-  //   JSON.stringify(
-  //     {
-  //       compressedPubkeys: validPubkeys,
-  //       threshold,
-  //       addressPrefix,
-  //       chainId,
-  //     },
-  //     null,
-  //     2,
-  //   ),
-  // );
-  const pubkeys = validPubkeys.map((compressedPubkey) => {
-    return {
+  console.log("=== マルチシグ作成情報 ===");
+  console.log("有効な公開鍵数:", validPubkeys.length);
+  console.log("閾値:", threshold);
+  console.log("チェーンID:", chainId);
+  console.log("アドレス接頭辞:", addressPrefix);
+  
+  const pubkeys = validPubkeys.map((compressedPubkey, index) => {
+    const pubkeyObj = {
       // Use standard secp256k1 for all chains (including Sei)
       // The ethermint type was causing issues with address generation
       type: "/cosmos.crypto.secp256k1.PubKey",
@@ -78,23 +71,16 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
       // type: "tendermint/PubKeySecp256k1",
       value: compressedPubkey,
     };
+    console.log(`公開鍵 ${index + 1}:`, JSON.stringify(pubkeyObj, null, 2));
+    return pubkeyObj;
   });
   const multisigPubkey = createMultisigThresholdPubkey(pubkeys, threshold);
-  // debugger;
   const multisigAddress = pubkeyToAddress(multisigPubkey, addressPrefix);
-  // const multisigAddress = "haqq1jk7n65xev9ye7wljw95uhu2ghf4sgxf354s6p9";
-  // console.log(
-  //   "=== createMultisigFromCompressedSecp256k1Pubkeys2",
-  //   JSON.stringify(
-  //     {
-  //       pubkeys,
-  //       multisigPubkey,
-  //       multisigAddress,
-  //     },
-  //     null,
-  //     2,
-  //   ),
-  // );
+  
+  console.log("=== マルチシグ結果 ===");
+  console.log("作成されたマルチシグアドレス:", multisigAddress);
+  console.log("マルチシグpubkey:", JSON.stringify(multisigPubkey, null, 2));
+  
   // save multisig to fauna
   const multisig = {
     address: multisigAddress,
@@ -105,13 +91,53 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   const resp: CreateMultisigAccountResponse = await requestJson(`/api/chain/${chainId}/multisig`, {
     body: multisig,
   });
-  // console.log(
-  //   "=== createMultisigFromCompressedSecp256k1Pubkeys3",
-  //   JSON.stringify({ resp }, null, 2),
-  // );
+  console.log("データベース保存結果:", JSON.stringify(resp, null, 2));
+  
   const { address } = resp;
-
   return address;
+};;
+
+/**
+ * デバッグ用: 同じ公開鍵から異なるタイプでアドレスを生成して比較する
+ */
+const debugPubkeyToAddress = (pubkeyValue: string, addressPrefix: string) => {
+  console.log("=== アドレス生成比較 ===");
+  console.log("公開鍵値:", pubkeyValue);
+  console.log("アドレス接頭辞:", addressPrefix);
+  
+  // Standard secp256k1
+  const secp256k1Pubkey = {
+    type: "/cosmos.crypto.secp256k1.PubKey",
+    value: pubkeyValue,
+  };
+  const secp256k1Address = pubkeyToAddress(secp256k1Pubkey, addressPrefix);
+  console.log("Standard secp256k1 アドレス:", secp256k1Address);
+  
+  // Legacy Tendermint format
+  const tendermintPubkey = {
+    type: "tendermint/PubKeySecp256k1",
+    value: pubkeyValue,
+  };
+  const tendermintAddress = pubkeyToAddress(tendermintPubkey, addressPrefix);
+  console.log("Tendermint secp256k1 アドレス:", tendermintAddress);
+  
+  // EthSecp256k1 format
+  const ethSecp256k1Pubkey = {
+    type: "/ethermint.crypto.v1.ethsecp256k1.PubKey",
+    value: pubkeyValue,
+  };
+  try {
+    const ethSecp256k1Address = pubkeyToAddress(ethSecp256k1Pubkey, addressPrefix);
+    console.log("EthSecp256k1 アドレス:", ethSecp256k1Address);
+  } catch (error) {
+    console.log("EthSecp256k1 アドレス生成エラー:", error.message);
+  }
+  
+  return {
+    secp256k1: secp256k1Address,
+    tendermint: tendermintAddress,
+    pubkeyValue,
+  };
 };
 
 interface GetMultisigAccountResponse {

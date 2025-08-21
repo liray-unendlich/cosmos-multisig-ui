@@ -69,9 +69,20 @@ export class LedgerSigner implements OfflineAminoSigner {
     
     // Use standard secp256k1 signature encoding for consistency with multisig creation
     // This ensures the pubkey type matches what was used during multisig creation
+    const signatureResult = encodeSecp256k1Signature(accountForAddress.pubkey, signature);
+    
+    // Debug information to verify pubkey type consistency
+    console.log("=== Ledger署名情報 ===");
+    console.log("署名者アドレス:", signerAddress);
+    console.log("Ledgerの公開鍵 (生データ):", Array.from(accountForAddress.pubkey).map(b => b.toString(16).padStart(2, '0')).join(''));
+    console.log("署名結果のpubkey:", JSON.stringify(signatureResult.pub_key, null, 2));
+    console.log("pubkeyタイプ:", signatureResult.pub_key.type);
+    console.log("署名データ長:", signature.length, "bytes");
+    console.log("署名アルゴリズム:", this.keyAlgo);
+    
     return {
       signed: signDoc,
-      signature: encodeSecp256k1Signature(accountForAddress.pubkey, signature),
+      signature: signatureResult,
     };
   }
 }
