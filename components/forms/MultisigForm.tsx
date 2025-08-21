@@ -70,12 +70,12 @@ const MultiSigForm = (props: Props) => {
     if (accountOnChain?.pubkey) {
       return accountOnChain.pubkey;
     }
-    // If the account exists but has no pubkey, throw an error
+    // If the account exists but has no pubkey, provide helpful guidance
     if (accountOnChain) {
-      throw new Error("Account exists but has no public key on chain. It may have never sent a transaction.");
+      throw new Error("This address has never sent a transaction, so its public key is not available on-chain. Please use the 'Use Public Key' option and enter the compressed public key directly.");
     }
-    throw new Error("Account not found on chain");
-  };
+    throw new Error("Address not found on chain. Please verify the address or use 'Use Public Key' option.");
+  };;
 
   const handleKeyBlur = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     try {
