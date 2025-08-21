@@ -1,5 +1,5 @@
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
-import { MultisigThresholdPubkey } from "@/lib/packages/amino";
+import { MultisigThresholdPubkey, pubkeyToAddress, Pubkey } from "@/lib/packages/amino";
 import { fromBase64 } from "@/lib/packages/encoding";
 import { Account, StargateClient, makeMultisignedTxBytes } from "@/lib/packages/stargate";
 import { assert } from "@/lib/packages/utils";
@@ -126,18 +126,69 @@ const TransactionPage = ({
       // );
 
       const bodyBytes = fromBase64(currentSignatures[0].bodyBytes);
+      
+      // Create a mapping from individual address to corresponding multisig member pubkey
+      const addressToPubkeyMap = new Map<string, Pubkey>();
+      const memberPubkeys = pubkey.value.pubkeys;
+      
+      console.log("=== ブロードキャスト署名マッピング情報 ===");
+      console.log("マルチシグアドレス:", multisigAddress);
+      console.log("メンバー公開鍵数:", memberPubkeys.length);
+      console.log("署名数:", currentSignatures.length);
+      
+      // For each member pubkey, generate its address and create mapping
+      for (let i = 0; i < memberPubkeys.length; i++) {
+        const memberPubkey = memberPubkeys[i];
+        const memberAddress = pubkeyToAddress(memberPubkey, chain.addressPrefix);
+        addressToPubkeyMap.set(memberAddress, memberPubkey);
+        console.log(`メンバー${i}: 公開鍵=${memberPubkey.value} -> アドレス=${memberAddress}`);
+      }
+      
+      console.log("署名情報:");
+      for (let i = 0; i < currentSignatures.length; i++) {
+        console.log(`署名${i}: アドレス=${currentSignatures[i].address}`);
+      }
+      
+      // Create signatures map using the correct address mapping
+      const signaturesMap = new Map<string, Uint8Array>();
+      for (const sig of currentSignatures) {
+        // Find the member pubkey that corresponds to the signer's address
+        let correctAddress = null;
+        for (const [memberAddr, _memberPubkey] of addressToPubkeyMap.entries()) {
+          if (memberAddr === sig.address) {
+            correctAddress = memberAddr;
+            break;
+          }
+        }
+        
+        if (correctAddress) {
+          signaturesMap.set(correctAddress, fromBase64(sig.signature));
+          console.log(`✓ マップされた署名: ${sig.address} -> ${correctAddress}`);
+        } else {
+          console.warn(`✗ 署名アドレス ${sig.address} に対応するマルチシグメンバーが見つかりません`);
+          // Try localStorage debug to get more info
+          const debugInfo = localStorage.getItem('keplr_debug_info');
+          if (debugInfo) {
+            console.log("Keplr デバッグ情報:", JSON.parse(debugInfo));
+          }
+        }
+      }
+      
+      console.log("最終署名マップサイズ:", signaturesMap.size);
+      
+      if (signaturesMap.size === 0) {
+        throw new Error("署名のマッピングに失敗しました。公開鍵とアドレスの対応を確認してください。");
+      }
+      
       const signedTxBytes = makeMultisignedTxBytes(
         pubkey,
         txInfo.sequence,
         txInfo.fee,
         bodyBytes,
-        new Map(
-          currentSignatures.map((s: { address: string; signature: string }) => {
-            // console.log("broadcastTx # 2: signature", JSON.stringify({ signature: s }), null, 2);
-            return [s.address, fromBase64(s.signature)];
-          }),
-        ),
+        signaturesMap,
       );
+      
+      console.log("署名されたトランザクションバイト作成完了");
 
       // console.log("broadcastTx # 3", JSON.stringify({ signedTxBytes, bodyBytes }, null, 2));
 
