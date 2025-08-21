@@ -2,7 +2,6 @@ import { LoadingStates, SigningStatus } from "@/types/signing";
 import { MultisigThresholdPubkey, makeCosmoshubPath } from "@/lib/packages/amino";
 import { toBase64 } from "@/lib/packages/encoding";
 import { LedgerSigner } from "@/lib/packages/ledger-amino";
-import { MultisigOfflineSigner } from "@/lib/MultisigOfflineSigner";
 import { Registry } from "@/lib/packages/proto-signing";
 import {
   AminoTypes,
@@ -166,19 +165,12 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       setLoading((newLoading) => ({ ...newLoading, signing: true }));
       setSigError(""); // Clear any previous errors before signing
       
-      // Get base signer
-      const baseSigner =
+      // Get base signer - each individual signs with their own address
+      const offlineSigner =
         walletType === "Keplr" ? window.getOfflineSignerOnlyAmino(chain.chainId) : ledgerSigner;
       
-      // Wrap signer for multisig support
       const individualSignerAddress = walletAccount?.bech32Address;
       assert(individualSignerAddress, "Missing individual signer address");
-      
-      const offlineSigner = new MultisigOfflineSigner(
-        baseSigner,
-        props.multisigAddress,
-        individualSignerAddress,
-      );
 
       // Multisig address is used for signing, but signature is associated with individual
       const multisigAddress = props.multisigAddress;
@@ -241,9 +233,10 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         chainId: chain.chainId,
       };
       
-      // CRITICAL FIX: Use multisig address as signerAddress for multisig transactions
+      // CRITICAL FIX: For multisig, each individual signs with their own address
+      // The multisig assembly happens later during broadcast
       const { bodyBytes, signatures } = await signingClient.sign(
-        multisigAddress,  // ← Use multisig address instead of individual address
+        individualSignerAddress,  // ← Sign with individual address, not multisig
         props.tx.msgs,
         props.tx.fee,
         props.tx.memo,

@@ -56,11 +56,11 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
     throw new Error(`Not enough valid public keys. Found ${validPubkeys.length}, need at least 2`);
   }
   
-  // CRITICAL FIX: Use consistent pubkey format for ALL chains
-  // Based on official cosmos-multisig-ui implementation and CosmJS compatibility
-  const pubkeyType = "tendermint/PubKeySecp256k1";
+  // CRITICAL FIX: Use modern Cosmos SDK pubkey format
+  // Based on CosmJS multisignature.spec.ts implementation
+  const pubkeyType = "/cosmos.crypto.secp256k1.PubKey";
   
-  const pubkeys = validPubkeys.map((compressedPubkey, index) => {
+  const pubkeys = validPubkeys.map((compressedPubkey, _index) => {
     const pubkeyObj = {
       type: pubkeyType,
       value: compressedPubkey,
