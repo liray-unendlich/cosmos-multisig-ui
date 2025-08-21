@@ -169,6 +169,26 @@ const TransactionSigning = (props: TransactionSigningProps) => {
 
       const signerAddress = walletAccount?.bech32Address;
       assert(signerAddress, "Missing signer address");
+      
+      // Debug information for Keplr/Ledger signing
+      if (walletType === "Keplr" && walletAccount) {
+        const debugInfo = {
+          walletType,
+          signerAddress,
+          pubkeyHex: Array.from(walletAccount.pubKey).map(b => b.toString(16).padStart(2, '0')).join(''),
+          pubkeyBase64: toBase64(walletAccount.pubKey),
+          chainId: chain.chainId,
+          timestamp: new Date().toISOString()
+        };
+        
+        console.log("=== Keplr署名情報 ===", debugInfo);
+        try {
+          localStorage.setItem('keplr_debug_info', JSON.stringify(debugInfo, null, 2));
+        } catch (e) {
+          // localStorage may not be available
+        }
+      }
+      
       const signingClient = await SigningStargateClient.offline(offlineSigner, {
         registry: new Registry([
           ...defaultRegistryTypes, 
@@ -235,7 +255,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
     } finally {
       setLoading((newLoading) => ({ ...newLoading, signing: false }));
     }
-  };
+  };;
 
   return (
     <>
