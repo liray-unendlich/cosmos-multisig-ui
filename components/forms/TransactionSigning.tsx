@@ -2,6 +2,7 @@ import { LoadingStates, SigningStatus } from "@/types/signing";
 import { MultisigThresholdPubkey, makeCosmoshubPath } from "@/lib/packages/amino";
 import { toBase64 } from "@/lib/packages/encoding";
 import { LedgerSigner } from "@/lib/packages/ledger-amino";
+import { MultisigOfflineSigner } from "@/lib/MultisigOfflineSigner";
 import { Registry } from "@/lib/packages/proto-signing";
 import {
   AminoTypes,
@@ -165,14 +166,22 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       setLoading((newLoading) => ({ ...newLoading, signing: true }));
       setSigError(""); // Clear any previous errors before signing
       
-      const offlineSigner =
+      // Get base signer
+      const baseSigner =
         walletType === "Keplr" ? window.getOfflineSignerOnlyAmino(chain.chainId) : ledgerSigner;
-
-      // For multisig transactions, we need to sign as the multisig address
-      // but the signature is associated with the individual signer
-      const multisigAddress = props.multisigAddress;
+      
+      // Wrap signer for multisig support
       const individualSignerAddress = walletAccount?.bech32Address;
       assert(individualSignerAddress, "Missing individual signer address");
+      
+      const offlineSigner = new MultisigOfflineSigner(
+        baseSigner,
+        props.multisigAddress,
+        individualSignerAddress,
+      );
+
+      // Multisig address is used for signing, but signature is associated with individual
+      const multisigAddress = props.multisigAddress;
       assert(multisigAddress, "Missing multisig address");
       
       // Debug information for Keplr/Ledger signing
