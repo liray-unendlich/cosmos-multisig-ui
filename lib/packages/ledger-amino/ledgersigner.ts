@@ -71,14 +71,29 @@ export class LedgerSigner implements OfflineAminoSigner {
     // This ensures the pubkey type matches what was used during multisig creation
     const signatureResult = encodeSecp256k1Signature(accountForAddress.pubkey, signature);
     
-    // Debug information to verify pubkey type consistency
-    console.log("=== Ledger署名情報 ===");
-    console.log("署名者アドレス:", signerAddress);
-    console.log("Ledgerの公開鍵 (生データ):", Array.from(accountForAddress.pubkey).map(b => b.toString(16).padStart(2, '0')).join(''));
-    console.log("署名結果のpubkey:", JSON.stringify(signatureResult.pub_key, null, 2));
-    console.log("pubkeyタイプ:", signatureResult.pub_key.type);
-    console.log("署名データ長:", signature.length, "bytes");
-    console.log("署名アルゴリズム:", this.keyAlgo);
+    // Debug information - use multiple output methods for visibility
+    const debugInfo = {
+      signerAddress,
+      pubkeyHex: Array.from(accountForAddress.pubkey).map(b => b.toString(16).padStart(2, '0')).join(''),
+      pubkeyResult: signatureResult.pub_key,
+      pubkeyType: signatureResult.pub_key.type,
+      signatureLength: signature.length,
+      keyAlgo: this.keyAlgo,
+      timestamp: new Date().toISOString()
+    };
+    
+    // Output to console (may not work in production)
+    console.log("=== Ledger署名情報 ===", debugInfo);
+    
+    // Output to localStorage for inspection
+    try {
+      localStorage.setItem('ledger_debug_info', JSON.stringify(debugInfo, null, 2));
+    } catch (e) {
+      // localStorage may not be available
+    }
+    
+    // Output to alert for immediate visibility (uncomment if needed)
+    // alert(`Ledger署名 - pubkeyタイプ: ${signatureResult.pub_key.type}`);
     
     return {
       signed: signDoc,

@@ -56,12 +56,6 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
     throw new Error(`Not enough valid public keys. Found ${validPubkeys.length}, need at least 2`);
   }
   
-  console.log("=== マルチシグ作成情報 ===");
-  console.log("有効な公開鍵数:", validPubkeys.length);
-  console.log("閾値:", threshold);
-  console.log("チェーンID:", chainId);
-  console.log("アドレス接頭辞:", addressPrefix);
-  
   const pubkeys = validPubkeys.map((compressedPubkey, index) => {
     const pubkeyObj = {
       // Use standard secp256k1 for all chains (including Sei)
@@ -71,15 +65,32 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
       // type: "tendermint/PubKeySecp256k1",
       value: compressedPubkey,
     };
-    console.log(`公開鍵 ${index + 1}:`, JSON.stringify(pubkeyObj, null, 2));
     return pubkeyObj;
   });
   const multisigPubkey = createMultisigThresholdPubkey(pubkeys, threshold);
   const multisigAddress = pubkeyToAddress(multisigPubkey, addressPrefix);
   
-  console.log("=== マルチシグ結果 ===");
-  console.log("作成されたマルチシグアドレス:", multisigAddress);
-  console.log("マルチシグpubkey:", JSON.stringify(multisigPubkey, null, 2));
+  // Debug information with multiple output methods
+  const debugInfo = {
+    validPubkeyCount: validPubkeys.length,
+    threshold,
+    chainId,
+    addressPrefix,
+    pubkeyTypes: pubkeys.map(p => p.type),
+    multisigAddress,
+    multisigPubkeyType: multisigPubkey.type,
+    timestamp: new Date().toISOString()
+  };
+  
+  // Output to console (may not work in production)
+  console.log("=== マルチシグ作成情報 ===", debugInfo);
+  
+  // Output to localStorage for inspection
+  try {
+    localStorage.setItem('multisig_debug_info', JSON.stringify(debugInfo, null, 2));
+  } catch (e) {
+    // localStorage may not be available
+  }
   
   // save multisig to fauna
   const multisig = {
@@ -91,11 +102,10 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   const resp: CreateMultisigAccountResponse = await requestJson(`/api/chain/${chainId}/multisig`, {
     body: multisig,
   });
-  console.log("データベース保存結果:", JSON.stringify(resp, null, 2));
   
   const { address } = resp;
   return address;
-};;
+};;;
 
 /**
  * デバッグ用: 同じ公開鍵から異なるタイプでアドレスを生成して比較する
