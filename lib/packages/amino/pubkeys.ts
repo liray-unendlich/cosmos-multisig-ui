@@ -21,7 +21,8 @@ export interface Secp256k1Pubkey extends SinglePubkey {
 }
 
 export function isSecp256k1Pubkey(pubkey: Pubkey): pubkey is Secp256k1Pubkey {
-  return (pubkey as Secp256k1Pubkey).type === "tendermint/PubKeySecp256k1";
+  return (pubkey as Secp256k1Pubkey).type === "tendermint/PubKeySecp256k1" ||
+         (pubkey as any).type === "/cosmos.crypto.secp256k1.PubKey";
 }
 
 export interface EthSecp256k1Pubkey extends SinglePubkey {
@@ -66,7 +67,12 @@ export interface SinglePubkey extends Pubkey {
 }
 
 export function isSinglePubkey(pubkey: Pubkey): pubkey is SinglePubkey {
-  const singPubkeyTypes: string[] = [pubkeyType.ed25519, pubkeyType.secp256k1, pubkeyType.sr25519];
+  const singPubkeyTypes: string[] = [
+    pubkeyType.ed25519, 
+    pubkeyType.secp256k1, 
+    pubkeyType.sr25519,
+    "/cosmos.crypto.secp256k1.PubKey"  // Add modern protobuf type
+  ];
   return singPubkeyTypes.includes(pubkey.type);
 }
 

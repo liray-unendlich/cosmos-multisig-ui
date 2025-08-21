@@ -68,14 +68,22 @@ const MultiSigForm = (props: Props) => {
 
     // Return the pubkey only if it exists and is not null
     if (accountOnChain?.pubkey) {
-      return accountOnChain.pubkey;
+      // Extract the actual public key value from the pubkey object
+      if (typeof accountOnChain.pubkey === 'object' && accountOnChain.pubkey.value) {
+        return accountOnChain.pubkey.value;
+      }
+      // If it's already a string, return as is
+      if (typeof accountOnChain.pubkey === 'string') {
+        return accountOnChain.pubkey;
+      }
+      throw new Error("Invalid public key format returned from chain");
     }
     // If the account exists but has no pubkey, provide helpful guidance
     if (accountOnChain) {
       throw new Error("This address has never sent a transaction, so its public key is not available on-chain. Please use the 'Use Public Key' option and enter the compressed public key directly.");
     }
     throw new Error("Address not found on chain. Please verify the address or use 'Use Public Key' option.");
-  };;
+  };;;
 
   const handleKeyBlur = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     try {
