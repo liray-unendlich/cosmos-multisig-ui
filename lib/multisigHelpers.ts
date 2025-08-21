@@ -56,12 +56,9 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
     throw new Error(`Not enough valid public keys. Found ${validPubkeys.length}, need at least 2`);
   }
   
-  // Determine the appropriate pubkey type based on chain
-  // Sei (pacific-1) uses ethermint-style keys but with cosmos.crypto namespace
-  const isSeiChain = chainId.includes('pacific') || addressPrefix === 'sei';
-  const pubkeyType = isSeiChain 
-    ? "tendermint/PubKeySecp256k1"  // Use compatible format with Keplr/Ledger amino signing
-    : "/cosmos.crypto.secp256k1.PubKey";
+  // CRITICAL FIX: Use consistent pubkey format for ALL chains
+  // Based on official cosmos-multisig-ui implementation and CosmJS compatibility
+  const pubkeyType = "tendermint/PubKeySecp256k1";
   
   const pubkeys = validPubkeys.map((compressedPubkey, index) => {
     const pubkeyObj = {
@@ -93,8 +90,7 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
     threshold,
     chainId,
     addressPrefix,
-    isSeiChain,
-    selectedPubkeyType: pubkeyType,
+    uniformPubkeyType: pubkeyType, // Always use tendermint format for consistency
     originalPubkeys: pubkeys.map((p, i) => ({ index: i, type: p.type, value: p.value })),
     sortedPubkeyOrder: pubkeyAddressMapping,
     multisigAddress,
@@ -125,7 +121,7 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   
   const { address } = resp;
   return address;
-};;;;;
+};;;;;;
 
 /**
  * デバッグ用: 同じ公開鍵から異なるタイプでアドレスを生成して比較する

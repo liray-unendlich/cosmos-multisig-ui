@@ -167,21 +167,27 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       const offlineSigner =
         walletType === "Keplr" ? window.getOfflineSignerOnlyAmino(chain.chainId) : ledgerSigner;
 
-      const signerAddress = walletAccount?.bech32Address;
-      assert(signerAddress, "Missing signer address");
+      // For multisig transactions, we need to sign as the multisig address
+      // but the signature is associated with the individual signer
+      const multisigAddress = props.multisigAddress;
+      const individualSignerAddress = walletAccount?.bech32Address;
+      assert(individualSignerAddress, "Missing individual signer address");
+      assert(multisigAddress, "Missing multisig address");
       
       // Debug information for Keplr/Ledger signing
       if (walletAccount) {
         const debugInfo = {
           walletType,
-          signerAddress,
+          individualSignerAddress,
+          multisigAddress,
           pubkeyHex: Array.from(walletAccount.pubKey).map(b => b.toString(16).padStart(2, '0')).join(''),
           pubkeyBase64: toBase64(walletAccount.pubKey),
           chainId: chain.chainId,
-          multisigAddress: props.multisigAddress,
           memberPubkeys: memberPubkeys,
           signerPubkey: toBase64(walletAccount.pubKey),
           isSignerMember: memberPubkeys.includes(toBase64(walletAccount.pubKey)),
+          accountNumber: props.tx.accountNumber,
+          sequence: props.tx.sequence,
           timestamp: new Date().toISOString()
         };
         
@@ -217,13 +223,17 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         }),
       });
 
+      // For multisig transactions, the signer address should be the multisig address
+      // The account number and sequence should be from the multisig account
       const signerData = {
         accountNumber: props.tx.accountNumber,
         sequence: props.tx.sequence,
         chainId: chain.chainId,
       };
+      
+      // CRITICAL FIX: Use multisig address as signerAddress for multisig transactions
       const { bodyBytes, signatures } = await signingClient.sign(
-        signerAddress,
+        multisigAddress,  // ← Use multisig address instead of individual address
         props.tx.msgs,
         props.tx.fee,
         props.tx.memo,
@@ -234,9 +244,9 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       const bases64EncodedSignature = toBase64(signatures[0]);
       const bases64EncodedBodyBytes = toBase64(bodyBytes);
       
-      // Check if this address has already signed (not just if signature matches)
+      // Check if this individual address has already signed (not just if signature matches)
       const hasAlreadySigned = props.signatures.some(
-        (sig) => sig.address === signerAddress
+        (sig) => sig.address === individualSignerAddress
       );
 
       if (hasAlreadySigned) {
@@ -244,10 +254,11 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         // Still mark as signed since the account has indeed signed
         setSigning("signed");
       } else {
+        // Store the signature with the individual signer's address
         const signature = {
           bodyBytes: bases64EncodedBodyBytes,
           signature: bases64EncodedSignature,
-          address: signerAddress,
+          address: individualSignerAddress,  // ← Store with individual address
         };
         await requestJson(`/api/transaction/${props.transactionID}/signature`, { body: signature });
         props.addSignature(signature);
@@ -259,7 +270,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
     } finally {
       setLoading((newLoading) => ({ ...newLoading, signing: false }));
     }
-  };;;
+  };;;;
 
   return (
     <>
