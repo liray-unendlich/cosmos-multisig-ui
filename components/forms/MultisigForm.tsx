@@ -66,30 +66,50 @@ const MultiSigForm = (props: Props) => {
     const accountOnChain = await client.getAccount(address);
     // console.log("getPubkeyFromNode", JSON.stringify({ accountOnChain }, null, 2));
 
-    return accountOnChain && accountOnChain.pubkey;
-  };;;
+    // Return the pubkey only if it exists and is not null
+    if (accountOnChain?.pubkey) {
+      return accountOnChain.pubkey;
+    }
+    // If the account exists but has no pubkey, throw an error
+    if (accountOnChain) {
+      throw new Error("Account exists but has no public key on chain. It may have never sent a transaction.");
+    }
+    throw new Error("Account not found on chain");
+  };
 
   const handleKeyBlur = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       const tempPubkeys = [...pubkeys];
       let pubkey;
+      const inputValue = e.target.value;
+      
       // use pubkey
       // console.log(tempPubkeys[index]);
       if (tempPubkeys[index].isPubkey) {
-        pubkey = e.target.value;
+        pubkey = inputValue;
         if (pubkey.length !== 44) {
           throw new Error("Invalid Secp256k1 pubkey");
         }
       } else {
         // use address to fetch pubkey
-        const address = e.target.value;
-        if (address.length > 0) {
-          pubkey = await getPubkeyFromNode(address);
+        if (inputValue.length > 0) {
+          pubkey = await getPubkeyFromNode(inputValue);
+          if (!pubkey) {
+            throw new Error("Could not retrieve public key from address");
+          }
+        } else {
+          // Clear the pubkey if address is empty
+          pubkey = "";
         }
       }
 
-      tempPubkeys[index].compressedPubkey = pubkey;
-      tempPubkeys[index].keyError = "";
+      // Only set the pubkey if it's valid
+      if (pubkey) {
+        tempPubkeys[index].compressedPubkey = pubkey;
+        tempPubkeys[index].keyError = "";
+      } else if (inputValue && inputValue.length > 0) {
+        throw new Error("Invalid or empty public key");
+      }
       setPubkeys(tempPubkeys);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -102,7 +122,26 @@ const MultiSigForm = (props: Props) => {
 
   const handleCreate = async () => {
     setProcessing(true);
-    const compressedPubkeys = pubkeys.map((item) => item.compressedPubkey);
+    
+    // Filter out empty pubkeys and validate
+    const compressedPubkeys = pubkeys
+      .map((item) => item.compressedPubkey)
+      .filter((pubkey) => pubkey && pubkey.length > 0);
+    
+    // Check if we have enough valid pubkeys
+    if (compressedPubkeys.length < 2) {
+      alert("At least 2 valid public keys are required to create a multisig");
+      setProcessing(false);
+      return;
+    }
+    
+    // Check if threshold is valid
+    if (threshold > compressedPubkeys.length) {
+      alert(`Threshold (${threshold}) cannot be greater than number of valid keys (${compressedPubkeys.length})`);
+      setProcessing(false);
+      return;
+    }
+    
     let multisigAddress;
     try {
       multisigAddress = await createMultisigFromCompressedSecp256k1Pubkeys(
@@ -113,7 +152,10 @@ const MultiSigForm = (props: Props) => {
       );
       props.router.push(`/${chain.registryName}/${multisigAddress}`);
     } catch (error) {
-      console.log("Failed to creat multisig: ", error);
+      console.log("Failed to create multisig: ", error);
+      alert(`Failed to create multisig: ${error.message || error}`);
+    } finally {
+      setProcessing(false);
     }
   };
 

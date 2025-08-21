@@ -29,11 +29,38 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   addressPrefix: string,
   chainId: string,
 ): Promise<string> => {
+  // Validate input
+  if (!compressedPubkeys || compressedPubkeys.length < 2) {
+    throw new Error("At least 2 public keys are required for a multisig");
+  }
+  
+  if (threshold < 1 || threshold > compressedPubkeys.length) {
+    throw new Error(`Invalid threshold: ${threshold}. Must be between 1 and ${compressedPubkeys.length}`);
+  }
+  
+  // Validate each pubkey
+  const validPubkeys = compressedPubkeys.filter((pubkey) => {
+    if (!pubkey || typeof pubkey !== 'string' || pubkey.length === 0) {
+      console.warn("Skipping invalid pubkey:", pubkey);
+      return false;
+    }
+    // Base64 encoded compressed secp256k1 pubkey should be 44 characters
+    if (pubkey.length !== 44) {
+      console.warn(`Skipping pubkey with invalid length (${pubkey.length}):`, pubkey);
+      return false;
+    }
+    return true;
+  });
+  
+  if (validPubkeys.length < 2) {
+    throw new Error(`Not enough valid public keys. Found ${validPubkeys.length}, need at least 2`);
+  }
+  
   // console.log(
   //   "=== createMultisigFromCompressedSecp256k1Pubkeys",
   //   JSON.stringify(
   //     {
-  //       compressedPubkeys,
+  //       compressedPubkeys: validPubkeys,
   //       threshold,
   //       addressPrefix,
   //       chainId,
@@ -42,10 +69,12 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   //     2,
   //   ),
   // );
-  const pubkeys = compressedPubkeys.map((compressedPubkey) => {
+  const pubkeys = validPubkeys.map((compressedPubkey) => {
     return {
-      type: "/ethermint.crypto.v1.ethsecp256k1.PubKey",
-      // type: "/cosmos.crypto.secp256k1.PubKey",
+      // Use standard secp256k1 for all chains (including Sei)
+      // The ethermint type was causing issues with address generation
+      type: "/cosmos.crypto.secp256k1.PubKey",
+      // type: "/ethermint.crypto.v1.ethsecp256k1.PubKey",  // This causes et.match is not a function error
       // type: "tendermint/PubKeySecp256k1",
       value: compressedPubkey,
     };
