@@ -171,19 +171,23 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       assert(signerAddress, "Missing signer address");
       
       // Debug information for Keplr/Ledger signing
-      if (walletType === "Keplr" && walletAccount) {
+      if (walletAccount) {
         const debugInfo = {
           walletType,
           signerAddress,
           pubkeyHex: Array.from(walletAccount.pubKey).map(b => b.toString(16).padStart(2, '0')).join(''),
           pubkeyBase64: toBase64(walletAccount.pubKey),
           chainId: chain.chainId,
+          multisigAddress: props.multisigAddress,
+          memberPubkeys: memberPubkeys,
+          signerPubkey: toBase64(walletAccount.pubKey),
+          isSignerMember: memberPubkeys.includes(toBase64(walletAccount.pubKey)),
           timestamp: new Date().toISOString()
         };
         
-        console.log("=== Keplr署名情報 ===", debugInfo);
+        console.log(`=== ${walletType}署名情報 ===`, debugInfo);
         try {
-          localStorage.setItem('keplr_debug_info', JSON.stringify(debugInfo, null, 2));
+          localStorage.setItem(`${walletType.toLowerCase()}_debug_info`, JSON.stringify(debugInfo, null, 2));
         } catch (e) {
           // localStorage may not be available
         }
@@ -255,7 +259,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
     } finally {
       setLoading((newLoading) => ({ ...newLoading, signing: false }));
     }
-  };;
+  };;;
 
   return (
     <>

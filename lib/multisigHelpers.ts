@@ -70,8 +70,22 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
     };
     return pubkeyObj;
   });
+  
+  // Create multisig with detailed debug information about sorting
   const multisigPubkey = createMultisigThresholdPubkey(pubkeys, threshold);
   const multisigAddress = pubkeyToAddress(multisigPubkey, addressPrefix);
+  
+  // Debug: Show the actual pubkey order after sorting
+  const sortedPubkeys = multisigPubkey.value.pubkeys;
+  const pubkeyAddressMapping = sortedPubkeys.map((pubkey, index) => {
+    const address = pubkeyToAddress(pubkey, addressPrefix);
+    return {
+      index,
+      pubkey: pubkey.value,
+      address,
+      type: pubkey.type
+    };
+  });
   
   // Debug information with multiple output methods
   const debugInfo = {
@@ -81,7 +95,8 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
     addressPrefix,
     isSeiChain,
     selectedPubkeyType: pubkeyType,
-    pubkeyTypes: pubkeys.map(p => p.type),
+    originalPubkeys: pubkeys.map((p, i) => ({ index: i, type: p.type, value: p.value })),
+    sortedPubkeyOrder: pubkeyAddressMapping,
     multisigAddress,
     multisigPubkeyType: multisigPubkey.type,
     timestamp: new Date().toISOString()
@@ -110,7 +125,7 @@ const createMultisigFromCompressedSecp256k1Pubkeys = async (
   
   const { address } = resp;
   return address;
-};;;;
+};;;;;
 
 /**
  * デバッグ用: 同じ公開鍵から異なるタイプでアドレスを生成して比較する
