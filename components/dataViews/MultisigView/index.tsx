@@ -51,7 +51,6 @@ export default function MultisigView() {
             Number(newHostedMultisig.accountOnChain.pubkey.value.threshold),
             chain.addressPrefix,
             chain.chainId,
-            "", // Empty address since we don't need creator info for DB storage
           );
 
           router.reload();
@@ -90,7 +89,7 @@ export default function MultisigView() {
               onClick={async () => {
                 copy(multisigAddress);
                 toast(`Copied address to clipboard`, { description: multisigAddress });
-              }}}
+              }}
               className="flex items-center space-x-4 rounded-md border p-4 transition-colors hover:cursor-pointer hover:bg-muted/50"
             >
               <Copy className="w-5" />

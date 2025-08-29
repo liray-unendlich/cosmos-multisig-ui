@@ -44,7 +44,7 @@ export const createMultisigFromCompressedSecp256k1Pubkeys = async (
   const dbMultisigAddress = await createDbMultisig(multisig, chainId);
 
   return dbMultisigAddress;
-};;
+};
 
 export type HostedMultisig =
   | {

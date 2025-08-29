@@ -97,7 +97,6 @@ export default function CreateMultisigForm() {
         Number(threshold),
         chain.addressPrefix,
         chain.chainId,
-        address,
       );
 
       router.push(`/${chain.registryName}/${multisigAddress}`);

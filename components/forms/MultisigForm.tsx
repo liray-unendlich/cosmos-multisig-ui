@@ -108,7 +108,6 @@ const MultiSigForm = (props: Props) => {
         threshold,
         chain.addressPrefix,
         chain.chainId,
-        compressedPubkeys[0], // Use first pubkey as creator
       );
       props.router.push(`/${chain.registryName}/${multisigAddress}`);
     } catch (error) {
