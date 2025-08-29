@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { useChains } from "@/context/ChainsContext";
+import { loadValidators } from "@/context/ChainsContext/helpers";
 import { getField, getMsgSchema } from "@/lib/form";
 import { getMsgRegistry } from "@/lib/msg";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +22,7 @@ type MsgType = Readonly<{
 }>;
 
 export default function CreateTxForm() {
-  const { chain } = useChains();
+  const { chain, validatorState, chainsDispatch } = useChains();
   const [msgTypes, setMsgTypes] = useState<readonly MsgType[]>([]);
 
   const msgRegistry = getMsgRegistry();
@@ -45,7 +46,26 @@ export default function CreateTxForm() {
     resolver: zodResolver(createTxSchema),
   });
 
+  // Message types that require validator data
+  const validatorRequiredMsgTypes = [
+    "/cosmos.staking.v1beta1.MsgDelegate",
+    "/cosmos.staking.v1beta1.MsgUndelegate", 
+    "/cosmos.staking.v1beta1.MsgBeginRedelegate",
+    "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward",
+    "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission",
+    "/cosmos.staking.v1beta1.MsgEditValidator",
+    "/cosmos.staking.v1beta1.MsgCreateValidator",
+  ];
+
   const addMsg = (typeUrl: string) => {
+    // Load validators if this message type requires them
+    if (validatorRequiredMsgTypes.includes(typeUrl)) {
+      const validatorsLoaded = !!validatorState.validators.bonded.length;
+      if (!validatorsLoaded) {
+        loadValidators(chainsDispatch);
+      }
+    }
+
     setMsgTypes((oldMsgTypes) => {
       const newMsgTypeUrls: readonly MsgType[] = [
         ...oldMsgTypes,
