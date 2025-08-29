@@ -8,6 +8,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { EncodeObject } from "@cosmjs/proto-signing";
+
+export interface MsgGetter {
+  readonly isMsgValid: () => boolean;
+  readonly msg: EncodeObject;
+}
 
 type MsgType = Readonly<{
   url: string;

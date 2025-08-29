@@ -3,7 +3,7 @@ import { cn, toastError } from "@/lib/utils";
 import { LoadingStates, WalletInfo, WalletType } from "@/types/signing";
 import { makeCosmoshubPath } from "@cosmjs/amino";
 import { toBase64 } from "@cosmjs/encoding";
-import { LedgerSigner } from "@/lib/packages/ledger-amino";
+import { LedgerSigner } from "@cosmjs/ledger-amino";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { Loader2, Unplug } from "lucide-react";
 import Image from "next/image";
@@ -100,7 +100,14 @@ export default function ButtonConnectWallet({
       Disconnect {walletInfo.type}
     </Button>
   ) : (
-    <Button onClick={onClick} disabled={loading.keplr || loading.ledger} variant="outline">
+    <Button
+      className={cn(
+        "bg-primary text-primary-foreground hover:bg-primary/90",
+        walletType === "Ledger" && "bg-orange-500 hover:bg-orange-600",
+      )}
+      disabled={isLoading}
+      onClick={onClick}
+    >
       {isLoading ? (
         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
       ) : (

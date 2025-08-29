@@ -28,16 +28,20 @@ export const getKeplrKey = async (chainId: string) => {
 };
 
 export const getKeplrAminoSigner = async (chainId: string) => {
-  const keplr = await getKeplr(chainId);
-  const aminoSigner = keplr.getOfflineSignerOnlyAmino(chainId);
-
-  return aminoSigner;
+  await getKeplr(chainId);
+  if (!window.keplr) {
+    throw new Error("Keplr not found");
+  }
+  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (window.keplr as any).getOfflineSignerOnlyAmino(chainId);
 };
 
 export const getKeplrVerifySignature = async (signer: string, chain: ChainInfo, nonce: number) => {
   const keplr = await getKeplr(chain.chainId);
 
-  const { signature } = await keplr.signAmino(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { signature } = await (keplr as any).signAmino(
     chain.chainId,
     signer,
     getKeplrVerifyMsg(signer, chain.chainDisplayName, nonce),

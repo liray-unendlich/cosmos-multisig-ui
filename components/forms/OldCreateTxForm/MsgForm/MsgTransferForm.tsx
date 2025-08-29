@@ -1,4 +1,4 @@
-import { MsgTransferEncodeObject } from "@/lib/packages/stargate";
+import { MsgTransferEncodeObject } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
@@ -112,7 +112,7 @@ const MsgTransferForm = ({ senderAddress, setMsgGetter, deleteMsg }: MsgTransfer
       token: { denom, amount },
       sourcePort,
       sourceChannel,
-      timeoutTimestamp: timestampFromDatetimeLocal(timeout, "ns") as unknown as Long,
+      timeoutTimestamp: BigInt(timestampFromDatetimeLocal(timeout, "ns")),
       memo,
     });
 

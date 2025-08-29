@@ -120,7 +120,7 @@ export const createTransaction = async (transaction: DbTransactionDraft) => {
         }
       }
     `,
-    { ...transaction, creatorId: transaction.creator.id },
+    { ...transaction, creatorId: transaction.creator.id, dataJSON: transaction.dataJSON ?? "" },
   );
 
   const createdTx = addTransaction.transaction[0];

@@ -1,5 +1,5 @@
 import SelectValidator from "@/components/SelectValidator";
-import { MsgWithdrawDelegatorRewardEncodeObject } from "@/lib/packages/stargate";
+import { MsgWithdrawDelegatorRewardEncodeObject } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";

@@ -1,4 +1,4 @@
-import { StargateClient } from "@/lib/packages/stargate";
+import { StargateClient } from "@cosmjs/stargate";
 import { NextRouter, withRouter } from "next/router";
 import { useState } from "react";
 import { useChains } from "../../context/ChainsContext";
@@ -108,6 +108,7 @@ const MultiSigForm = (props: Props) => {
         threshold,
         chain.addressPrefix,
         chain.chainId,
+        compressedPubkeys[0], // Use first pubkey as creator
       );
       props.router.push(`/${chain.registryName}/${multisigAddress}`);
     } catch (error) {

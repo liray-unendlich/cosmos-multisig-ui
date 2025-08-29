@@ -26,7 +26,7 @@ const MsgClaimValidatorCommissionForm = ({
   const valoperAddress = toBech32(valoperPrefix, data);
 
   useEffect(() => {
-    // eslint-disable-next-line no-shadow
+     
     const isMsgValid = (): boolean => {
       return true;
     };

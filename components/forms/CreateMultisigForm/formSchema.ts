@@ -12,6 +12,7 @@ export const getCreateMultisigSchema = (chain: ChainInfo) =>
           member: z
             .string()
             .trim()
+            .min(1, "Member is required")
             .superRefine(async (member, ctx) => {
               if (!member) {
                 return z.NEVER;

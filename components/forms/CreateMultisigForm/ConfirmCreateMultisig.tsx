@@ -10,9 +10,11 @@ import { useChains } from "@/context/ChainsContext";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { Info } from "lucide-react";
 import { UseFormReturn, useFormState } from "react-hook-form";
+import { z } from "zod";
+import { getCreateMultisigSchema } from "./formSchema";
 
 interface ConfirmCreateMultisigProps {
-  readonly createMultisigForm: UseFormReturn<{ members: { member: string }[]; threshold: number }>;
+  readonly createMultisigForm: UseFormReturn<z.infer<ReturnType<typeof getCreateMultisigSchema>>>;
 }
 
 export default function ConfirmCreateMultisig({ createMultisigForm }: ConfirmCreateMultisigProps) {

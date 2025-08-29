@@ -112,7 +112,7 @@ const MsgTransferForm = ({ senderAddress, setMsgGetter, deleteMsg }: MsgTransfer
       token: { denom, amount },
       sourcePort,
       sourceChannel,
-      timeoutTimestamp: timestampFromDatetimeLocal(timeout, "ns") as unknown as Long,
+      timeoutTimestamp: BigInt(timestampFromDatetimeLocal(timeout, "ns")),
       memo,
     });
 

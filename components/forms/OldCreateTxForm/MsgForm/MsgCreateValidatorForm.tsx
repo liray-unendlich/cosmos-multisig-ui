@@ -136,11 +136,11 @@ const MsgCreateValidatorForm = ({
     const valoperPrefix = chain.addressPrefix+'valoper';
     const valoperAddress = toBech32(valoperPrefix, data);
     const validatorPubkeyBase64 = Buffer.from("validatorPubkey").toString('base64');
-    const valConsAddress = toBech32(chain.addressPrefix+"valcons", Buffer.from(validatorPubkeyBase64, 'base64'));
+    const valConsAddress = toBech32(chain.addressPrefix+"valcons", new Uint8Array(Buffer.from(validatorPubkeyBase64, 'base64')));
     console.log("valConsAddress", valConsAddress);
 
     // Import validator Public Key from imputed validatorPubkey
-    const pubkey = fromBase64(validatorPubkey);
+    const _pubkey = fromBase64(validatorPubkey);
 
     const msgValue = MsgCodecs[MsgTypeUrls.CreateValidator].fromJSON({
       description: {

@@ -27,7 +27,7 @@ const MsgUnjailForm = ({
   console.log("valoperAddress", valoperAddress);
 
   useEffect(() => {
-    // eslint-disable-next-line no-shadow
+     
     const isMsgValid = (): boolean => {
       return true;
     };

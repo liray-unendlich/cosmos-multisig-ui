@@ -30,9 +30,9 @@ interface MsgFormProps {
 const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
   switch (msgType) {
     case MsgTypeUrls.Send:
-      return <MsgSendForm fromAddress={senderAddress} {...restProps} />;
+      return <MsgSendForm senderAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Vote:
-      return <MsgVoteForm voteAddress={senderAddress} {...restProps} />;
+      return <MsgVoteForm senderAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.CreateValidator:
       return <MsgCreateValidatorForm delegatorAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.EditValidator:
@@ -42,31 +42,31 @@ const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
     case MsgTypeUrls.WithdrawValidatorCommission:
       return <MsgWithdrawValidatorCommissionForm delegatorAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Delegate:
-      return <MsgDelegateForm delegatorAddress={senderAddress} {...restProps} />;
+      return <MsgDelegateForm senderAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Undelegate:
-      return <MsgUndelegateForm delegatorAddress={senderAddress} {...restProps} />;
+      return <MsgUndelegateForm senderAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.BeginRedelegate:
-      return <MsgBeginRedelegateForm delegatorAddress={senderAddress} {...restProps} />;
+      return <MsgBeginRedelegateForm senderAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.WithdrawDelegatorReward:
-      return <MsgWithdrawDelegatorRewardForm delegatorAddress={senderAddress} {...restProps} />;
+      return <MsgWithdrawDelegatorRewardForm senderAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.FundCommunityPool:
-      return <MsgFundCommunityPoolForm fromAddress={senderAddress} {...restProps} />;
+      return <MsgFundCommunityPoolForm senderAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.SetWithdrawAddress:
-      return <MsgSetWithdrawAddressForm delegatorAddress={senderAddress} {...restProps} />;
+      return <MsgSetWithdrawAddressForm senderAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.CreateVestingAccount:
-      return <MsgCreateVestingAccountForm fromAddress={senderAddress} {...restProps} />;
+      return <MsgCreateVestingAccountForm senderAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Transfer:
-      return <MsgTransferForm fromAddress={senderAddress} {...restProps} />;
-    case MsgTypeUrls.Execute:
-      return <MsgExecuteContractForm fromAddress={senderAddress} {...restProps} />;
-    case MsgTypeUrls.Instantiate:
-      return <MsgInstantiateContractForm fromAddress={senderAddress} {...restProps} />;
-    case MsgTypeUrls.Instantiate2:
-      return <MsgInstantiateContract2Form fromAddress={senderAddress} {...restProps} />;
+      return <MsgTransferForm senderAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.ExecuteContract:
+      return <MsgExecuteContractForm senderAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.InstantiateContract:
+      return <MsgInstantiateContractForm senderAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.InstantiateContract2:
+      return <MsgInstantiateContract2Form senderAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.UpdateAdmin:
-      return <MsgUpdateAdminForm fromAddress={senderAddress} {...restProps} />;
-    case MsgTypeUrls.Migrate:
-      return <MsgMigrateContractForm fromAddress={senderAddress} {...restProps} />;
+      return <MsgUpdateAdminForm senderAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.MigrateContract:
+      return <MsgMigrateContractForm senderAddress={senderAddress} {...restProps} />;
     default:
       return null;
   }

@@ -9,14 +9,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { ClipboardEventHandler } from "react";
 import { UseFieldArrayReplace, UseFormReturn } from "react-hook-form";
+import { z } from "zod";
 import { useChains } from "../../../context/ChainsContext";
 import { exampleAddress, examplePubkey } from "../../../lib/displayHelpers";
+import { getCreateMultisigSchema } from "./formSchema";
 
 interface MemberFormFieldProps {
-  readonly createMultisigForm: UseFormReturn<{ members: { member: string }[]; threshold: number }>;
+  readonly createMultisigForm: UseFormReturn<z.infer<ReturnType<typeof getCreateMultisigSchema>>>;
   readonly index: number;
   readonly membersReplace: UseFieldArrayReplace<
-    { members: { member: string }[]; threshold: number },
+    z.infer<ReturnType<typeof getCreateMultisigSchema>>,
     "members"
   >;
 }

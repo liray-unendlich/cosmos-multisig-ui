@@ -1,5 +1,5 @@
 import SelectValidator from "@/components/SelectValidator";
-import { MsgUndelegateEncodeObject } from "@/lib/packages/stargate";
+import { MsgUndelegateEncodeObject } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";
