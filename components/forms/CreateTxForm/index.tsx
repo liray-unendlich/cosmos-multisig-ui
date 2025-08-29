@@ -1,15 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form } from "@/components/ui/form";
 import { useChains } from "@/context/ChainsContext";
 import { loadValidators } from "@/context/ChainsContext/helpers";
 import { getField, getMsgSchema } from "@/lib/form";
 import { getMsgRegistry } from "@/lib/msg";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { EncodeObject } from "@cosmjs/proto-signing";
+import { useRef, useState } from "react";
+import { MsgTypeUrl } from "../../../types/txMsg";
+import MsgForm from "./MsgForm";
 
 export interface MsgGetter {
   readonly isMsgValid: () => boolean;
@@ -24,27 +22,10 @@ type MsgType = Readonly<{
 export default function CreateTxForm() {
   const { chain, validatorState, chainsDispatch } = useChains();
   const [msgTypes, setMsgTypes] = useState<readonly MsgType[]>([]);
+  const msgGetters = useRef<MsgGetter[]>([]);
 
   const msgRegistry = getMsgRegistry();
   const categories = [...new Set(Object.values(msgRegistry).map((msg) => msg.category))];
-
-  const basicCreateTxSchema = z.object({
-    memo: z.string().trim().min(1, "Required"),
-    msgs: z.object({}),
-  });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const msgsSchema: Record<string, z.ZodObject<any>> = {};
-
-  for (const msgType of msgTypes) {
-    msgsSchema[msgType.key] = getMsgSchema(msgRegistry[msgType.url].fields, { chain });
-  }
-
-  const createTxSchema = basicCreateTxSchema.extend({ msgs: z.object(msgsSchema) });
-
-  const createTxForm = useForm<z.infer<typeof createTxSchema>>({
-    resolver: zodResolver(createTxSchema),
-  });
 
   // Message types that require validator data
   const validatorRequiredMsgTypes = [
@@ -71,14 +52,27 @@ export default function CreateTxForm() {
         ...oldMsgTypes,
         { url: typeUrl, key: crypto.randomUUID() },
       ];
-      // setGasLimit(gasOfTx(newMsgTypes));
       return newMsgTypeUrls;
     });
-    createTxForm.trigger();
   };
 
-  const submitCreateTx = (values: z.infer<typeof createTxSchema>) =>
-    console.log("created tx with values:", values);
+  const removeMsg = (index: number) => {
+    setMsgTypes((oldMsgTypes) => {
+      const newMsgTypes = [...oldMsgTypes];
+      newMsgTypes.splice(index, 1);
+      return newMsgTypes;
+    });
+    msgGetters.current.splice(index, 1);
+  };
+
+  const setMsgGetter = (index: number) => (msgGetter: MsgGetter) => {
+    msgGetters.current[index] = msgGetter;
+  };
+
+  const createTx = () => {
+    console.log("Creating transaction with messages:", msgGetters.current.map(g => g.msg));
+    // TODO: Implement actual transaction creation
+  };
 
   return (
     <Card>
@@ -87,10 +81,11 @@ export default function CreateTxForm() {
         <CardDescription>You can add several different messages.</CardDescription>
       </CardHeader>
       <CardContent>
+        {/* Add message buttons */}
         {categories.map((category) => (
           <div key={category}>
             <h3>{category}</h3>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-4">
               {Object.values(msgRegistry)
                 .filter((msg) => msg.category === category)
                 .map((msg) => (
@@ -110,29 +105,26 @@ export default function CreateTxForm() {
             </div>
           </div>
         ))}
-        <Form {...createTxForm}>
-          <form onSubmit={createTxForm.handleSubmit(submitCreateTx)} className="space-y-8">
-            {msgTypes.map((type) => {
-              const msg = msgRegistry[type.url];
-              return (
-                <div key={type.key}>
-                  <h3>{msg.name}</h3>
-                  {msg.fields.map((fieldName: string) => {
-                    const Field = getField(fieldName) || (() => null);
-                    return (
-                      <Field
-                        key={fieldName}
-                        form={createTxForm}
-                        fieldFormName={`msgs.${type.key}.${fieldName}`}
-                      />
-                    );
-                  })}
-                </div>
-              );
-            })}
-            <Button type="submit">Create TX</Button>
-          </form>
-        </Form>
+
+        {/* Render added message forms */}
+        {msgTypes.map((msgType, index) => (
+          <MsgForm
+            key={msgType.key}
+            msgType={msgType.url as MsgTypeUrl}
+            senderAddress="placeholder-address" // TODO: Get actual sender address
+            setMsgGetter={setMsgGetter(index)}
+            deleteMsg={() => removeMsg(index)}
+          />
+        ))}
+
+        {/* Create Transaction button */}
+        {msgTypes.length > 0 && (
+          <div className="mt-4">
+            <Button onClick={createTx} className="w-full">
+              Create Transaction
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
