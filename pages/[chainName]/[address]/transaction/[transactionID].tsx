@@ -1,11 +1,16 @@
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
-import { MultisigThresholdPubkey } from "@/lib/packages/amino";
-import { fromBase64 } from "@/lib/packages/encoding";
-import { Account, StargateClient, makeMultisignedTxBytes } from "@/lib/packages/stargate";
-import { assert } from "@/lib/packages/utils";
+import { DbSignatureObj } from "@/graphql";
+import { getTransaction } from "@/graphql/transaction";
+import { updateDbTxHash } from "@/lib/api";
+import { toastError, toastSuccess } from "@/lib/utils";
+import { MultisigThresholdPubkey } from "@cosmjs/amino";
+import { fromBase64 } from "@cosmjs/encoding";
+import { Account, StargateClient, makeMultisignedTxBytes } from "@cosmjs/stargate";
+import { assert } from "@cosmjs/utils";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import CompletedTransaction from "../../../../components/dataViews/CompletedTransaction";
 import ThresholdInfo from "../../../../components/dataViews/ThresholdInfo";
 import TransactionInfo from "../../../../components/dataViews/TransactionInfo";
@@ -14,18 +19,15 @@ import Button from "../../../../components/inputs/Button";
 import Page from "../../../../components/layout/Page";
 import StackableContainer from "../../../../components/layout/StackableContainer";
 import { useChains } from "../../../../context/ChainsContext";
-import { findTransactionByID } from "../../../../lib/graphqlHelpers";
-import { getMultisigAccount } from "../../../../lib/multisigHelpers";
-import { requestJson } from "../../../../lib/request";
+import { getHostedMultisig, isAccount } from "../../../../lib/multisigHelpers";
 import { dbTxFromJson } from "../../../../lib/txMsgHelpers";
-import { DbSignature } from "../../../../types";
 
 interface Props {
   props: {
     transactionJSON: string;
     transactionID: string;
     txHash: string;
-    signatures: DbSignature[];
+    signatures: readonly DbSignatureObj[];
   };
 }
 
@@ -33,25 +35,19 @@ export const getServerSideProps: GetServerSideProps = async (context): Promise<P
   // get transaction info
   const transactionID = context.params?.transactionID?.toString();
   assert(transactionID, "Transaction ID missing");
-  let transactionJSON;
-  let txHash;
-  let signatures;
-  try {
-    console.log("Function `findTransactionByID` invoked", transactionID);
-    const getRes = await findTransactionByID(transactionID);
-    console.log("success", getRes.data);
-    txHash = getRes.data.getTransaction.txHash;
-    transactionJSON = getRes.data.getTransaction.dataJSON;
-    signatures = getRes.data.getTransaction.signatures;
-  } catch (err: unknown) {
-    console.log(err);
+  console.log("Function `findTransactionByID` invoked", transactionID);
+  const tx = await getTransaction(transactionID);
+  if (!tx) {
+    throw new Error("Transaction not found");
   }
+  console.log("success", tx);
+
   return {
     props: {
-      transactionJSON,
-      txHash,
+      transactionJSON: tx.dataJSON,
+      txHash: tx.txHash || "",
       transactionID,
-      signatures,
+      signatures: tx.signatures ?? [],
     },
   };
 };
@@ -64,23 +60,21 @@ const TransactionPage = ({
 }: {
   transactionJSON: string;
   transactionID: string;
-  signatures: DbSignature[];
+  signatures: DbSignatureObj[];
   txHash: string;
 }) => {
   const { chain } = useChains();
   const [currentSignatures, setCurrentSignatures] = useState(signatures);
-  const [broadcastError, setBroadcastError] = useState("");
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [transactionHash, setTransactionHash] = useState(txHash);
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [pubkey, setPubkey] = useState<MultisigThresholdPubkey>();
-  const [hasAccountError, setHasAccountError] = useState(false);
   const txInfo = dbTxFromJson(transactionJSON);
   const router = useRouter();
   const multisigAddress = router.query.address?.toString();
 
-  const addSignature = (signature: DbSignature) => {
-    setCurrentSignatures((prevState: DbSignature[]) => [...prevState, signature]);
+  const addSignature = (signature: DbSignatureObj) => {
+    setCurrentSignatures((prevState: DbSignatureObj[]) => [...prevState, signature]);
   };
 
   useEffect(() => {
@@ -90,26 +84,30 @@ const TransactionPage = ({
           return;
         }
 
-        const client = await StargateClient.connect(chain.nodeAddress);
-        const result = await getMultisigAccount(multisigAddress, chain.addressPrefix, client);
+        const hostedMultisig = await getHostedMultisig(multisigAddress, chain);
 
-        setPubkey(result[0]);
-        setAccountOnChain(result[1]);
-        setHasAccountError(false);
-      } catch (error: unknown) {
-        setHasAccountError(true);
-        console.error(
-          error instanceof Error ? error.message : "Multisig address could not be found",
+        assert(
+          hostedMultisig.hosted === "db+chain" && isAccount(hostedMultisig.accountOnChain),
+          "Multisig address could not be found",
         );
+
+        setPubkey(hostedMultisig.pubkeyOnDb);
+        setAccountOnChain(hostedMultisig.accountOnChain);
+      } catch (e) {
+        console.error("Failed to find multisig address:", e);
+        toastError({
+          description: "Failed to find multisig address",
+          fullError: e instanceof Error ? e : undefined,
+        });
       }
     })();
   }, [chain, multisigAddress]);
 
   const broadcastTx = async () => {
-    // debugger;
+    const loadingToastId = toast.loading("Broadcasting transaction");
+
     try {
       setIsBroadcasting(true);
-      setBroadcastError("");
 
       assert(accountOnChain, "Account on chain value missing.");
       assert(
@@ -118,40 +116,29 @@ const TransactionPage = ({
       );
       assert(pubkey, "Pubkey not found on chain or in database");
       assert(txInfo, "Transaction not found in database");
-
-      // console.log(
-      //   "broadcastTx # 1",
-      //   JSON.stringify({ accountOnChain, pubkey, txInfo, currentSignatures }, null, 2),
-      // );
-
       const bodyBytes = fromBase64(currentSignatures[0].bodyBytes);
       const signedTxBytes = makeMultisignedTxBytes(
         pubkey,
         txInfo.sequence,
         txInfo.fee,
         bodyBytes,
-        new Map(
-          currentSignatures.map((s: { address: string; signature: string }) => {
-            // console.log("broadcastTx # 2: signature", JSON.stringify({ signature: s }), null, 2);
-            return [s.address, fromBase64(s.signature)];
-          }),
-        ),
+        new Map(currentSignatures.map((s) => [s.address, fromBase64(s.signature)])),
       );
-
-      // console.log("broadcastTx # 3", JSON.stringify({ signedTxBytes, bodyBytes }, null, 2));
 
       const broadcaster = await StargateClient.connect(chain.nodeAddress);
       const result = await broadcaster.broadcastTx(signedTxBytes);
-
-      // console.log("broadcastTx # 4: result", JSON.stringify({ result }, null, 2));
-      await requestJson(`/api/transaction/${transactionID}`, {
-        body: { txHash: result.transactionHash },
-      });
+      await updateDbTxHash(transactionID, result.transactionHash);
+      toastSuccess("Transaction broadcasted with hash", result.transactionHash);
       setTransactionHash(result.transactionHash);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (e: any) {
+    } catch (e) {
+      console.error("Failed to broadcast tx:", e);
+      toastError({
+        description: "Failed to broadcast tx",
+        fullError: e instanceof Error ? e : undefined,
+      });
+    } finally {
       setIsBroadcasting(false);
-      setBroadcastError(e.toString());
+      toast.dismiss(loadingToastId);
     }
   };
 
@@ -174,13 +161,6 @@ const TransactionPage = ({
         <StackableContainer>
           <h1>{transactionHash ? "Completed Transaction" : "In Progress Transaction"}</h1>
         </StackableContainer>
-        {hasAccountError ? (
-          <StackableContainer>
-            <div className="multisig-error">
-              <p>Multisig address could not be found.</p>
-            </div>
-          </StackableContainer>
-        ) : null}
         {transactionHash ? <CompletedTransaction transactionHash={transactionHash} /> : null}
         {!transactionHash ? (
           <StackableContainer lessPadding lessMargin>
@@ -193,7 +173,6 @@ const TransactionPage = ({
                   primary
                   disabled={isBroadcasting}
                 />
-                {broadcastError ? <div className="broadcast-error">{broadcastError}</div> : null}
               </>
             ) : null}
             {pubkey && txInfo ? (
@@ -209,23 +188,6 @@ const TransactionPage = ({
         ) : null}
         {txInfo ? <TransactionInfo tx={txInfo} /> : null}
       </StackableContainer>
-      <style jsx>{`
-        .broadcast-error {
-          background: firebrick;
-          margin: 20px auto;
-          padding: 15px;
-          border-radius: 10px;
-          text-align: center;
-          font-family: monospace;
-          max-width: 475px;
-        }
-        .multisig-error p {
-          max-width: 550px;
-          color: red;
-          font-size: 16px;
-          line-height: 1.4;
-        }
-      `}</style>
     </Page>
   );
 };

@@ -1,31 +1,48 @@
+import CreateTxForm from "@/components/forms/CreateTxForm";
+import Head from "@/components/head";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
-import { Account, StargateClient } from "@/lib/packages/stargate";
+import { Account } from "@cosmjs/stargate";
+import { assert } from "@cosmjs/utils";
+import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import CreateTxForm from "../../../../components/forms/CreateTxForm";
+import { useCallback, useEffect, useState } from "react";
+import OldCreateTxForm from "../../../../components/forms/OldCreateTxForm";
 import Page from "../../../../components/layout/Page";
 import StackableContainer from "../../../../components/layout/StackableContainer";
 import { useChains } from "../../../../context/ChainsContext";
-import { getMultisigAccount } from "../../../../lib/multisigHelpers";
+import { getHostedMultisig, isAccount } from "../../../../lib/multisigHelpers";
 
-const NewTransactionPage = () => {
+export default function CreateTxPage() {
   const { chain } = useChains();
+  const [showOldForm, setShowOldForm] = useState(true);
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [hasAccountError, setHasAccountError] = useState(false);
   const router = useRouter();
   const multisigAddress = router.query.address?.toString();
 
   useEffect(() => {
-    (async function fetchMultisig() {
+    (async function fetchAccount() {
       try {
         if (!multisigAddress || !isChainInfoFilled(chain) || !chain.nodeAddress) {
           return;
         }
 
-        const client = await StargateClient.connect(chain.nodeAddress);
-        const result = await getMultisigAccount(multisigAddress, chain.addressPrefix, client);
+        const hostedMultisig = await getHostedMultisig(multisigAddress, chain);
 
-        setAccountOnChain(result[1]);
+        assert(
+          hostedMultisig.hosted === "db+chain" && isAccount(hostedMultisig.accountOnChain),
+          "Multisig address could not be found",
+        );
+
+        setAccountOnChain(hostedMultisig.accountOnChain);
         setHasAccountError(false);
       } catch (error: unknown) {
         setHasAccountError(true);
@@ -36,7 +53,21 @@ const NewTransactionPage = () => {
     })();
   }, [chain, multisigAddress]);
 
-  return (
+  const toggleOldNewForm = useCallback((event: KeyboardEvent) => {
+    if (event.ctrlKey && event.key === ".") {
+      setShowOldForm((prev) => !prev);
+      event.preventDefault();
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("keyup", toggleOldNewForm);
+    return () => {
+      window.removeEventListener("keyup", toggleOldNewForm);
+    };
+  }, [toggleOldNewForm]);
+
+  return showOldForm ? (
     <Page
       goBack={
         chain.registryName
@@ -75,7 +106,7 @@ const NewTransactionPage = () => {
           </StackableContainer>
         ) : null}
         {accountOnChain && multisigAddress ? (
-          <CreateTxForm senderAddress={multisigAddress} accountOnChain={accountOnChain} />
+          <OldCreateTxForm senderAddress={multisigAddress} accountOnChain={accountOnChain} />
         ) : null}
       </StackableContainer>
       <style jsx>{`
@@ -90,7 +121,31 @@ const NewTransactionPage = () => {
         }
       `}</style>
     </Page>
+  ) : (
+    <div className="m-4 mt-8 flex max-w-xl flex-1 flex-col justify-center gap-4">
+      <Head title={`${chain.chainDisplayName || "Cosmos Hub"} Multisig Manager`} />
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              {chain.registryName ? <Link href={`/${chain.registryName}`}>Home</Link> : null}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              {chain.registryName ? (
+                <Link href={`/${chain.registryName}/${multisigAddress}`}>Multisig</Link>
+              ) : null}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Account</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <CreateTxForm />
+    </div>
   );
-};
-
-export default NewTransactionPage;
+}

@@ -1,23 +1,18 @@
+import ListUserMultisigs from "@/components/dataViews/ListUserMultisigs";
 import FindMultisigForm from "@/components/forms/FindMultisigForm";
-import Page from "@/components/layout/Page";
-import StackableContainer from "@/components/layout/StackableContainer";
+import Head from "@/components/head";
 import { useChains } from "@/context/ChainsContext";
 
-const MultiPage = () => {
+const FindMultisigPage = () => {
   const { chain } = useChains();
 
   return (
-    <Page>
-      <StackableContainer base>
-        <StackableContainer lessPadding>
-          <h1 className="title">
-            <span>{chain.chainDisplayName}</span> Multisig Manager
-          </h1>
-        </StackableContainer>
-        <FindMultisigForm />
-      </StackableContainer>
-    </Page>
+    <div className="m-4 mt-0 flex max-w-xl flex-1 flex-col justify-center gap-4">
+      <Head title={`${chain.chainDisplayName || "Cosmos Hub"} Multisig Manager`} />
+      <FindMultisigForm />
+      <ListUserMultisigs />
+    </div>
   );
 };
 
-export default MultiPage;
+export default FindMultisigPage;

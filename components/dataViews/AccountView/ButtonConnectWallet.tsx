@@ -1,11 +1,13 @@
+import { getKeplrKey, useKeplrReconnect } from "@/lib/keplr";
+import { cn, toastError } from "@/lib/utils";
 import { LoadingStates, WalletInfo, WalletType } from "@/types/signing";
 import { makeCosmoshubPath } from "@/lib/packages/amino";
 import { toBase64 } from "@/lib/packages/encoding";
 import { LedgerSigner } from "@/lib/packages/ledger-amino";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import { Loader2 } from "lucide-react";
+import { Loader2, Unplug } from "lucide-react";
 import Image from "next/image";
-import { Dispatch, SetStateAction, useCallback, useLayoutEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import { useChains } from "../../../context/ChainsContext";
 import { getConnectError } from "../../../lib/errorHelpers";
 import { Button } from "../../ui/button";
@@ -16,58 +18,38 @@ interface ButtonConnectWalletProps {
     WalletInfo | null | undefined,
     Dispatch<SetStateAction<WalletInfo | null | undefined>>,
   ];
-  readonly setError: Dispatch<SetStateAction<string>>;
 }
 
 export default function ButtonConnectWallet({
   walletType,
   walletInfoState: [walletInfo, setWalletInfo],
-  setError,
 }: ButtonConnectWalletProps) {
   const { chain } = useChains();
   const [loading, setLoading] = useState<LoadingStates>({});
 
   const connectKeplr = useCallback(async () => {
     try {
-      setError("");
       setLoading((oldLoading) => ({ ...oldLoading, keplr: true }));
 
-      await window.keplr.enable(chain.chainId);
-      window.keplr.defaultOptions = {
-        sign: { preferNoSetFee: true, preferNoSetMemo: true, disableBalanceCheck: true },
-      };
-
-      const { bech32Address: address, pubKey: pubKeyArray } = await window.keplr.getKey(
-        chain.chainId,
-      );
+      const { bech32Address: address, pubKey: pubKeyArray } = await getKeplrKey(chain.chainId);
       const pubKey = toBase64(pubKeyArray);
-
       setWalletInfo({ type: "Keplr", address, pubKey });
     } catch (e) {
-      console.error(e);
-      setError(getConnectError(e));
+      const connectError = getConnectError(e);
+      console.error(connectError, e);
+      toastError({
+        description: connectError,
+        fullError: e instanceof Error ? e : undefined,
+      });
     } finally {
       setLoading((newLoading) => ({ ...newLoading, keplr: false }));
     }
-  }, [chain.chainId, setError, setWalletInfo]);
+  }, [chain.chainId, setWalletInfo]);
 
-  useLayoutEffect(() => {
-    if (!walletInfo?.address) {
-      return;
-    }
-
-    const accountChangeKey = "keplr_keystorechange";
-
-    if (walletInfo.type === "Keplr") {
-      window.addEventListener(accountChangeKey, connectKeplr);
-    } else {
-      window.removeEventListener(accountChangeKey, connectKeplr);
-    }
-  }, [connectKeplr, walletInfo]);
+  useKeplrReconnect(!!walletInfo?.address, connectKeplr);
 
   const connectLedger = async () => {
     try {
-      setError("");
       setLoading((newLoading) => ({ ...newLoading, ledger: true }));
 
       const ledgerTransport = await TransportWebUSB.create(120000, 120000);
@@ -81,8 +63,12 @@ export default function ButtonConnectWallet({
 
       setWalletInfo({ type: "Ledger", address, pubKey });
     } catch (e) {
-      console.error(e);
-      setError(getConnectError(e));
+      const connectError = getConnectError(e);
+      console.error(connectError, e);
+      toastError({
+        description: connectError,
+        fullError: e instanceof Error ? e : undefined,
+      });
     } finally {
       setLoading((newLoading) => ({ ...newLoading, ledger: false }));
     }
@@ -103,17 +89,27 @@ export default function ButtonConnectWallet({
   const isLoading =
     (walletType === "Keplr" && loading.keplr) || (walletType === "Ledger" && loading.ledger);
 
-  return (
-    <Button onClick={onClick} disabled={loading.keplr || loading.ledger}>
+  return walletInfo?.type === walletType ? (
+    <Button
+      variant="outline"
+      onClick={() => {
+        setWalletInfo(null);
+      }}
+    >
+      <Unplug className="mr-2 h-auto w-5 text-destructive" />
+      Disconnect {walletInfo.type}
+    </Button>
+  ) : (
+    <Button onClick={onClick} disabled={loading.keplr || loading.ledger} variant="outline">
       {isLoading ? (
         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
       ) : (
         <Image
           alt=""
           src={`/assets/icons/${walletType.toLowerCase()}.svg`}
-          width={20}
-          height={20}
-          className="mr-2"
+          width={walletType === "Ledger" ? 23 : 20}
+          height={walletType === "Ledger" ? 23 : 20}
+          className={cn("mr-2", walletType === "Ledger" && "bg-white p-0.5")}
         />
       )}
       Connect {walletType}

@@ -1,73 +1,55 @@
+import { DbSignatureObj, DbSignatureObjDraft, DbTransactionParsedDataJson } from "@/graphql";
+import { createDbSignature } from "@/lib/api";
+import { getKeplrAminoSigner, getKeplrKey, useKeplrReconnect } from "@/lib/keplr";
+import { aminoConverters } from "@/lib/msg";
+import { toastError, toastSuccess } from "@/lib/utils";
 import { LoadingStates, SigningStatus } from "@/types/signing";
-import { MultisigThresholdPubkey, makeCosmoshubPath } from "@/lib/packages/amino";
-import { toBase64 } from "@/lib/packages/encoding";
-import { LedgerSigner } from "@/lib/packages/ledger-amino";
-import { Registry } from "@/lib/packages/proto-signing";
-import {
-  AminoTypes,
-  SigningStargateClient,
-  createSdkStakingAminoConverters,
-  createBankAminoConverters,
-  createAuthzAminoConverters,
-  createDistributionAminoConverters,
-  createGovAminoConverters,
-  createSlashingAminoConverters,
-  defaultRegistryTypes,
-  AminoMsgUnjail,
-} from "@/lib/packages/stargate";
-//import { createDefaultAminoConverters } from "@cosmjs/stargate";
-import {
-  createWasmAminoConverters,
-} from "@/lib/packages/cosmwasm-stargate";
-import { assert } from "@/lib/packages/utils";
+import { MultisigThresholdPubkey, makeCosmoshubPath } from "@cosmjs/amino";
+import { wasmTypes } from "@cosmjs/cosmwasm-stargate";
+import { toBase64 } from "@cosmjs/encoding";
+import { LedgerSigner } from "@cosmjs/ledger-amino";
+import { OfflineSigner, Registry } from "@cosmjs/proto-signing";
+import { AminoTypes, SigningStargateClient, defaultRegistryTypes } from "@cosmjs/stargate";
+import { assert } from "@cosmjs/utils";
+import { Key } from "@keplr-wallet/types";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
 import { useChains } from "../../context/ChainsContext";
 import { getConnectError } from "../../lib/errorHelpers";
-import { requestJson } from "../../lib/request";
-import { DbSignature, DbTransaction, WalletAccount } from "../../types";
 import HashView from "../dataViews/HashView";
 import Button from "../inputs/Button";
 import StackableContainer from "../layout/StackableContainer";
-import { MsgUnjail } from "cosmjs-types/cosmos/slashing/v1beta1/tx";
 
 interface TransactionSigningProps {
-  readonly signatures: DbSignature[];
-  readonly tx: DbTransaction;
+  readonly signatures: DbSignatureObj[];
+  readonly tx: DbTransactionParsedDataJson;
   readonly pubkey: MultisigThresholdPubkey;
   readonly transactionID: string;
-  readonly addSignature: (signature: DbSignature) => void;
+  readonly addSignature: (signature: DbSignatureObj) => void;
 }
 
 const TransactionSigning = (props: TransactionSigningProps) => {
   const memberPubkeys = props.pubkey.value.pubkeys.map(({ value }) => value);
 
   const { chain } = useChains();
-  const [walletAccount, setWalletAccount] = useState<WalletAccount>();
-  const [sigError, setSigError] = useState("");
-  const [connectError, setConnectError] = useState("");
+  const [walletAccount, setWalletAccount] = useState<Partial<Key>>();
   const [signing, setSigning] = useState<SigningStatus>("not_signed");
   const [walletType, setWalletType] = useState<"Keplr" | "Ledger">();
-  const [ledgerSigner, setLedgerSigner] = useState({});
+  const [ledgerSigner, setLedgerSigner] = useState<OfflineSigner | null>(null);
   const [loading, setLoading] = useState<LoadingStates>({});
 
   const connectKeplr = useCallback(async () => {
     try {
       setLoading((oldLoading) => ({ ...oldLoading, keplr: true }));
 
-      await window.keplr.enable(chain.chainId);
-      window.keplr.defaultOptions = {
-        sign: { preferNoSetFee: true, preferNoSetMemo: true, disableBalanceCheck: true },
-      };
-      const tempWalletAccount = await window.keplr.getKey(chain.chainId);
-      setWalletAccount(tempWalletAccount);
+      const newWalletAccount = await getKeplrKey(chain.chainId);
+      setWalletAccount(newWalletAccount);
 
-      const pubkey = toBase64(tempWalletAccount.pubKey);
-      // console.log("connectKeplr # 1", JSON.stringify({ tempWalletAccount, pubkey }, null, 2));
-
+      const pubkey = toBase64(newWalletAccount.pubKey);
       const isMember = memberPubkeys.includes(pubkey);
       const hasSigned = isMember
-        ? props.signatures.some((sig) => sig.address === tempWalletAccount.bech32Address)
+        ? props.signatures.some((sig) => sig.address === newWalletAccount.bech32Address)
         : false;
       if (!isMember) {
         setSigning("not_a_member");
@@ -80,24 +62,19 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       }
 
       setWalletType("Keplr");
-      setConnectError("");
     } catch (e) {
-      console.error(e);
-      setConnectError(getConnectError(e));
+      const connectError = getConnectError(e);
+      console.error(connectError, e);
+      toastError({
+        description: connectError,
+        fullError: e instanceof Error ? e : undefined,
+      });
     } finally {
       setLoading((newLoading) => ({ ...newLoading, keplr: false }));
     }
   }, [chain.chainId, memberPubkeys, props.signatures]);
 
-  useLayoutEffect(() => {
-    const accountChangeKey = "keplr_keystorechange";
-
-    if (walletType === "Keplr") {
-      window.addEventListener(accountChangeKey, connectKeplr);
-    } else {
-      window.removeEventListener(accountChangeKey, connectKeplr);
-    }
-  }, [connectKeplr, walletType]);
+  useKeplrReconnect(!!walletAccount?.address, connectKeplr);
 
   const connectLedger = async () => {
     try {
@@ -112,7 +89,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         prefix: chain.addressPrefix,
       });
       const accounts = await offlineSigner.getAccounts();
-      const tempWalletAccount: WalletAccount = {
+      const tempWalletAccount = {
         bech32Address: accounts[0].address,
         pubKey: accounts[0].pubkey,
         algo: accounts[0].algo,
@@ -136,35 +113,36 @@ const TransactionSigning = (props: TransactionSigningProps) => {
 
       setLedgerSigner(offlineSigner);
       setWalletType("Ledger");
-      setConnectError("");
     } catch (e) {
-      console.error(e);
-      setConnectError(getConnectError(e));
+      const connectError = getConnectError(e);
+      console.error(connectError, e);
+      toastError({
+        description: connectError,
+        fullError: e instanceof Error ? e : undefined,
+      });
     } finally {
       setLoading((newLoading) => ({ ...newLoading, ledger: false }));
     }
   };
 
   const signTransaction = async () => {
+    const loadingToastId = toast.loading("Signing transaction");
+
     try {
       setLoading((newLoading) => ({ ...newLoading, signing: true }));
-      // debugger;
+
       const offlineSigner =
-        walletType === "Keplr" ? window.getOfflineSignerOnlyAmino(chain.chainId) : ledgerSigner;
+        walletType === "Keplr" ? await getKeplrAminoSigner(chain.chainId) : ledgerSigner;
+
+      if (!offlineSigner) {
+        throw new Error("Offline signer not found");
+      }
 
       const signerAddress = walletAccount?.bech32Address;
       assert(signerAddress, "Missing signer address");
       const signingClient = await SigningStargateClient.offline(offlineSigner, {
-        registry: new Registry([...defaultRegistryTypes, ["/cosmos.slashing.v1beta1.MsgUnjail", MsgUnjail]]),
-        aminoTypes: new AminoTypes({
-          ...createWasmAminoConverters(),
-          ...createSdkStakingAminoConverters("cosmos"),
-          ...createBankAminoConverters(),
-          ...createGovAminoConverters(),
-          ...createAuthzAminoConverters(),
-          ...createSlashingAminoConverters(),
-          ...createDistributionAminoConverters(),
-        }),
+        registry: new Registry([...defaultRegistryTypes, ...wasmTypes]),
+        aminoTypes: new AminoTypes(aminoConverters),
       });
 
       const signerData = {
@@ -172,6 +150,7 @@ const TransactionSigning = (props: TransactionSigningProps) => {
         sequence: props.tx.sequence,
         chainId: chain.chainId,
       };
+
       const { bodyBytes, signatures } = await signingClient.sign(
         signerAddress,
         props.tx.msgs,
@@ -188,21 +167,27 @@ const TransactionSigning = (props: TransactionSigningProps) => {
       );
 
       if (prevSigMatch > -1) {
-        setSigError("This account has already signed.");
-      } else {
-        const signature = {
-          bodyBytes: bases64EncodedBodyBytes,
-          signature: bases64EncodedSignature,
-          address: signerAddress,
-        };
-        await requestJson(`/api/transaction/${props.transactionID}/signature`, { body: signature });
-        props.addSignature(signature);
-        setSigning("signed");
+        throw new Error("This account has already signed");
       }
+
+      const signature: Omit<DbSignatureObjDraft, "transaction"> = {
+        bodyBytes: bases64EncodedBodyBytes,
+        signature: bases64EncodedSignature,
+        address: signerAddress,
+      };
+      await createDbSignature(props.transactionID, signature);
+      toastSuccess("Transaction signed by", signerAddress);
+      props.addSignature(signature);
+      setSigning("signed");
     } catch (e) {
-      console.log("signing err: ", e);
+      console.error("Failed to sign the tx:", e);
+      toastError({
+        description: "Failed to sign the tx",
+        fullError: e instanceof Error ? e : undefined,
+      });
     } finally {
       setLoading((newLoading) => ({ ...newLoading, signing: false }));
+      toast.dismiss(loadingToastId);
     }
   };
 
@@ -258,20 +243,6 @@ const TransactionSigning = (props: TransactionSigningProps) => {
             )}
           </>
         ) : null}
-        {sigError ? (
-          <StackableContainer lessPadding lessRadius lessMargin>
-            <div className="signature-error">
-              <p>This account has already signed this transaction</p>
-            </div>
-          </StackableContainer>
-        ) : null}
-        {connectError ? (
-          <StackableContainer lessPadding lessRadius lessMargin>
-            <div className="signature-error">
-              <p>{connectError}</p>
-            </div>
-          </StackableContainer>
-        ) : null}
       </StackableContainer>
       <style jsx>{`
         p {
@@ -288,15 +259,6 @@ const TransactionSigning = (props: TransactionSigningProps) => {
           list-style: none;
           padding: 0;
           margin: 0;
-        }
-        .signature-error p {
-          max-width: 550px;
-          color: red;
-          font-size: 16px;
-          line-height: 1.4;
-        }
-        .signature-error p:first-child {
-          margin-top: 0;
         }
         .confirmation {
           display: flex;

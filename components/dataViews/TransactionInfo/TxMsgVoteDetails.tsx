@@ -1,37 +1,23 @@
-import { assert } from "@cosmjs/utils";
+import { printVoteOption } from "@/lib/gov";
 import { MsgVote } from "cosmjs-types/cosmos/gov/v1beta1/tx";
 
 interface TxMsgVoteDetailsProps {
   readonly msgValue: MsgVote;
 }
 
-const options = [
-  { value: 0, label: "Unspecified" },
-  { value: 1, label: "Yes" },
-  { value: 3, label: "No" },
-  { value: 4, label: "No with veto" },
-  { value: 2, label: "Abstain" },
-] as const;
-
 const TxMsgVoteDetails = ({ msgValue }: TxMsgVoteDetailsProps) => {
-  assert(
-    msgValue.proposalId,
-    "Proposal ID must be set, see https://github.com/osmosis-labs/telescope/issues/386",
-  );
-  const option = options.find((o) => o.value === msgValue.option);
-  console.log("option", option);
   return (
     <>
       <li>
         <h3>MsgVote</h3>
       </li>
       <li>
-        <label>Proposal Id:</label>
+        <label>Proposal ID:</label>
         <div>{msgValue.proposalId.toString()}</div>
       </li>
       <li>
-        <label>Vote Option:</label>
-        <div>{option ? String(option.label) : ""}</div>
+        <label>Voted:</label>
+        <div>{printVoteOption(msgValue.option)}</div>
       </li>
       <style jsx>{`
         li:not(:has(h3)) {

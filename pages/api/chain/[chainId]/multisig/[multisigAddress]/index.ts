@@ -1,24 +1,35 @@
+import { getMultisig } from "@/graphql/multisig";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { createMultisig } from "../../../../../../lib/graphqlHelpers";
 
-export default async function multisigApi(req: NextApiRequest, res: NextApiResponse) {
-  switch (req.method) {
-    case "POST":
-      try {
-        const data = req.body;
-        console.log("Function `createMultisig` invoked", data);
-        const saveRes = await createMultisig(data);
-        console.log("success", saveRes);
-        res.status(200).send(saveRes.data.addMultisig.multisig[0]);
-        return;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (err: any) {
-        console.log(err);
-        res.status(400).send(err.message);
-        return;
-      }
+const endpointErrMsg = "Failed to get multisig";
+
+export default async function apiGetMultisig(req: NextApiRequest, res: NextApiResponse) {
+  const chainId = req.query.chainId;
+  const multisigAddress = req.query.multisigAddress;
+
+  if (
+    req.method !== "GET" ||
+    typeof chainId !== "string" ||
+    !chainId ||
+    typeof multisigAddress !== "string" ||
+    !multisigAddress
+  ) {
+    res.status(405).end();
+    return;
   }
-  // no route matched
-  res.status(405).end();
-  return;
+
+  try {
+    const multisig = await getMultisig(chainId, multisigAddress);
+    if (!multisig) {
+      throw new Error(`multisig not found with address ${multisigAddress} on chain ${chainId}`);
+    }
+
+    res.status(200).send(multisig);
+    console.log("Get multisig success", JSON.stringify(multisig, null, 2));
+  } catch (err: unknown) {
+    console.error(err);
+    res
+      .status(400)
+      .send(err instanceof Error ? `${endpointErrMsg}: ${err.message}` : endpointErrMsg);
+  }
 }

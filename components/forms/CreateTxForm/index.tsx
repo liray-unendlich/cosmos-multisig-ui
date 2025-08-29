@@ -1,362 +1,113 @@
-import { loadValidators } from "@/context/ChainsContext/helpers";
-import { EncodeObject } from "@/lib/packages/proto-signing";
-import { Account, calculateFee } from "@/lib/packages/stargate";
-import { assert } from "@/lib/packages/utils";
-import { NextRouter, withRouter } from "next/router";
-import { useRef, useState } from "react";
-import { useChains } from "../../../context/ChainsContext";
-import { requestJson } from "../../../lib/request";
-import { exportMsgToJson, gasOfTx } from "../../../lib/txMsgHelpers";
-import { DbTransaction } from "../../../types";
-import { MsgTypeUrl, MsgTypeUrls } from "../../../types/txMsg";
-import Button from "../../inputs/Button";
-import Input from "../../inputs/Input";
-import StackableContainer from "../../layout/StackableContainer";
-import MsgForm from "./MsgForm";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
+import { useChains } from "@/context/ChainsContext";
+import { getField, getMsgSchema } from "@/lib/form";
+import { getMsgRegistry } from "@/lib/msg";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
-export interface MsgGetter {
-  readonly isMsgValid: () => boolean;
-  readonly msg: EncodeObject;
-}
+type MsgType = Readonly<{
+  url: string;
+  key: string;
+}>;
 
-interface CreateTxFormProps {
-  readonly router: NextRouter;
-  readonly senderAddress: string;
-  readonly accountOnChain: Account;
-}
+export default function CreateTxForm() {
+  const { chain } = useChains();
+  const [msgTypes, setMsgTypes] = useState<readonly MsgType[]>([]);
 
-const CreateTxForm = ({ router, senderAddress, accountOnChain }: CreateTxFormProps) => {
-  const {
-    chain,
-    validatorState: { validators },
-    chainsDispatch,
-  } = useChains();
+  const msgRegistry = getMsgRegistry();
+  const categories = [...new Set(Object.values(msgRegistry).map((msg) => msg.category))];
 
-  const [processing, setProcessing] = useState(false);
-  const [msgTypes, setMsgTypes] = useState<readonly MsgTypeUrl[]>([]);
-  const [msgKeys, setMsgKeys] = useState<readonly string[]>([]);
-  const msgGetters = useRef<MsgGetter[]>([]);
-  const [memo, setMemo] = useState("");
-  const [gasLimit, setGasLimit] = useState(gasOfTx([]));
-  const [gasLimitError, setGasLimitError] = useState("");
-  const [showCreateTxError, setShowTxError] = useState(false);
+  const basicCreateTxSchema = z.object({
+    memo: z.string().trim().min(1, "Required"),
+    msgs: z.object({}),
+  });
 
-  const addMsgType = (newMsgType: MsgTypeUrl) => {
-    setMsgKeys((oldMsgKeys) => [...oldMsgKeys, crypto.randomUUID()]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const msgsSchema: Record<string, z.ZodObject<any>> = {};
+
+  for (const msgType of msgTypes) {
+    msgsSchema[msgType.key] = getMsgSchema(msgRegistry[msgType.url].fields, { chain });
+  }
+
+  const createTxSchema = basicCreateTxSchema.extend({ msgs: z.object(msgsSchema) });
+
+  const createTxForm = useForm<z.infer<typeof createTxSchema>>({
+    resolver: zodResolver(createTxSchema),
+  });
+
+  const addMsg = (typeUrl: string) => {
     setMsgTypes((oldMsgTypes) => {
-      const newMsgTypes = [...oldMsgTypes, newMsgType];
-      setGasLimit(gasOfTx(newMsgTypes));
-      return newMsgTypes;
+      const newMsgTypeUrls: readonly MsgType[] = [
+        ...oldMsgTypes,
+        { url: typeUrl, key: crypto.randomUUID() },
+      ];
+      // setGasLimit(gasOfTx(newMsgTypes));
+      return newMsgTypeUrls;
     });
+    createTxForm.trigger();
   };
 
-  const addMsgWithValidator = (newMsgType: MsgTypeUrl) => {
-    if (!validators.length) {
-      loadValidators(chainsDispatch);
-    }
-
-    addMsgType(newMsgType);
-  };
-
-  const createTx = async () => {
-    try {
-      setShowTxError(false);
-
-      assert(typeof accountOnChain.accountNumber === "number", "accountNumber missing");
-      assert(msgGetters.current.length, "form filled incorrectly");
-
-      const msgs = msgGetters.current
-        .filter(({ isMsgValid }) => isMsgValid())
-        .map(({ msg }) => exportMsgToJson(msg));
-
-      if (!msgs.length || msgs.length !== msgTypes.length) return;
-
-      if (!Number.isSafeInteger(gasLimit) || gasLimit <= 0) {
-        setGasLimitError("gas limit must be a positive integer");
-        return;
-      }
-
-      setProcessing(true);
-
-      const tx: DbTransaction = {
-        accountNumber: accountOnChain.accountNumber,
-        sequence: accountOnChain.sequence,
-        chainId: chain.chainId,
-        msgs,
-        fee: calculateFee(gasLimit, chain.gasPrice),
-        memo,
-      };
-
-      const { transactionID } = await requestJson("/api/transaction", {
-        body: { dataJSON: JSON.stringify(tx) },
-      });
-
-      router.push(`/${chain.registryName}/${senderAddress}/transaction/${transactionID}`);
-    } catch (error) {
-      console.error("Creat transaction error:", error);
-      setShowTxError(true);
-    } finally {
-      setProcessing(false);
-    }
-  };
+  const submitCreateTx = (values: z.infer<typeof createTxSchema>) =>
+    console.log("created tx with values:", values);
 
   return (
-    <StackableContainer
-      lessPadding
-      divProps={{ style: { width: "min(690px, 90vw)", maxWidth: "690px" } }}
-    >
-      <h2>Create New Transaction</h2>
-      {msgTypes.length ? (
-        msgTypes.map((msgType, index) => (
-          <MsgForm
-            key={msgKeys[index]}
-            msgType={msgType}
-            senderAddress={senderAddress}
-            setMsgGetter={(msgGetter) => {
-              msgGetters.current = [
-                ...msgGetters.current.slice(0, index),
-                msgGetter,
-                ...msgGetters.current.slice(index + 1),
-              ];
-            }}
-            deleteMsg={() => {
-              msgGetters.current.splice(index, 1);
-              setMsgKeys((oldMsgKeys) => [
-                ...oldMsgKeys.slice(0, index),
-                ...oldMsgKeys.slice(index + 1),
-              ]);
-              setMsgTypes((oldMsgTypes) => {
-                const newMsgTypes: MsgTypeUrl[] = oldMsgTypes.slice();
-                newMsgTypes.splice(index, 1);
-                setGasLimit(gasOfTx(newMsgTypes));
-                return newMsgTypes;
-              });
-            }}
-          />
-        ))
-      ) : (
-        <StackableContainer lessMargin lessPadding>
-          <p className="empty-msg-warning">Add at least one message to this transaction</p>
-        </StackableContainer>
-      )}
-      <div className="form-item">
-        <Input
-          type="number"
-          label="Gas Limit"
-          name="gas-limit"
-          value={gasLimit}
-          onChange={({ target }) => setGasLimit(Number(target.value))}
-        />
-      </div>
-      <div className="form-item">
-        <Input
-          label="Gas Price"
-          name="gas-price"
-          value={chain.gasPrice}
-          disabled={true}
-          error={gasLimitError}
-        />
-      </div>
-      <div className="form-item">
-        <Input
-          label="Memo"
-          name="memo"
-          value={memo}
-          onChange={({ target }) => setMemo(target.value)}
-        />
-      </div>
-      <h4 className="mx-0 my-5 block font-bold">Add New Msg</h4>
-      <div className="btn-cluster-grid">
-        <div className="btn-cluster">
-          <label>Bank</label>
-          <ul>
-            <li>
-              <Button label="Send" onClick={() => addMsgType(MsgTypeUrls.Send)} />
-            </li>
-          </ul>
-        </div>
-        <div className="btn-cluster">
-          <label>IBC</label>
-          <ul>
-            <li>
-              <Button label="Transfer" onClick={() => addMsgType(MsgTypeUrls.Transfer)} />
-            </li>
-          </ul>
-        </div>
-        <div className="btn-cluster">
-          <label>Governance</label>
-          <ul>
-            <li>
-              <Button
-                label="Vote"
-                onClick={() => addMsgType(MsgTypeUrls.Vote)}
-              />
-            </li>
-          </ul>
-        </div>
-        <div className="btn-cluster">
-          <label>Validator</label>
-          <ul>
-          <li>
-              <Button
-                label="CreateValidator"
-                onClick={() => addMsgType(MsgTypeUrls.CreateValidator)}
-              />
-            </li>
-            <li>
-              <Button
-                label="EditValidator"
-                onClick={() => addMsgType(MsgTypeUrls.EditValidator)}
-              />
-            </li>
-            <li>
-              <Button
-                label="Unjail"
-                onClick={() => addMsgType(MsgTypeUrls.Unjail)}
-              />
-            </li>
-            </ul>
-            <ul>
-            <li>
-              <Button
-                label="WithdrawValidatorCommission"
-                onClick={() => addMsgType(MsgTypeUrls.WithdrawValidatorCommission)}
-              />
-            </li>
-            </ul>
-        </div>
-        <div className="btn-cluster">
-          <label>Vesting</label>
-          <ul>
-            <li>
-              <Button
-                label="CreateVestingAccount"
-                onClick={() => addMsgType(MsgTypeUrls.CreateVestingAccount)}
-              />
-            </li>
-          </ul>
-        </div>
-        <div className="btn-cluster">
-          <label>Staking</label>
-          <ul>
-            <li>
-              <Button label="Delegate" onClick={() => addMsgWithValidator(MsgTypeUrls.Delegate)} />
-            </li>
-            <li>
-              <Button
-                label="Undelegate"
-                onClick={() => addMsgWithValidator(MsgTypeUrls.Undelegate)}
-              />
-            </li>
-            <li>
-              <Button
-                label="BeginRedelegate"
-                onClick={() => addMsgWithValidator(MsgTypeUrls.BeginRedelegate)}
-              />
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <Button
-                label="WithdrawDelegatorReward"
-                onClick={() => addMsgWithValidator(MsgTypeUrls.WithdrawDelegatorReward)}
-              />
-            </li>
-            <li>
-              <Button
-                label="SetWithdrawAddress"
-                onClick={() => addMsgType(MsgTypeUrls.SetWithdrawAddress)}
-              />
-            </li>
-          </ul>
-        </div>
-        <div className="btn-cluster">
-          <label>CosmWasm</label>
-          <ul>
-            <li>
-              <Button
-                label="InstantiateContract"
-                onClick={() => addMsgType(MsgTypeUrls.Instantiate)}
-              />
-            </li>
-            <li>
-              <Button
-                label="InstantiateContract2"
-                onClick={() => addMsgType(MsgTypeUrls.Instantiate2)}
-              />
-            </li>
-            <li>
-              <Button label="ExecuteContract" onClick={() => addMsgType(MsgTypeUrls.Execute)} />
-            </li>
-            <li>
-              <Button label="MigrateContract" onClick={() => addMsgType(MsgTypeUrls.Migrate)} />
-            </li>
-          </ul>
-        </div>
-      </div>
-      {showCreateTxError ? (
-        <StackableContainer lessMargin lessPadding>
-          <p className="multisig-error">
-            Error when creating the transaction. See console for more details.
-          </p>
-        </StackableContainer>
-      ) : null}
-      <Button
-        label="Create Transaction"
-        onClick={createTx}
-        disabled={!msgTypes.length}
-        loading={processing}
-      />
-      <style jsx>{`
-        p {
-          margin-top: 15px;
-        }
-        .empty-msg-warning {
-          margin: 0;
-          font-size: 16px;
-        }
-        .form-item {
-          margin-top: 1.5em;
-        }
-        .multisig-error {
-          margin: 0;
-          max-width: 100%;
-          color: red;
-          font-size: 16px;
-          text-align: center;
-        }
-        .btn-cluster-grid {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-          justify-content: flex-start;
-          align-items: center;
-        }
-        .btn-cluster {
-          padding: 0.5rem;
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 10px;
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-        .btn-cluster label {
-          text-decoration: underline;
-        }
-        .btn-cluster ul {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-          justify-content: flex-start;
-          align-items: center;
-        }
-      `}</style>
-    </StackableContainer>
+    <Card>
+      <CardHeader>
+        <CardTitle>Create a new transaction</CardTitle>
+        <CardDescription>You can add several different messages.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {categories.map((category) => (
+          <div key={category}>
+            <h3>{category}</h3>
+            <div className="flex flex-wrap gap-2">
+              {Object.values(msgRegistry)
+                .filter((msg) => msg.category === category)
+                .map((msg) => (
+                  <Button
+                    key={msg.typeUrl}
+                    onClick={() => addMsg(msg.typeUrl)}
+                    disabled={
+                      msg.fields.map((f: string) => getField(f)).some((v: string) => v === null) ||
+                      Object.values(getMsgSchema(msg.fields, { chain }).shape).some(
+                        (v) => v === null,
+                      )
+                    }
+                  >
+                    Add {msg.name.startsWith("Msg") ? msg.name.slice(3) : msg.name}
+                  </Button>
+                ))}
+            </div>
+          </div>
+        ))}
+        <Form {...createTxForm}>
+          <form onSubmit={createTxForm.handleSubmit(submitCreateTx)} className="space-y-8">
+            {msgTypes.map((type) => {
+              const msg = msgRegistry[type.url];
+              return (
+                <div key={type.key}>
+                  <h3>{msg.name}</h3>
+                  {msg.fields.map((fieldName: string) => {
+                    const Field = getField(fieldName) || (() => null);
+                    return (
+                      <Field
+                        key={fieldName}
+                        form={createTxForm}
+                        fieldFormName={`msgs.${type.key}.${fieldName}`}
+                      />
+                    );
+                  })}
+                </div>
+              );
+            })}
+            <Button type="submit">Create TX</Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
-};
-
-export default withRouter(CreateTxForm);
+}

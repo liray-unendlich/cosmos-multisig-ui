@@ -1,13 +1,13 @@
 import { MsgGetter } from "..";
 import { MsgTypeUrl, MsgTypeUrls } from "../../../../types/txMsg";
-import MsgClaimRewardsForm from "./MsgClaimRewardsForm";
+import MsgWithdrawDelegatorRewardForm from "./MsgWithdrawDelegatorRewardForm";
 import MsgCreateVestingAccountForm from "./MsgCreateVestingAccountForm";
 import MsgDelegateForm from "./MsgDelegateForm";
 import MsgExecuteContractForm from "./MsgExecuteContractForm";
 import MsgInstantiateContract2Form from "./MsgInstantiateContract2Form";
 import MsgInstantiateContractForm from "./MsgInstantiateContractForm";
 import MsgMigrateContractForm from "./MsgMigrateContractForm";
-import MsgRedelegateForm from "./MsgRedelegateForm";
+import MsgBeginRedelegateForm from "./MsgBeginRedelegateForm";
 import MsgSendForm from "./MsgSendForm";
 import MsgSetWithdrawAddressForm from "./MsgSetWithdrawAddressForm";
 import MsgTransferForm from "./MsgTransferForm";
@@ -16,7 +16,9 @@ import MsgVoteForm from "./MsgVoteForm";
 import MsgCreateValidatorForm from "./MsgCreateValidatorForm";
 import MsgEditValidatorForm from "./MsgEditValidatorForm";
 import MsgUnjailForm from "./MsgUnjailForm";
-import MsgClaimValidatorCommissionForm from "./MsgClaimValidatorCommissionForm";
+import MsgWithdrawValidatorCommissionForm from "./MsgWithdrawValidatorCommissionForm";
+import MsgFundCommunityPoolForm from "./MsgFundCommunityPoolForm";
+import MsgUpdateAdminForm from "./MsgUpdateAdminForm";
 
 interface MsgFormProps {
   readonly msgType: MsgTypeUrl;
@@ -38,15 +40,17 @@ const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
     case MsgTypeUrls.Unjail:
       return <MsgUnjailForm delegatorAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.WithdrawValidatorCommission:
-      return <MsgClaimValidatorCommissionForm delegatorAddress={senderAddress} {...restProps} />;
+      return <MsgWithdrawValidatorCommissionForm delegatorAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Delegate:
       return <MsgDelegateForm delegatorAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Undelegate:
       return <MsgUndelegateForm delegatorAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.BeginRedelegate:
-      return <MsgRedelegateForm delegatorAddress={senderAddress} {...restProps} />;
+      return <MsgBeginRedelegateForm delegatorAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.WithdrawDelegatorReward:
-      return <MsgClaimRewardsForm delegatorAddress={senderAddress} {...restProps} />;
+      return <MsgWithdrawDelegatorRewardForm delegatorAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.FundCommunityPool:
+      return <MsgFundCommunityPoolForm fromAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.SetWithdrawAddress:
       return <MsgSetWithdrawAddressForm delegatorAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.CreateVestingAccount:
@@ -59,6 +63,8 @@ const MsgForm = ({ msgType, senderAddress, ...restProps }: MsgFormProps) => {
       return <MsgInstantiateContractForm fromAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Instantiate2:
       return <MsgInstantiateContract2Form fromAddress={senderAddress} {...restProps} />;
+    case MsgTypeUrls.UpdateAdmin:
+      return <MsgUpdateAdminForm fromAddress={senderAddress} {...restProps} />;
     case MsgTypeUrls.Migrate:
       return <MsgMigrateContractForm fromAddress={senderAddress} {...restProps} />;
     default:

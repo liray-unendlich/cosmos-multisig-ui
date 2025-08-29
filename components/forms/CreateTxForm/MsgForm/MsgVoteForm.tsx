@@ -1,85 +1,88 @@
+import { printVoteOption, voteOptions } from "@/lib/gov";
 import { MsgVoteEncodeObject } from "@cosmjs/stargate";
+import { longify } from "@cosmjs/stargate/build/queryclient";
+import { voteOptionFromJSON } from "cosmjs-types/cosmos/gov/v1beta1/gov";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
+import { trimStringsObj } from "../../../../lib/displayHelpers";
 import { MsgCodecs, MsgTypeUrls } from "../../../../types/txMsg";
-import { useChains } from "../../../../context/ChainsContext";
 import Input from "../../../inputs/Input";
 import Select from "../../../inputs/Select";
 import StackableContainer from "../../../layout/StackableContainer";
-import { VoteOption } from "cosmjs-types/cosmos/gov/v1beta1/gov";
 
+const selectVoteOptions = voteOptions.map((opt) => {
+  const voteOptionObj = voteOptionFromJSON(opt);
+
+  return {
+    label: printVoteOption(voteOptionObj),
+    value: voteOptionObj,
+  };
+});
 
 interface MsgVoteFormProps {
-  readonly voteAddress: string;
+  readonly senderAddress: string;
   readonly setMsgGetter: (msgGetter: MsgGetter) => void;
   readonly deleteMsg: () => void;
 }
 
-// 選択されたオプションの型を定義
-interface SelectOption {
-  value: VoteOption; // `VoteOption` は `cosmjs-types/cosmos/gov/v1beta1/gov` からインポートされた型
-  label: string;
-}
-
-const MsgVoteForm = ({
-  voteAddress,
-  setMsgGetter,
-  deleteMsg,
-}: MsgVoteFormProps) => {
-  const { chain } = useChains();
-  const [proposalId, setProposalId] = useState("");
-  // set option for vote
-  const [option, setOption] = useState<VoteOption>();
+const MsgVoteForm = ({ senderAddress, setMsgGetter, deleteMsg }: MsgVoteFormProps) => {
+  const [proposalId, setProposalId] = useState("0");
+  const [selectedVote, setSelectedVote] = useState(selectVoteOptions[0]);
 
   const [proposalIdError, setProposalIdError] = useState("");
-  const [optionError, setOptionError] = useState("");
+
+  const trimmedInputs = trimStringsObj({ proposalId });
 
   useEffect(() => {
     // eslint-disable-next-line no-shadow
+    const { proposalId } = trimmedInputs;
 
     const isMsgValid = (): boolean => {
-
       setProposalIdError("");
-      setOptionError("");
 
-      // check the proposalId is a valid integer
-      const isProposalIdValid = Number.isInteger(Number(proposalId));
-      if (isProposalIdValid === false) {
-        setProposalIdError("Proposal ID must be a valid integer");
+      if (!proposalId || Number(proposalId) <= 0 || !Number.isSafeInteger(Number(proposalId))) {
+        setProposalIdError("Proposal ID must be an integer greater than 0");
         return false;
       }
-      // Validate option
-      if (option === undefined) {
-        setOptionError("You must select a vote option");
+
+      try {
+        longify(proposalId);
+      } catch (e: unknown) {
+        setProposalIdError(e instanceof Error ? e.message : "Proposal ID is not a valid Big Int");
         return false;
       }
 
       return true;
     };
 
-    let msgValue;
+    const proposalIdBigInt = (() => {
+      try {
+        return longify(proposalId);
+      } catch {
+        return 0n;
+      }
+    })();
 
-    if (voteAddress && proposalId && option !== undefined) {
-      msgValue = MsgCodecs[MsgTypeUrls.Vote].fromPartial({
-        voter: voteAddress,
-        proposalId: proposalId,
-        option: option,
-      });
+    const msgValue = MsgCodecs[MsgTypeUrls.Vote].fromPartial({
+      voter: senderAddress,
+      proposalId: proposalIdBigInt,
+      option: selectedVote.value,
+    });
 
-    }
     const msg: MsgVoteEncodeObject = { typeUrl: MsgTypeUrls.Vote, value: msgValue };
-    console.log(chain);
+
     setMsgGetter({ isMsgValid, msg });
-  }, [voteAddress, proposalId, option, setMsgGetter]);
+  }, [selectedVote.value, senderAddress, setMsgGetter, trimmedInputs]);
 
   return (
     <StackableContainer lessPadding lessMargin>
       <button className="remove" onClick={() => deleteMsg()}>
         ✕
       </button>
-      <h2>MsgExecuteContract</h2>
+      <h2>MsgVote</h2>
       <div className="form-item">
         <Input
+          type="number"
           label="Proposal ID"
           name="proposal-id"
           value={proposalId}
@@ -88,18 +91,17 @@ const MsgVoteForm = ({
             setProposalIdError("");
           }}
           error={proposalIdError}
-          placeholder={`E.g. 1`}
         />
       </div>
       <div className="form-item form-select">
-        <label>Choose option:</label>
+        <label>Choose a vote:</label>
         <Select
-          label="Choose vote option"
-          name="vote-option"
-          options={[ { value: 0, label: "Unspecified" }, { value: 1, label: "Yes" }, { value: 3, label: "No" }, { value: 4, label: "No with veto" }, { value: 2, label: "Abstain" } ]}
-          onChange={( selectedOption: SelectOption ) => {
-            setOption(selectedOption.value as VoteOption);
-            setOptionError("");
+          label="Select vote"
+          name="vote-select"
+          options={selectVoteOptions}
+          value={selectedVote}
+          onChange={(option: (typeof selectVoteOptions)[number]) => {
+            setSelectedVote(option);
           }}
         />
       </div>
