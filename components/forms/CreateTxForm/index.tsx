@@ -27,6 +27,12 @@ export default function CreateTxForm() {
   const msgRegistry = getMsgRegistry();
   const categories = [...new Set(Object.values(msgRegistry).map((msg) => msg.category))];
 
+  // Message types to exclude
+  const excludedMsgTypes = [
+    "/cosmos.gov.v1beta1.MsgDeposit",
+    "/cosmos.vesting.v1beta1.MsgCreateVestingAccount",
+  ];
+
   // Message types that require validator data
   const validatorRequiredMsgTypes = [
     "/cosmos.staking.v1beta1.MsgDelegate",
@@ -74,6 +80,9 @@ export default function CreateTxForm() {
     // TODO: Implement actual transaction creation
   };
 
+  // Generate a valid placeholder address with the correct prefix
+  const placeholderAddress = `${chain.addressPrefix}1placeholder000000000000000000000000000000000000000`;
+
   return (
     <Card>
       <CardHeader>
@@ -88,6 +97,7 @@ export default function CreateTxForm() {
             <div className="flex flex-wrap gap-2 mb-4">
               {Object.values(msgRegistry)
                 .filter((msg) => msg.category === category)
+                .filter((msg) => !excludedMsgTypes.includes(msg.typeUrl))
                 .map((msg) => (
                   <Button
                     key={msg.typeUrl}
@@ -111,7 +121,7 @@ export default function CreateTxForm() {
           <MsgForm
             key={msgType.key}
             msgType={msgType.url as MsgTypeUrl}
-            senderAddress="placeholder-address" // TODO: Get actual sender address
+            senderAddress={placeholderAddress}
             setMsgGetter={setMsgGetter(index)}
             deleteMsg={() => removeMsg(index)}
           />
