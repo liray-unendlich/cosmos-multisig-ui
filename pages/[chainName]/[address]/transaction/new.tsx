@@ -22,7 +22,7 @@ import { getHostedMultisig, isAccount } from "../../../../lib/multisigHelpers";
 
 export default function CreateTxPage() {
   const { chain } = useChains();
-  const [showOldForm, setShowOldForm] = useState(true);
+  const [showOldForm, setShowOldForm] = useState(false); // Changed from true to false
   const [accountOnChain, setAccountOnChain] = useState<Account | null>(null);
   const [hasAccountError, setHasAccountError] = useState(false);
   const router = useRouter();
