@@ -1,14 +1,9 @@
 {
   "functions": {
     "pages/api/**/*.ts": {
-      "runtime": "nodejs22.x"
+      "runtime": "nodejs20.x"
     }
   },
-  "build": {
-    "env": {
-      "NODE_VERSION": "22"
-    }
-  },
-  "installCommand": "npm install",
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run build",
+  "installCommand": "npm install"
 }
