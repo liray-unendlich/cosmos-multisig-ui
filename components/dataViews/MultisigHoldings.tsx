@@ -1,4 +1,4 @@
-import { Coin } from "@/lib/packages/amino";
+import { Coin } from "@cosmjs/amino";
 import { useChains } from "../../context/ChainsContext";
 import { printableCoin } from "../../lib/displayHelpers";
 import StackableContainer from "../layout/StackableContainer";

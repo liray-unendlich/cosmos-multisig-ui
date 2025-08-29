@@ -43,4 +43,4 @@ export {
 } from "./signer";
 export { makeAuthInfoBytes, makeSignBytes, makeSignDoc } from "./signing";
 export { executeKdf, type KdfConfiguration } from "./wallet";
-export { type Coin, coin, coins } from "@/lib/packages/amino";
+export { type Coin, coin, coins } from "@cosmjs/amino";

@@ -1,4 +1,4 @@
-import { EncodeObject, GeneratedType, Registry } from "@/lib/packages/proto-signing";
+import { EncodeObject, GeneratedType, Registry } from "@cosmjs/proto-signing";
 import Common from "@ethereumjs/common";
 import { FeeMarketEIP1559Transaction, FeeMarketEIP1559TxData } from "@ethereumjs/tx";
 import { bigIntToHex, bufferToBigInt, toBuffer } from "@ethereumjs/util";

@@ -1,4 +1,4 @@
-import { fromHex, toAscii } from "@/lib/packages/encoding";
+import { fromHex, toAscii } from "@cosmjs/encoding";
 import { Uint32, Uint53 } from "@/lib/packages/math";
 import BN from "bn.js";
 import elliptic from "elliptic";

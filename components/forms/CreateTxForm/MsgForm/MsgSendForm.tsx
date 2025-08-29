@@ -1,4 +1,4 @@
-import { MsgSendEncodeObject } from "@/lib/packages/stargate";
+import { MsgSendEncodeObject } from "@cosmjs/stargate";
 import { useEffect, useState } from "react";
 import { MsgGetter } from "..";
 import { useChains } from "../../../../context/ChainsContext";

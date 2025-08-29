@@ -1,8 +1,8 @@
-import { AccountData, makeCosmoshubPath, StdSignDoc } from "@/lib/packages/amino";
+import { AccountData, makeCosmoshubPath, StdSignDoc } from "@cosmjs/amino";
 import { pathToString, stringToPath } from "@/lib/packages/crypto";
-import { toBase64 } from "@/lib/packages/encoding";
+import { toBase64 } from "@cosmjs/encoding";
 import { Uint53 } from "@/lib/packages/math";
-import { assert } from "@/lib/packages/utils";
+import { assert } from "@cosmjs/utils";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 
 import { LedgerSigner } from "../ledgersigner";

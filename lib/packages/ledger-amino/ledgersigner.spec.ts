@@ -6,15 +6,15 @@ import {
   makeSignDoc,
   Secp256k1HdWallet,
   serializeSignDoc,
-} from "@/lib/packages/amino";
+} from "@cosmjs/amino";
 import { Secp256k1, Secp256k1Signature, sha256 } from "@/lib/packages/crypto";
-import { fromBase64 } from "@/lib/packages/encoding";
+import { fromBase64 } from "@cosmjs/encoding";
 import {
   assertIsDeliverTxSuccess as assertIsDeliverTxSuccessStargate,
   calculateFee,
   SigningStargateClient,
 } from "@/lib/packages/stargate";
-import { sleep } from "@/lib/packages/utils";
+import { sleep } from "@cosmjs/utils";
 import Transport from "@ledgerhq/hw-transport";
 
 import { LedgerSigner } from "./ledgersigner";

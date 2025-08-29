@@ -3,7 +3,7 @@ import {
   ethAddressChecksumRaw,
   makeEthPath,
   rawEthSecp256k1PubkeyToRawAddress,
-} from "@/lib/packages/amino";
+} from "@cosmjs/amino";
 import {
   Bip39,
   EnglishMnemonic,
@@ -17,8 +17,8 @@ import {
   Slip10Curve,
   stringToPath,
 } from "@/lib/packages/crypto";
-import { fromBase64, fromUtf8, toBase64, toBech32, toUtf8 } from "@/lib/packages/encoding";
-import { assert, isNonNullObject } from "@/lib/packages/utils";
+import { fromBase64, fromUtf8, toBase64, toBech32, toUtf8 } from "@cosmjs/encoding";
+import { assert, isNonNullObject } from "@cosmjs/utils";
 import { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
 import {

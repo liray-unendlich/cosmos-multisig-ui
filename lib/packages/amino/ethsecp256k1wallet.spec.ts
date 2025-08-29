@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Secp256k1, Secp256k1Signature, Keccak256 } from "@/lib/packages/crypto";
-import { fromBase64, fromHex } from "@/lib/packages/encoding";
+import { fromBase64, fromHex } from "@cosmjs/encoding";
 
 import { EthSecp256k1Wallet } from "./ethsecp256k1wallet";
 import { serializeSignDoc, StdSignDoc } from "./signdoc";

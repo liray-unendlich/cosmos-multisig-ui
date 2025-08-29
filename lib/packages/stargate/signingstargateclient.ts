@@ -5,14 +5,14 @@ import {
   hexToAddress,
   makeSignDoc as makeSignDocAmino,
   StdFee,
-} from "@/lib/packages/amino";
+} from "@cosmjs/amino";
 import {
   isOfflineDirectSigner,
   isOfflineEIP712Signer,
   OfflineSigner,
   parseChainId,
 } from "@/lib/packages/eip712";
-import { fromBase64 } from "@/lib/packages/encoding";
+import { fromBase64 } from "@cosmjs/encoding";
 import { Int53, Uint53 } from "@/lib/packages/math";
 import {
   DecodeObject,
@@ -23,9 +23,9 @@ import {
   makeSignDoc,
   Registry,
   TxBodyEncodeObject,
-} from "@/lib/packages/proto-signing";
+} from "@cosmjs/proto-signing";
 import { HttpEndpoint, Tendermint34Client } from "@/lib/packages/tendermint-rpc";
-import { assert, assertDefined } from "@/lib/packages/utils";
+import { assert, assertDefined } from "@cosmjs/utils";
 import { FeeMarketEIP1559TxData } from "@ethereumjs/tx";
 import { bufferToBigInt, toBuffer } from "@ethereumjs/util";
 import { ExtensionOptionsWrappedEthereumTx } from "cosmjs-types/aioz/wetx/v1/tx";

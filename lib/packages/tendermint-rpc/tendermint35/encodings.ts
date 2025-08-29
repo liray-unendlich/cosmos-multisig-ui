@@ -1,4 +1,4 @@
-import { toUtf8 } from "@/lib/packages/encoding";
+import { toUtf8 } from "@cosmjs/encoding";
 
 import { ReadonlyDateWithNanoseconds } from "../dates";
 import { BlockId, Version } from "./responses";

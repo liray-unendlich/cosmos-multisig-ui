@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { encodeSecp256k1Pubkey, makeSignDoc as makeSignDocAmino } from "@/lib/packages/amino";
+import { encodeSecp256k1Pubkey, makeSignDoc as makeSignDocAmino } from "@cosmjs/amino";
 import { sha256 } from "@/lib/packages/crypto";
-import { fromBase64, toHex, toUtf8 } from "@/lib/packages/encoding";
+import { fromBase64, toHex, toUtf8 } from "@cosmjs/encoding";
 import { Int53, Uint53 } from "@/lib/packages/math";
 import {
   EncodeObject,
@@ -12,7 +12,7 @@ import {
   OfflineSigner,
   Registry,
   TxBodyEncodeObject,
-} from "@/lib/packages/proto-signing";
+} from "@cosmjs/proto-signing";
 import {
   AminoTypes,
   calculateFee,
@@ -32,7 +32,7 @@ import {
   StdFee,
 } from "@/lib/packages/stargate";
 import { HttpEndpoint, Tendermint34Client } from "@/lib/packages/tendermint-rpc";
-import { assert, assertDefined } from "@/lib/packages/utils";
+import { assert, assertDefined } from "@cosmjs/utils";
 import { MsgWithdrawDelegatorReward } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
 import { MsgDelegate, MsgUndelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";

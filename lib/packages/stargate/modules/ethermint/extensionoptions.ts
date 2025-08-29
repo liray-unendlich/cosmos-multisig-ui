@@ -1,4 +1,4 @@
-import { EncodeObject, GeneratedType } from "@/lib/packages/proto-signing";
+import { EncodeObject, GeneratedType } from "@cosmjs/proto-signing";
 import { ExtensionOptionDynamicFeeTx } from "cosmjs-types/ethermint/types/v1/dynamic_fee";
 import { ExtensionOptionsWeb3Tx } from "cosmjs-types/ethermint/types/v1/web3";
 

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { coins } from "@/lib/packages/proto-signing";
+import { coins } from "@cosmjs/proto-signing";
 import { MsgMultiSend, MsgSend } from "@/lib/packages/cosmjs-types/cosmos/bank/v1beta1/tx";
 
 import { AminoTypes } from "../../aminotypes";

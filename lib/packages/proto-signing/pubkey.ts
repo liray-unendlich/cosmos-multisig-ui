@@ -10,8 +10,8 @@ import {
   MultisigThresholdPubkey,
   Pubkey,
   SinglePubkey,
-} from "@/lib/packages/amino";
-import { fromBase64 } from "@/lib/packages/encoding";
+} from "@cosmjs/amino";
+import { fromBase64 } from "@cosmjs/encoding";
 import { Uint53 } from "@/lib/packages/math";
 import { PubKey as CosmosCryptoEd25519Pubkey } from "cosmjs-types/cosmos/crypto/ed25519/keys";
 import { LegacyAminoPubKey } from "cosmjs-types/cosmos/crypto/multisig/keys";

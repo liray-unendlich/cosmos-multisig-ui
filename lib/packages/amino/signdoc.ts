@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { toUtf8 } from "@/lib/packages/encoding";
+import { toUtf8 } from "@cosmjs/encoding";
 import { Uint53 } from "@/lib/packages/math";
 
 import { Coin } from "./coins";

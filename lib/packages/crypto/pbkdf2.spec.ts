@@ -1,4 +1,4 @@
-import { fromHex, toAscii, toUtf8 } from "@/lib/packages/encoding";
+import { fromHex, toAscii, toUtf8 } from "@cosmjs/encoding";
 
 import {
   getCryptoModule,

@@ -4,10 +4,10 @@ import {
   pubkeyToAddress,
   pubkeyToAddressHex,
   Secp256k1Pubkey,
-} from "@/lib/packages/amino";
+} from "@cosmjs/amino";
 import { HdPath, Secp256k1Signature } from "@/lib/packages/crypto";
-import { fromUtf8 } from "@/lib/packages/encoding";
-import { assert } from "@/lib/packages/utils";
+import { fromUtf8 } from "@cosmjs/encoding";
+import { assert } from "@cosmjs/utils";
 import Transport from "@ledgerhq/hw-transport";
 import CosmosApp, {
   AddressAndPublicKeyResponse,

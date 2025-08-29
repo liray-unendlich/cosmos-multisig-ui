@@ -2,7 +2,7 @@ import {
   encodeSecp256k1Signature,
   ethAddressChecksumRaw,
   rawSecp256k1PubkeyToRawAddress,
-} from "@/lib/packages/amino";
+} from "@cosmjs/amino";
 import { Secp256k1, sha256 } from "@/lib/packages/crypto";
 import {
   fromBase64,
@@ -12,8 +12,8 @@ import {
   toBech32,
   toHex,
   toUtf8,
-} from "@/lib/packages/encoding";
-import { assert, isNonNullObject } from "@/lib/packages/utils";
+} from "@cosmjs/encoding";
+import { assert, isNonNullObject } from "@cosmjs/utils";
 import { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
 import {

@@ -49,7 +49,7 @@ export function coins(amount: number | string, denom: string): Coin[] {
  * A Stargate-ready variant of this function is available via:
  *
  * ```
- * import { parseCoins } from "@/lib/packages/proto-signing";
+ * import { parseCoins } from "@cosmjs/proto-signing";
  * // or
  * import { parseCoins } from "@/lib/packages/stargate";
  * ```

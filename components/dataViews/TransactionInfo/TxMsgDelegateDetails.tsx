@@ -1,4 +1,4 @@
-import { assert } from "@/lib/packages/utils";
+import { assert } from "@cosmjs/utils";
 
 import { useChains } from "../../../context/ChainsContext";
 import { printableCoin } from "../../../lib/displayHelpers";

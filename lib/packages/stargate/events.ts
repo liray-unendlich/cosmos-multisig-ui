@@ -1,4 +1,4 @@
-import { fromUtf8 } from "@/lib/packages/encoding";
+import { fromUtf8 } from "@cosmjs/encoding";
 import { tendermint34 } from "@/lib/packages/tendermint-rpc";
 
 /**

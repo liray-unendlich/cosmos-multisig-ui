@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Secp256k1, Secp256k1Signature, sha256 } from "@/lib/packages/crypto";
-import { fromBase64, fromHex } from "@/lib/packages/encoding";
+import { fromBase64, fromHex } from "@cosmjs/encoding";
 
 import { makeCosmoshubPath } from "./paths";
 import { extractKdfConfiguration, Secp256k1HdWallet } from "./secp256k1hdwallet";

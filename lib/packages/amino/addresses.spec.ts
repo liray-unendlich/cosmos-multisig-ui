@@ -1,4 +1,4 @@
-import { Bech32, fromHex, toBase64 } from "@/lib/packages/encoding";
+import { Bech32, fromHex, toBase64 } from "@cosmjs/encoding";
 
 import { pubkeyToAddress, pubkeyToAddressHex, pubkeyToRawAddress } from "./addresses";
 import { decodeBech32Pubkey } from "./encoding";

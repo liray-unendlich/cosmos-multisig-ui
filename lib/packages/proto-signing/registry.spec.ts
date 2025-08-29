@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { fromHex } from "@/lib/packages/encoding";
-import { assert } from "@/lib/packages/utils";
+import { fromHex } from "@cosmjs/encoding";
+import { assert } from "@cosmjs/utils";
 import { MsgSend as IMsgSend } from "@/lib/packages/cosmjs-types/cosmos/bank/v1beta1/tx";
 import { TxBody } from "@/lib/packages/cosmjs-types/cosmos/tx/v1beta1/tx";
 import { Any } from "@/lib/packages/cosmjs-types/google/protobuf/any";

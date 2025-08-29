@@ -1,4 +1,4 @@
-import { EncodeObject, GeneratedType } from "@/lib/packages/proto-signing";
+import { EncodeObject, GeneratedType } from "@cosmjs/proto-signing";
 import { MsgCancelSendToEvmChain, MsgSendToEvmChain } from "cosmjs-types/gravity/v1/msgs";
 
 export const gravityTypes: ReadonlyArray<[string, GeneratedType]> = [

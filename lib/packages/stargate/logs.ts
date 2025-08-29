@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { isNonNullObject } from "@/lib/packages/utils";
+import { isNonNullObject } from "@cosmjs/utils";
 
 import { Attribute, Event } from "./events";
 

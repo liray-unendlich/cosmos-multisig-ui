@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Coin } from "@/lib/packages/amino";
-import { StargateClient } from "@/lib/packages/stargate";
+import { Coin } from "@cosmjs/amino";
+import { StargateClient } from "@cosmjs/stargate";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useChains } from "../../../context/ChainsContext";
 import BalancePill from "./BalancePill";

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { toBase64, toHex } from "@/lib/packages/encoding";
+import { toBase64, toHex } from "@cosmjs/encoding";
 import { JsonRpcRequest } from "@/lib/packages/json-rpc";
 
 import { smallIntToApi } from "../../inthelpers";

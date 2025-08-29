@@ -1,4 +1,4 @@
-import { fromBase64, toBase64 } from "@/lib/packages/encoding";
+import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import {
   coins,
   decodeTxRaw,
@@ -8,8 +8,8 @@ import {
   makeSignDoc,
   Registry,
   TxBodyEncodeObject,
-} from "@/lib/packages/proto-signing";
-import { assert, sleep } from "@/lib/packages/utils";
+} from "@cosmjs/proto-signing";
+import { assert, sleep } from "@cosmjs/utils";
 import { Coin } from "@/lib/packages/cosmjs-types/cosmos/base/v1beta1/coin";
 import { TxRaw } from "@/lib/packages/cosmjs-types/cosmos/tx/v1beta1/tx";
 

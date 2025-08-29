@@ -7,8 +7,8 @@ import {
   toHex,
   toBase64,
   toUtf8,
-} from "@/lib/packages/encoding";
-import { assert, isNonNullObject } from "@/lib/packages/utils";
+} from "@cosmjs/encoding";
+import { assert, isNonNullObject } from "@cosmjs/utils";
 
 import { ethAddressChecksumRaw, rawSecp256k1PubkeyToRawAddress } from "./addresses";
 import { encodeSecp256k1Signature } from "./signature";

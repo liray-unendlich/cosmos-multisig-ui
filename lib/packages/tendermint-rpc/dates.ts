@@ -1,4 +1,4 @@
-import { fromRfc3339 } from "@/lib/packages/encoding";
+import { fromRfc3339 } from "@cosmjs/encoding";
 import { Uint32 } from "@/lib/packages/math";
 import { ReadonlyDate } from "readonly-date";
 

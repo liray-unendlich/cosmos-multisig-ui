@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { sha256 } from "@/lib/packages/crypto";
-import { fromAscii, fromBase64, fromHex, toAscii } from "@/lib/packages/encoding";
+import { fromAscii, fromBase64, fromHex, toAscii } from "@cosmjs/encoding";
 import { Int53 } from "@/lib/packages/math";
 import {
   DirectSecp256k1HdWallet,
@@ -9,7 +9,7 @@ import {
   makeSignDoc,
   Registry,
   TxBodyEncodeObject,
-} from "@/lib/packages/proto-signing";
+} from "@cosmjs/proto-signing";
 import {
   assertIsDeliverTxSuccess,
   coins,
@@ -17,7 +17,7 @@ import {
   MsgSendEncodeObject,
   StdFee,
 } from "@/lib/packages/stargate";
-import { assert, sleep } from "@/lib/packages/utils";
+import { assert, sleep } from "@cosmjs/utils";
 import { TxRaw } from "@/lib/packages/cosmjs-types/cosmos/tx/v1beta1/tx";
 import { ReadonlyDate } from "readonly-date";
 

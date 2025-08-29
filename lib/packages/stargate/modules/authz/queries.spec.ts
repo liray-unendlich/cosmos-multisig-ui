@@ -1,7 +1,7 @@
-import { makeCosmoshubPath } from "@/lib/packages/amino";
-import { coins, DirectSecp256k1HdWallet } from "@/lib/packages/proto-signing";
+import { makeCosmoshubPath } from "@cosmjs/amino";
+import { coins, DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { Tendermint34Client } from "@/lib/packages/tendermint-rpc";
-import { assertDefined, sleep } from "@/lib/packages/utils";
+import { assertDefined, sleep } from "@cosmjs/utils";
 import { GenericAuthorization } from "@/lib/packages/cosmjs-types/cosmos/authz/v1beta1/authz";
 
 import { QueryClient } from "../../queryclient";

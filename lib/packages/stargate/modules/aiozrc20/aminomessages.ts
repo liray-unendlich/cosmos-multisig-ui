@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { AminoMsg, Coin } from "@/lib/packages/amino";
+import { AminoMsg, Coin } from "@cosmjs/amino";
 import { MsgConvertAIOZRC20, MsgConvertCoin } from "cosmjs-types/aioz/aiozrc20/v1/tx";
 
 // eslint-disable-next-line import/no-cycle

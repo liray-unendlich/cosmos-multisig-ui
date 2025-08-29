@@ -1,4 +1,4 @@
-import { fromUtf8 } from "@/lib/packages/encoding";
+import { fromUtf8 } from "@cosmjs/encoding";
 import { MsgMigrateContract } from "cosmjs-types/cosmwasm/wasm/v1/tx";
 import { JSONValue } from "immutable-json-patch";
 import dynamic from "next/dynamic";

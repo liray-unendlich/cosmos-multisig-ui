@@ -1,5 +1,5 @@
 import { printableCoin } from "@/lib/displayHelpers";
-import { Coin } from "@/lib/packages/amino";
+import { Coin } from "@cosmjs/amino";
 import { useChains } from "../../../context/ChainsContext";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Badge } from "../../ui/badge";

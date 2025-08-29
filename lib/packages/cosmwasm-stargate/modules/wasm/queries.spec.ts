@@ -1,10 +1,10 @@
 import { sha256 } from "@/lib/packages/crypto";
-import { fromAscii, fromHex, toAscii, toHex, toUtf8 } from "@/lib/packages/encoding";
+import { fromAscii, fromHex, toAscii, toHex, toUtf8 } from "@cosmjs/encoding";
 import {
   DirectSecp256k1HdWallet,
   OfflineDirectSigner,
   Registry,
-} from "@/lib/packages/proto-signing";
+} from "@cosmjs/proto-signing";
 import {
   assertIsDeliverTxSuccess,
   Coin,
@@ -15,7 +15,7 @@ import {
   SigningStargateClient,
   StdFee,
 } from "@/lib/packages/stargate";
-import { assert } from "@/lib/packages/utils";
+import { assert } from "@cosmjs/utils";
 import {
   MsgExecuteContract,
   MsgInstantiateContract,

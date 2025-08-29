@@ -1,4 +1,4 @@
-import { fromUtf8, toUtf8 } from "@/lib/packages/encoding";
+import { fromUtf8, toUtf8 } from "@cosmjs/encoding";
 import { createPagination, createProtobufRpcClient, QueryClient } from "@/lib/packages/stargate";
 import {
   QueryAllContractStateResponse,

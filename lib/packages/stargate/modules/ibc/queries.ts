@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { toAscii } from "@/lib/packages/encoding";
+import { toAscii } from "@cosmjs/encoding";
 import { Uint64 } from "@/lib/packages/math";
 import { Any } from "cosmjs-types/google/protobuf/any";
 import {

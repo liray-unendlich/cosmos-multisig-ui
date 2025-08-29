@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { fromBase64, toBase64 } from "@/lib/packages/encoding";
+import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import {
   decodeTxRaw,
   DirectSecp256k1HdWallet,
@@ -8,7 +8,7 @@ import {
   makeSignDoc,
   Registry,
   TxBodyEncodeObject,
-} from "@/lib/packages/proto-signing";
+} from "@cosmjs/proto-signing";
 import {
   Coin,
   coins,
@@ -17,7 +17,7 @@ import {
   isDeliverTxSuccess,
   isMsgSendEncodeObject,
 } from "@/lib/packages/stargate";
-import { assert, sleep } from "@/lib/packages/utils";
+import { assert, sleep } from "@cosmjs/utils";
 import { TxRaw } from "@/lib/packages/cosmjs-types/cosmos/tx/v1beta1/tx";
 
 import { CosmWasmClient } from "./cosmwasmclient";

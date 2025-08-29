@@ -1,5 +1,5 @@
-import { toAscii } from "@/lib/packages/encoding";
-import { sleep } from "@/lib/packages/utils";
+import { toAscii } from "@cosmjs/encoding";
+import { sleep } from "@cosmjs/utils";
 
 export const nonNegativeIntegerMatcher = /^[0-9]+$/;
 export const anyMatcher = /^.*$/; // Any string, including empty. Does not do more than a type check.

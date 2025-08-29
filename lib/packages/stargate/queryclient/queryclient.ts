@@ -6,7 +6,7 @@ import {
   verifyExistence,
   verifyNonExistence,
 } from "@confio/ics23";
-import { toAscii, toHex } from "@/lib/packages/encoding";
+import { toAscii, toHex } from "@cosmjs/encoding";
 import { firstEvent } from "@/lib/packages/stream";
 import { tendermint34, Tendermint34Client } from "@/lib/packages/tendermint-rpc";
 import {
@@ -15,7 +15,7 @@ import {
   assertDefined,
   isNonNullObject,
   sleep,
-} from "@/lib/packages/utils";
+} from "@cosmjs/utils";
 import { ProofOps } from "cosmjs-types/tendermint/crypto/proof";
 import { Stream } from "xstream";
 

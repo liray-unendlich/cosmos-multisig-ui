@@ -1,4 +1,4 @@
-import { fromAscii, fromBech32 } from "@/lib/packages/encoding";
+import { fromAscii, fromBech32 } from "@cosmjs/encoding";
 import { Decimal, Uint64 } from "@/lib/packages/math";
 import { PageRequest } from "cosmjs-types/cosmos/base/query/v1beta1/pagination";
 import Long from "long";

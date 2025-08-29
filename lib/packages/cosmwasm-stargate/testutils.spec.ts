@@ -4,15 +4,15 @@ import {
   Secp256k1HdWallet,
   Secp256k1HdWalletOptions,
   StdSignDoc,
-} from "@/lib/packages/amino";
+} from "@cosmjs/amino";
 import { Bip39, EnglishMnemonic, Random } from "@/lib/packages/crypto";
-import { fromBase64, toBech32 } from "@/lib/packages/encoding";
+import { fromBase64, toBech32 } from "@cosmjs/encoding";
 import {
   DirectSecp256k1HdWallet,
   DirectSecp256k1HdWalletOptions,
   DirectSignResponse,
   makeAuthInfoBytes,
-} from "@/lib/packages/proto-signing";
+} from "@cosmjs/proto-signing";
 import {
   AuthExtension,
   BankExtension,

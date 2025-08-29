@@ -1,4 +1,4 @@
-import { toHex } from "@/lib/packages/encoding";
+import { toHex } from "@cosmjs/encoding";
 import { Uint53 } from "@/lib/packages/math";
 
 import { pubkeyToRawAddress } from "./addresses";

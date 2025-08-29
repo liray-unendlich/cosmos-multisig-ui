@@ -5,9 +5,9 @@ import {
   toBase64,
   toBech32,
   toHex,
-} from "@/lib/packages/encoding";
+} from "@cosmjs/encoding";
 import { Uint53 } from "@/lib/packages/math";
-import { arrayContentStartsWith } from "@/lib/packages/utils";
+import { arrayContentStartsWith } from "@cosmjs/utils";
 
 import {
   Ed25519Pubkey,

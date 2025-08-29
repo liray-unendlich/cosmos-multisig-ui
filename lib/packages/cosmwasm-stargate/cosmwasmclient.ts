@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { fromUtf8, toHex } from "@/lib/packages/encoding";
+import { fromUtf8, toHex } from "@cosmjs/encoding";
 import { Uint53 } from "@/lib/packages/math";
 import {
   Account,
@@ -30,7 +30,7 @@ import {
   Tendermint34Client,
   toRfc3339WithNanoseconds,
 } from "@/lib/packages/tendermint-rpc";
-import { assert, sleep } from "@/lib/packages/utils";
+import { assert, sleep } from "@cosmjs/utils";
 import {
   CodeInfoResponse,
   QueryCodesResponse,

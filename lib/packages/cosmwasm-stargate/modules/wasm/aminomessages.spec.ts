@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { fromBase64, toUtf8 } from "@/lib/packages/encoding";
+import { fromBase64, toUtf8 } from "@cosmjs/encoding";
 import { AminoTypes, coins } from "@/lib/packages/stargate";
 import {
   MsgClearAdmin,

@@ -1,8 +1,8 @@
 import { getKeplrKey, useKeplrReconnect } from "@/lib/keplr";
 import { cn, toastError } from "@/lib/utils";
 import { LoadingStates, WalletInfo, WalletType } from "@/types/signing";
-import { makeCosmoshubPath } from "@/lib/packages/amino";
-import { toBase64 } from "@/lib/packages/encoding";
+import { makeCosmoshubPath } from "@cosmjs/amino";
+import { toBase64 } from "@cosmjs/encoding";
 import { LedgerSigner } from "@/lib/packages/ledger-amino";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { Loader2, Unplug } from "lucide-react";

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { toAscii } from "@/lib/packages/encoding";
+import { toAscii } from "@cosmjs/encoding";
 import { firstEvent, toListPromise } from "@/lib/packages/stream";
-import { sleep } from "@/lib/packages/utils";
+import { sleep } from "@cosmjs/utils";
 import { ReadonlyDate } from "readonly-date";
 import { Stream } from "xstream";
 

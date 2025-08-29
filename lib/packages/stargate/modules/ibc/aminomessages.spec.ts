@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { coin } from "@/lib/packages/proto-signing";
+import { coin } from "@cosmjs/proto-signing";
 import { MsgTransfer } from "@/lib/packages/cosmjs-types/ibc/applications/transfer/v1/tx";
 import Long from "long";
 

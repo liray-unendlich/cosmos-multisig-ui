@@ -1,6 +1,6 @@
-import { MultisigThresholdPubkey, pubkeyToAddress, StdFee } from "@/lib/packages/amino";
-import { fromBech32 } from "@/lib/packages/encoding";
-import { encodePubkey } from "@/lib/packages/proto-signing";
+import { MultisigThresholdPubkey, pubkeyToAddress, StdFee } from "@cosmjs/amino";
+import { fromBech32 } from "@cosmjs/encoding";
+import { encodePubkey } from "@cosmjs/proto-signing";
 import {
   CompactBitArray,
   MultiSignature,

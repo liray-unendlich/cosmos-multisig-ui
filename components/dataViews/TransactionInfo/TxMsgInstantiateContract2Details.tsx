@@ -1,4 +1,4 @@
-import { fromUtf8, toHex } from "@/lib/packages/encoding";
+import { fromUtf8, toHex } from "@cosmjs/encoding";
 import { MsgInstantiateContract as MsgInstantiateContract2 } from "cosmjs-types/cosmwasm/wasm/v1/tx";
 import { JSONValue } from "immutable-json-patch";
 import dynamic from "next/dynamic";

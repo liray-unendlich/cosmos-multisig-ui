@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { fromBase64, toBase64 } from "@/lib/packages/encoding";
+import { fromBase64, toBase64 } from "@cosmjs/encoding";
 import {
   coins,
   DirectSecp256k1HdWallet,
@@ -8,8 +8,8 @@ import {
   makeSignDoc,
   Registry,
   TxBodyEncodeObject,
-} from "@/lib/packages/proto-signing";
-import { assert, sleep } from "@/lib/packages/utils";
+} from "@cosmjs/proto-signing";
+import { assert, sleep } from "@cosmjs/utils";
 import { TxRaw } from "@/lib/packages/cosmjs-types/cosmos/tx/v1beta1/tx";
 import { ReadonlyDate } from "readonly-date";
 

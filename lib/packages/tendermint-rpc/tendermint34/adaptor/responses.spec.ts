@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { fromBase64, fromHex, toUtf8 } from "@/lib/packages/encoding";
+import { fromBase64, fromHex, toUtf8 } from "@cosmjs/encoding";
 
 import {
   decodeEvent,

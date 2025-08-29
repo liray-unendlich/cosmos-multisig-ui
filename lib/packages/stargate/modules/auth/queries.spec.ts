@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { encodePubkey } from "@/lib/packages/proto-signing";
+import { encodePubkey } from "@cosmjs/proto-signing";
 import { Tendermint34Client } from "@/lib/packages/tendermint-rpc";
-import { assert } from "@/lib/packages/utils";
+import { assert } from "@cosmjs/utils";
 import { BaseAccount } from "@/lib/packages/cosmjs-types/cosmos/auth/v1beta1/auth";
 import { Any } from "@/lib/packages/cosmjs-types/google/protobuf/any";
 import Long from "long";

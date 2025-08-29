@@ -1,4 +1,4 @@
-import { fromHex, toHex } from "@/lib/packages/encoding";
+import { fromHex, toHex } from "@cosmjs/encoding";
 
 import { Sha256, sha256 } from "./sha";
 import shaVectors from "./testdata/sha.json";

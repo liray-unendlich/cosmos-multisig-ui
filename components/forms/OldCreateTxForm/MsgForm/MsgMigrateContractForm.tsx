@@ -1,5 +1,5 @@
-import { MsgMigrateContractEncodeObject } from "@/lib/packages/cosmwasm-stargate";
-import { toUtf8 } from "@/lib/packages/encoding";
+import { MsgMigrateContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
+import { toUtf8 } from "@cosmjs/encoding";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { MsgGetter } from "..";
