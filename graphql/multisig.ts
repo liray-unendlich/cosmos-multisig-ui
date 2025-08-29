@@ -6,12 +6,11 @@ export const DbMultisig = z.object({
   id: z.string(),
   chainId: z.string(),
   address: z.string(),
-  creator: z.string().nullish(),
   pubkeyJSON: z.string(),
 });
 export type DbMultisig = Readonly<z.infer<typeof DbMultisig>>;
 
-export type DbMultisigDraft = Omit<DbMultisig, "id"> & { readonly creator: string };
+export type DbMultisigDraft = Omit<DbMultisig, "id">;
 
 export const DbMultisigId = DbMultisig.pick({ id: true });
 export type DbMultisigId = Readonly<z.infer<typeof DbMultisigId>>;
@@ -30,7 +29,6 @@ export const getMultisig = async (
           id
           chainId
           address
-          creator
           pubkeyJSON
         }
       }
@@ -42,23 +40,20 @@ export const getMultisig = async (
     return null;
   }
 
-  const multisigWithCreator = queryMultisig.find(({ creator }) => !!creator);
-  const fetchedMultisig = multisigWithCreator ?? queryMultisig[0];
+  const fetchedMultisig = queryMultisig[0];
 
   DbMultisig.parse(fetchedMultisig);
 
   return fetchedMultisig;
 };
 
-const getUniqueMultisigsPreferWithCreator = (
+const getUniqueMultisigs = (
   multisigs: readonly DbMultisig[],
 ): readonly DbMultisig[] => {
   const uniqueMultisigs = new Map<string, DbMultisig>();
 
   for (const multisig of multisigs) {
-    if (multisig.creator) {
-      uniqueMultisigs.set(multisig.address, multisig);
-    } else if (!uniqueMultisigs.has(multisig.address)) {
+    if (!uniqueMultisigs.has(multisig.address)) {
       uniqueMultisigs.set(multisig.address, multisig);
     }
   }
@@ -82,7 +77,6 @@ export const getCreatedMultisigs = async (
           id
           chainId
           address
-          creator
           pubkeyJSON
         }
       }
@@ -90,7 +84,7 @@ export const getCreatedMultisigs = async (
     { chainId, creatorAddress },
   );
 
-  const fetchedMultisigs = getUniqueMultisigsPreferWithCreator(queryMultisig);
+  const fetchedMultisigs = getUniqueMultisigs(queryMultisig);
   DbMultisigs.parse(fetchedMultisigs);
 
   return fetchedMultisigs;
@@ -112,7 +106,6 @@ export const getBelongedMultisigs = async (
           id
           chainId
           address
-          creator
           pubkeyJSON
         }
       }
@@ -120,7 +113,7 @@ export const getBelongedMultisigs = async (
     { chainId, memberPubkey },
   );
 
-  const fetchedMultisigs = getUniqueMultisigsPreferWithCreator(queryMultisig);
+  const fetchedMultisigs = getUniqueMultisigs(queryMultisig);
   DbMultisigs.parse(fetchedMultisigs);
 
   return fetchedMultisigs;
@@ -142,14 +135,12 @@ export const createMultisig = async (multisig: DbMultisigDraft) => {
         mutation CreateMultisig(
           $chainId: String!
           $address: String!
-          $creator: String!
           $pubkeyJSON: String!
         ) {
           addMultisig(
             input: {
               chainId: $chainId
               address: $address
-              creator: $creator
               pubkeyJSON: $pubkeyJSON
             }
           ) {
@@ -168,31 +159,6 @@ export const createMultisig = async (multisig: DbMultisigDraft) => {
     return createdMultisig.address;
   }
 
-  // If provided multisig has a creator and the one on the DB doesn't, update it
-  if (multisig.creator && !dbMultisig.creator) {
-    type Response = {
-      readonly updateMultisig: { readonly multisig: readonly DbMultisigAddress[] };
-    };
-    type Variables = { readonly id: string; readonly creator: string };
-
-    const { updateMultisig } = await gqlClient.request<Response, Variables>(
-      gql`
-        mutation UpdateMultisig($id: ID!, $creator: String!) {
-          updateMultisig(input: { filter: { id: { eq: $id } }, set: { creator: $creator } }) {
-            multisig {
-              address
-            }
-          }
-        }
-      `,
-      { id: dbMultisig.id, creator: multisig.creator },
-    );
-
-    const updatedMultisig = updateMultisig.multisig[0];
-    DbMultisigAddress.parse(updatedMultisig);
-
-    return updatedMultisig.address;
-  }
 
   throw new Error(
     `Multisig already exists on ${multisig.chainId} with address ${multisig.address}`,

@@ -45,14 +45,13 @@ export default function MultisigView() {
             "Pubkey on chain is not of type MultisigThreshold",
           );
 
-          const { bech32Address: address } = await getKeplrKey(chain.chainId);
-
+          // Remove unnecessary Keplr connection - create without requiring wallet connection
           await createMultisigFromCompressedSecp256k1Pubkeys(
             newHostedMultisig.accountOnChain.pubkey.value.pubkeys.map((p) => p.value),
             Number(newHostedMultisig.accountOnChain.pubkey.value.threshold),
             chain.addressPrefix,
             chain.chainId,
-            address,
+            "", // Empty address since we don't need creator info for DB storage
           );
 
           router.reload();
@@ -91,7 +90,7 @@ export default function MultisigView() {
               onClick={async () => {
                 copy(multisigAddress);
                 toast(`Copied address to clipboard`, { description: multisigAddress });
-              }}
+              }}}
               className="flex items-center space-x-4 rounded-md border p-4 transition-colors hover:cursor-pointer hover:bg-muted/50"
             >
               <Copy className="w-5" />
