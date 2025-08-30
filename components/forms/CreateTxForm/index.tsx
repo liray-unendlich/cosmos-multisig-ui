@@ -4,8 +4,14 @@ import { useChains } from "@/context/ChainsContext";
 import { loadValidators } from "@/context/ChainsContext/helpers";
 import { getField, getMsgSchema } from "@/lib/form";
 import { getMsgRegistry } from "@/lib/msg";
+import { createDbTx } from "@/lib/api";
+import { exportMsgToJson } from "@/lib/txMsgHelpers";
+import { calculateFee } from "@cosmjs/stargate";
 import { EncodeObject } from "@cosmjs/proto-signing";
+import { assert } from "@cosmjs/utils";
+import { useRouter } from "next/router";
 import { useRef, useState } from "react";
+import { toast } from "sonner";
 import { MsgTypeUrl } from "../../../types/txMsg";
 import MsgForm from "./MsgForm";
 
@@ -19,13 +25,26 @@ type MsgType = Readonly<{
   key: string;
 }>;
 
-export default function CreateTxForm() {
+export default function CreateTxForm({ 
+  accountOnChain,
+  multisigAddress 
+}: {
+  accountOnChain: any;
+  multisigAddress: string;
+}) {
   const { chain, validatorState, chainsDispatch } = useChains();
   const [msgTypes, setMsgTypes] = useState<readonly MsgType[]>([]);
+  const [processing, setProcessing] = useState(false);
+  const [gasLimit, setGasLimit] = useState(200000);
+  const [gasLimitError, setGasLimitError] = useState("");
+  const [memo, setMemo] = useState("");
   const msgGetters = useRef<MsgGetter[]>([]);
 
   const msgRegistry = getMsgRegistry();
-  const categories = [...new Set(Object.values(msgRegistry).map((msg) => msg.category))];
+  // Remove vesting category entirely
+  const categories = [...new Set(Object.values(msgRegistry)
+    .filter((msg) => msg.category !== "vesting")
+    .map((msg) => msg.category))];
 
   // Message types to exclude
   const excludedMsgTypes = [
@@ -75,9 +94,62 @@ export default function CreateTxForm() {
     msgGetters.current[index] = msgGetter;
   };
 
-  const createTx = () => {
-    console.log("Creating transaction with messages:", msgGetters.current.map(g => g.msg));
-    // TODO: Implement actual transaction creation
+  const router = useRouter();
+  
+  const createTx = async () => {
+    
+    const loadingToastId = toast.loading("Creating transaction");
+    setProcessing(true);
+    // If it fails too fast, toast.dismiss does not work
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    try {
+      assert(typeof accountOnChain.accountNumber === "number", "accountNumber missing");
+      assert(msgGetters.current.length, "form filled incorrectly");
+
+      const msgs = msgGetters.current
+        .filter(({ isMsgValid }) => isMsgValid())
+        .map(({ msg }) => exportMsgToJson(msg));
+
+      if (!msgs.length || msgs.length !== msgTypes.length) {
+        toast.error("Please fill all message forms correctly");
+        return;
+      }
+
+      if (!Number.isSafeInteger(gasLimit) || gasLimit <= 0) {
+        setGasLimitError("gas limit must be a positive integer");
+        toast.error("Invalid gas limit");
+        return;
+      }
+
+      const txData = {
+        accountNumber: accountOnChain.accountNumber,
+        sequence: accountOnChain.sequence,
+        chainId: chain.chainId,
+        msgs,
+        fee: calculateFee(gasLimit, chain.gasPrice),
+        memo,
+      };
+
+      const txId = await createDbTx(multisigAddress, chain.chainId, txData);
+      
+      toast.success("Transaction created", { 
+        description: `Transaction ID: ${txId}`,
+        duration: 5000 
+      });
+      
+      // Navigate to the transaction page
+      router.push(`/${chain.registryName}/${multisigAddress}/transaction/${txId}`);
+      
+    } catch (error: unknown) {
+      console.error("Transaction creation failed:", error);
+      toast.error("Transaction creation failed", {
+        description: error instanceof Error ? error.message : "Unknown error occurred"
+      });
+    } finally {
+      setProcessing(false);
+      toast.dismiss(loadingToastId);
+    }
   };
 
   // Generate a valid placeholder address with the correct prefix
@@ -93,7 +165,7 @@ export default function CreateTxForm() {
         {/* Add message buttons */}
         {categories.map((category) => (
           <div key={category}>
-            <h3>{category}</h3>
+            <h3 className="text-lg font-semibold mb-2">{category}</h3>
             <div className="flex flex-wrap gap-2 mb-4">
               {Object.values(msgRegistry)
                 .filter((msg) => msg.category === category)
@@ -127,11 +199,49 @@ export default function CreateTxForm() {
           />
         ))}
 
+        {/* Gas and Memo settings */}
+        {msgTypes.length > 0 && (
+          <div className="space-y-4 mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Gas Limit</label>
+                <input
+                  type="number"
+                  value={gasLimit}
+                  onChange={(e) => {
+                    setGasLimit(Number(e.target.value));
+                    setGasLimitError("");
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  min="1"
+                />
+                {gasLimitError && (
+                  <p className="text-red-500 text-sm mt-1">{gasLimitError}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Memo (optional)</label>
+                <input
+                  type="text"
+                  value={memo}
+                  onChange={(e) => setMemo(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Transaction memo"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Create Transaction button */}
         {msgTypes.length > 0 && (
-          <div className="mt-4">
-            <Button onClick={createTx} className="w-full">
-              Create Transaction
+          <div className="mt-6">
+            <Button 
+              onClick={createTx} 
+              className="w-full"
+              disabled={processing}
+            >
+              {processing ? "Creating Transaction..." : "Create Transaction"}
             </Button>
           </div>
         )}

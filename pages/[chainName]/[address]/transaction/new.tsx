@@ -145,7 +145,16 @@ export default function CreateTxPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <CreateTxForm />
+      {accountOnChain && multisigAddress ? (
+        <CreateTxForm 
+          accountOnChain={accountOnChain} 
+          multisigAddress={multisigAddress} 
+        />
+      ) : (
+        <div className="text-center py-8">
+          <p className="text-gray-600">Loading account information...</p>
+        </div>
+      )}
     </div>
   );
 }
