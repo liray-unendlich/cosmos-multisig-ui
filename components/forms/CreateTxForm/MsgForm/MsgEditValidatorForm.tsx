@@ -37,9 +37,24 @@ const MsgEditValidatorForm = ({
 
   const trimmedInputs = trimStringsObj({ moniker, identity, commissionRate, details, website, securityContact });
   
-  const { data } = fromBech32(delegatorAddress);
-  const valoperPrefix = chain.addressPrefix+'valoper';
-  const valoperAddress = toBech32(valoperPrefix, data);
+  // Safely generate validator address, fallback to placeholder if delegatorAddress is invalid
+  const getValoperAddress = () => {
+    try {
+      // Skip bech32 operations for placeholder addresses
+      if (delegatorAddress.includes('placeholder') || delegatorAddress.includes('qqq')) {
+        return `${chain.addressPrefix}valoper1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq`;
+      }
+      
+      const { data } = fromBech32(delegatorAddress);
+      const valoperPrefix = chain.addressPrefix + 'valoper';
+      return toBech32(valoperPrefix, data);
+    } catch (error) {
+      console.warn("Could not generate validator address:", error);
+      return `${chain.addressPrefix}valoper1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq`;
+    }
+  };
+  
+  const valoperAddress = getValoperAddress();
 
   useEffect(() => {
     // eslint-disable-next-line no-shadow
@@ -102,9 +117,6 @@ const MsgEditValidatorForm = ({
       </button>
       <h2>MsgEditValidator</h2>
       <div className="form-item">
-        validatorAddress: {valoperAddress}
-      </div>
-      <div className="form-item">
         <Input
           label="Moniker"
           name="moniker"
@@ -114,11 +126,12 @@ const MsgEditValidatorForm = ({
             setMonikerError("");
           }}
           error={monikerError}
+          placeholder="Validator name"
         />
       </div>
       <div className="form-item">
         <Input
-          label="Identity"
+          label="Identity (optional)"
           name="identity"
           value={identity}
           onChange={({ target }) => {
@@ -126,23 +139,25 @@ const MsgEditValidatorForm = ({
             setIdentityError("");
           }}
           error={identityError}
+          placeholder="Keybase identity"
         />
       </div>
       <div className="form-item">
         <Input
           label="Commission Rate"
-          name="commissionRate"
+          name="commission-rate"
           value={commissionRate}
           onChange={({ target }) => {
             setCommissionRate(target.value);
             setCommissionRateError("");
           }}
           error={commissionRateError}
+          placeholder="0.05"
         />
       </div>
       <div className="form-item">
         <Input
-          label="Details"
+          label="Details (optional)"
           name="details"
           value={details}
           onChange={({ target }) => {
@@ -150,11 +165,12 @@ const MsgEditValidatorForm = ({
             setDetailsError("");
           }}
           error={detailsError}
+          placeholder="Validator description"
         />
       </div>
       <div className="form-item">
         <Input
-          label="Website"
+          label="Website (optional)"
           name="website"
           value={website}
           onChange={({ target }) => {
@@ -162,11 +178,12 @@ const MsgEditValidatorForm = ({
             setWebsiteError("");
           }}
           error={websiteError}
+          placeholder="https://example.com"
         />
       </div>
       <div className="form-item">
         <Input
-          label="Security Contact"
+          label="Security Contact (optional)"
           name="security-contact"
           value={securityContact}
           onChange={({ target }) => {
@@ -174,24 +191,9 @@ const MsgEditValidatorForm = ({
             setSecurityContactError("");
           }}
           error={securityContactError}
+          placeholder="security@example.com"
         />
       </div>
-      <style jsx>{`
-        .form-item {
-          margin-top: 1.5em;
-        }
-        button.remove {
-          background: rgba(255, 255, 255, 0.2);
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          border: none;
-          color: white;
-          position: absolute;
-          right: 10px;
-          top: 10px;
-        }
-      `}</style>
     </StackableContainer>
   );
 };

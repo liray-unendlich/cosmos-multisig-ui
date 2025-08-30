@@ -25,10 +25,16 @@ const MsgClaimValidatorCommissionForm = ({
   const [validatorAddress, setValidatorAddress] = useState("");
   const [validatorAddressError, setValidatorAddressError] = useState("");
 
-  // Initialize with auto-generated validator address if delegatorAddress exists
+  // Initialize with auto-generated validator address if delegatorAddress is valid
   useEffect(() => {
     if (delegatorAddress && validatorAddress === "") {
       try {
+        // Only attempt auto-generation if delegatorAddress looks like a real address
+        // Skip placeholder addresses that contain invalid bech32 characters
+        if (delegatorAddress.includes('placeholder') || delegatorAddress.includes('qqq')) {
+          return; // Skip auto-generation for placeholder addresses
+        }
+        
         const { data } = fromBech32(delegatorAddress);
         const valoperPrefix = chain.addressPrefix + "valoper";
         const valoperAddress = toBech32(valoperPrefix, data);
@@ -92,22 +98,6 @@ const MsgClaimValidatorCommissionForm = ({
           placeholder={`E.g. ${chain.addressPrefix}valoper...`}
         />
       </div>
-      <style jsx>{`
-        .form-item {
-          margin-top: 1.5em;
-        }
-        button.remove {
-          background: rgba(255, 255, 255, 0.2);
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          border: none;
-          color: white;
-          position: absolute;
-          right: 10px;
-          top: 10px;
-        }
-      `}</style>
     </StackableContainer>
   );
 };

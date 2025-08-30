@@ -152,8 +152,9 @@ export default function CreateTxForm({
     }
   };
 
-  // Generate a valid placeholder address with the correct prefix
-  const placeholderAddress = `${chain.addressPrefix}1placeholder000000000000000000000000000000000000000`;
+  // Generate a valid bech32-compatible placeholder address 
+  // using only valid bech32 characters (excludes 'o' and other invalid chars)
+  const placeholderAddress = `${chain.addressPrefix}1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq`;
 
   return (
     <Card>
@@ -193,7 +194,7 @@ export default function CreateTxForm({
           <MsgForm
             key={msgType.key}
             msgType={msgType.url as MsgTypeUrl}
-            senderAddress={placeholderAddress}
+            senderAddress={multisigAddress}
             setMsgGetter={setMsgGetter(index)}
             deleteMsg={() => removeMsg(index)}
           />

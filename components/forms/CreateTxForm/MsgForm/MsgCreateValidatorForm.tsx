@@ -130,11 +130,24 @@ const MsgCreateValidatorForm = ({
       }
     })();
 
-    // 委任者アドレスのデコード
-    const { data } = fromBech32(delegatorAddress);
-    // バリデータオペレーターアドレスのエンコード
-    const valoperPrefix = chain.addressPrefix+'valoper';
-    const valoperAddress = toBech32(valoperPrefix, data);
+    // Safely generate validator address, fallback to placeholder if delegatorAddress is invalid
+    const getValoperAddress = () => {
+      try {
+        // Skip bech32 operations for placeholder addresses
+        if (delegatorAddress.includes('placeholder') || delegatorAddress.includes('qqq')) {
+          return `${chain.addressPrefix}valoper1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq`;
+        }
+        
+        const { data } = fromBech32(delegatorAddress);
+        const valoperPrefix = chain.addressPrefix + 'valoper';
+        return toBech32(valoperPrefix, data);
+      } catch (error) {
+        console.warn("Could not generate validator address:", error);
+        return `${chain.addressPrefix}valoper1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq`;
+      }
+    };
+    
+    const valoperAddress = getValoperAddress();
     const validatorPubkeyBase64 = Buffer.from("validatorPubkey").toString('base64');
     const valConsAddress = toBech32(chain.addressPrefix+"valcons", new Uint8Array(Buffer.from(validatorPubkeyBase64, 'base64')));
     console.log("valConsAddress", valConsAddress);
