@@ -110,6 +110,16 @@ export const createTransaction = async (transaction: DbTransactionDraft) => {
   type Response = { readonly addTransaction: { readonly transaction: readonly DbTransactionId[] } };
   type Variables = { readonly dataJSON: string; readonly creatorId: string };
 
+  const variables = { 
+    creatorId: transaction.creator.id, 
+    dataJSON: transaction.dataJSON ?? "" 
+  };
+  
+  // Debug logging
+  console.log("=== GraphQL Transaction Creation Debug ===");
+  console.log("Input transaction:", JSON.stringify(transaction, null, 2));
+  console.log("GraphQL variables:", JSON.stringify(variables, null, 2));
+
   const { addTransaction } = await gqlClient.request<Response, Variables>(
     gql`
       mutation CreateTransaction($dataJSON: String!, $creatorId: ID!) {
@@ -120,17 +130,14 @@ export const createTransaction = async (transaction: DbTransactionDraft) => {
         }
       }
     `,
-    { 
-      creatorId: transaction.creator.id, 
-      dataJSON: transaction.dataJSON ?? "" 
-    },
+    variables,
   );
 
   const createdTx = addTransaction.transaction[0];
   DbTransactionId.parse(createdTx);
 
   return createdTx.id;
-};;
+};;;
 
 const DbTransactionTxHash = z.object({ txHash: z.string() });
 type DbTransactionTxHash = Readonly<z.infer<typeof DbTransactionTxHash>>;
