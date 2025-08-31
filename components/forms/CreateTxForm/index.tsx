@@ -131,14 +131,15 @@ export default function CreateTxForm({
         memo,
       };
 
-      const txId = await createDbTx(multisigAddress, chain.chainId, txData);
+      // Use accountOnChain.address instead of multisigAddress to match OldCreateTxForm
+      const txId = await createDbTx(accountOnChain.address, chain.chainId, txData);
       
       toast.success("Transaction created", { 
         description: `Transaction ID: ${txId}`,
         duration: 5000 
       });
       
-      // Navigate to the transaction page
+      // Navigate to the transaction page using multisigAddress for the URL
       router.push(`/${chain.registryName}/${multisigAddress}/transaction/${txId}`);
       
     } catch (error: unknown) {
@@ -188,6 +189,59 @@ export default function CreateTxForm({
             </div>
           </div>
         ))}
+
+        {/* Message forms */}
+        {msgTypes.map((msgType, index) => (
+          <div key={msgType.key} className="mb-6">
+            <MsgForm 
+              msgTypeUrl={msgType.url}
+              index={index}
+              delegatorAddress={placeholderAddress}
+              setMsgGetter={setMsgGetter(index)}
+              deleteMsg={() => removeMsg(index)}
+            />
+          </div>
+        ))}
+
+        {/* Gas limit and memo section */}
+        {msgTypes.length > 0 && (
+          <>
+            <div className="form-item">
+              <Input
+                type="number"
+                label="Gas Limit"
+                name="gasLimit"
+                value={gasLimit.toString()}
+                onChange={({ target }) => {
+                  setGasLimit(Number(target.value));
+                  setGasLimitError("");
+                }}
+                error={gasLimitError}
+              />
+            </div>
+            <div className="form-item">
+              <Input
+                label="Memo (optional)"
+                name="memo"
+                value={memo}
+                onChange={({ target }) => setMemo(target.value)}
+              />
+            </div>
+            <div className="form-item">
+              <Button 
+                onClick={createTx} 
+                disabled={processing}
+                className="w-full"
+              >
+                {processing ? "Creating Transaction..." : "Create Transaction"}
+              </Button>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
         {/* Render added message forms */}
         {msgTypes.map((msgType, index) => (
