@@ -48,5 +48,4 @@ next-env.d.ts
 .next/
 coverage/
 
-#.env
-#.env.local
+.env
