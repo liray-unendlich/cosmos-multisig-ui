@@ -21,12 +21,14 @@ interface MemberFormFieldProps {
     z.infer<ReturnType<typeof getCreateMultisigSchema>>,
     "members"
   >;
+  readonly onBulkReplaceMembers: (members: readonly string[]) => void;
 }
 
 export default function MemberFormField({
   createMultisigForm,
   index,
   membersReplace,
+  onBulkReplaceMembers,
 }: MemberFormFieldProps) {
   const { chain } = useChains();
 
@@ -43,6 +45,7 @@ export default function MemberFormField({
             .filter((el) => el !== "");
 
     membersReplace(finalValues.map((el) => ({ member: el })));
+    onBulkReplaceMembers(finalValues);
 
     ev.preventDefault();
   };

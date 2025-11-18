@@ -1,8 +1,9 @@
+import { runCypher } from "@/lib/neo4j";
 import { StdFee } from "@cosmjs/amino";
 import { EncodeObject } from "@cosmjs/proto-signing";
-import { gql } from "graphql-request";
+import { randomUUID } from "crypto";
 import { z } from "zod";
-import { DbMultisig, DbMultisigId, DbSignatureObj, gqlClient } from ".";
+import { DbMultisig, DbMultisigId, DbSignatureObj } from ".";
 
 export const DbTransaction = z.object({
   id: z.string(),
@@ -28,141 +29,144 @@ export type DbTransactionDraft = Pick<DbTransaction, "dataJSON"> & { creator: Db
 export const DbTransactionId = DbTransaction.pick({ id: true });
 export type DbTransactionId = Readonly<z.infer<typeof DbTransactionId>>;
 
-export const getTransaction = async (id: string): Promise<DbTransaction | null> => {
-  type Response = { readonly getTransaction: DbTransaction | null };
-  type Variables = { readonly id: string };
+type Neo4jRecord = Awaited<ReturnType<typeof runCypher>>["records"][number];
 
-  const { getTransaction: fetchedTx } = await gqlClient.request<Response, Variables>(
-    gql`
-      query GetTransaction($id: ID!) {
-        getTransaction(id: $id) {
-          id
-          txHash
-          creator {
-            id
-            chainId
-            address
-            creator
-            pubkeyJSON
+const mapRecordToTransaction = (record: Neo4jRecord): DbTransaction => {
+  const transaction = record.get("transaction");
+  DbTransaction.parse(transaction);
+  return transaction;
+};
+
+export const getTransaction = async (id: string): Promise<DbTransaction | null> => {
+  const result = await runCypher(
+    `
+      MATCH (tx:Transaction { id: $id })
+      OPTIONAL MATCH (m:Multisig)-[:CREATED_TRANSACTION]->(tx)
+      OPTIONAL MATCH (tx)<-[:FOR_TRANSACTION]-(sig:Signature)
+      WITH tx, m, collect(sig) AS signatureNodes
+      RETURN {
+        id: tx.id,
+        txHash: tx.txHash,
+        dataJSON: tx.dataJSON,
+        creator: CASE
+          WHEN m IS NULL THEN NULL
+          ELSE m {
+            .id,
+            .chainId,
+            .address,
+            .pubkeyJSON,
+            .creator
           }
-          dataJSON
-          signatures {
-            bodyBytes
-            signature
-            address
+        END,
+        signatures: [s IN signatureNodes WHERE s IS NOT NULL |
+          {
+            bodyBytes: s.bodyBytes,
+            signature: s.signature,
+            address: s.address
           }
-        }
-      }
+        ]
+      } AS transaction
+      LIMIT 1
     `,
     { id },
+    "READ",
   );
 
-  if (!fetchedTx) {
+  if (!result.records.length) {
     return null;
   }
 
-  DbTransaction.parse(fetchedTx);
-
-  return fetchedTx;
+  return mapRecordToTransaction(result.records[0]);
 };
 
-const DbMultisigTxs = z.object({ transactions: z.array(DbTransaction) });
-type DbMultisigTxs = Readonly<z.infer<typeof DbMultisigTxs>>;
-
 export const getTransactions = async (creatorId: string): Promise<readonly DbTransaction[]> => {
-  type Response = { readonly getMultisig: DbMultisigTxs };
-  type Variables = { readonly creatorId: string };
-
-  const { getMultisig } = await gqlClient.request<Response, Variables>(
-    gql`
-      query GetTransactions($creatorId: ID!) {
-        getMultisig(id: $creatorId) {
-          transactions {
-            id
-            txHash
-            creator {
-              id
-              chainId
-              address
-              creator
-              pubkeyJSON
-            }
-            dataJSON
-            signatures {
-              bodyBytes
-              signature
-              address
-            }
+  const result = await runCypher(
+    `
+      MATCH (m:Multisig { id: $creatorId })-[:CREATED_TRANSACTION]->(tx:Transaction)
+      OPTIONAL MATCH (tx)<-[:FOR_TRANSACTION]-(sig:Signature)
+      WITH tx, m, collect(sig) AS signatureNodes
+      ORDER BY tx.createdAt DESC
+      RETURN {
+        id: tx.id,
+        txHash: tx.txHash,
+        dataJSON: tx.dataJSON,
+        creator: m {
+          .id,
+          .chainId,
+          .address,
+          .pubkeyJSON,
+          .creator
+        },
+        signatures: [s IN signatureNodes WHERE s IS NOT NULL |
+          {
+            bodyBytes: s.bodyBytes,
+            signature: s.signature,
+            address: s.address
           }
-        }
-      }
+        ]
+      } AS transaction
     `,
     { creatorId },
+    "READ",
   );
 
-  const fetchedTxs: DbMultisigTxs = { transactions: getMultisig.transactions.reverse() };
-  DbMultisigTxs.parse(fetchedTxs);
-
-  return fetchedTxs.transactions;
+  return result.records.map(mapRecordToTransaction);
 };
 
 export const createTransaction = async (transaction: DbTransactionDraft) => {
-  type Response = { readonly addTransaction: { readonly transaction: readonly DbTransactionId[] } };
-  type Variables = { readonly dataJSON: string; readonly creatorId: string };
-
-  const variables = { 
-    creatorId: transaction.creator.id, 
-    dataJSON: transaction.dataJSON ?? "" 
-  };
-  
-  // Debug logging
-  console.log("=== GraphQL Transaction Creation Debug ===");
-  console.log("Input transaction:", JSON.stringify(transaction, null, 2));
-  console.log("GraphQL variables:", JSON.stringify(variables, null, 2));
-
-  const { addTransaction } = await gqlClient.request<Response, Variables>(
-    gql`
-      mutation CreateTransaction($dataJSON: String!, $creatorId: ID!) {
-        addTransaction(input: { dataJSON: $dataJSON, creator: { id: $creatorId } }) {
-          transaction {
-            id
-          }
+  const result = await runCypher(
+    `
+      MATCH (m:Multisig { id: $creatorId })
+      CREATE (
+        tx:Transaction {
+          id: $id,
+          dataJSON: $dataJSON,
+          txHash: NULL,
+          createdAt: $createdAt
         }
-      }
+      )
+      MERGE (m)-[:CREATED_TRANSACTION]->(tx)
+      RETURN tx { .id } AS transaction
     `,
-    variables,
+    {
+      id: randomUUID(),
+      creatorId: transaction.creator.id,
+      dataJSON: transaction.dataJSON ?? "",
+      createdAt: new Date().toISOString(),
+    },
   );
 
-  const createdTx = addTransaction.transaction[0];
-  DbTransactionId.parse(createdTx);
+  const createdTx = result.records[0]?.get("transaction");
 
-  return createdTx.id;
-};;;
+  if (!createdTx) {
+    throw new Error("Failed to persist transaction in Neo4j");
+  }
+
+  const parsed = DbTransactionId.parse(createdTx);
+
+  return parsed.id;
+};
 
 const DbTransactionTxHash = z.object({ txHash: z.string() });
 type DbTransactionTxHash = Readonly<z.infer<typeof DbTransactionTxHash>>;
 
 export const updateTxHash = async (id: string, txHash: string) => {
-  type Response = {
-    readonly updateTransaction: { readonly transaction: readonly DbTransactionTxHash[] };
-  };
-  type Variables = { readonly id: string; readonly txHash: string };
-
-  const { updateTransaction } = await gqlClient.request<Response, Variables>(
-    gql`
-      mutation UpdateTxHash($id: [ID!], $txHash: String!) {
-        updateTransaction(input: { filter: { id: $id }, set: { txHash: $txHash } }) {
-          transaction {
-            txHash
-          }
-        }
-      }
+  const result = await runCypher(
+    `
+      MATCH (tx:Transaction { id: $id })
+      SET tx.txHash = $txHash, tx.updatedAt = $updatedAt
+      RETURN tx { .txHash } AS transaction
     `,
-    { id, txHash },
+    { id, txHash, updatedAt: new Date().toISOString() },
   );
 
-  const updatedTx = updateTransaction.transaction[0];
-  DbTransactionTxHash.parse(updatedTx);
+  const updatedTx = result.records[0]?.get("transaction");
 
-  return updatedTx.txHash;
+  if (!updatedTx) {
+    throw new Error("Failed to update transaction hash in Neo4j");
+  }
+
+  const parsed = DbTransactionTxHash.parse(updatedTx);
+
+  return parsed.txHash;
 };

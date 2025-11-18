@@ -3,7 +3,7 @@ import { StdSignature, decodeSignature, pubkeyToAddress } from "@cosmjs/amino";
 import { toBase64 } from "@cosmjs/encoding";
 import { verifyADR36Amino } from "@keplr-wallet/cosmos";
 import { StdSignDoc } from "@keplr-wallet/types";
-import { useLayoutEffect } from "react";
+import { useEffect } from "react";
 
 const getKeplr = async (chainId: string) => {
   const keplr = window.keplr;
@@ -96,7 +96,7 @@ export const verifyKeplrSignature = (signature: StdSignature, chain: ChainInfo, 
 
 const accountChangeKey = "keplr_keystorechange";
 export const useKeplrReconnect = (condition: boolean, connectWallet: () => Promise<void>) => {
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!condition) {
       return;
     }

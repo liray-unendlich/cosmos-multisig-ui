@@ -1,69 +1,64 @@
 # Cosmoshub Multisig App
 
-This app allows for multisig users to create, sign and broadcast transactions on any stargate enabled chain. It's built with Cosmjs, Next.js, Dgraph and Vercel.
+このアプリは、Stargate 対応チェーン上でマルチシグを作成・署名・ブロードキャストするための Next.js 製 UI です。CosmJS、Neo4j AuraDB、Vercel を基盤に構築されています。
 
-[The app is live here](https://multisig.confio.run).
+[本番環境はこちら](https://multisig.confio.run)。
 
-[Here is a user guide on how to use the app](https://github.com/samepant/cosmoshub-legacy-multisig/blob/master/docs/App%20User%20Guide.md)
+[ユーザーガイド](https://github.com/samepant/cosmoshub-legacy-multisig/blob/master/docs/App%20User%20Guide.md)
 
-## Running your own instance
+## サポートしているトランザクション種別
 
-### 1. Clone project / setup Vercel deployment
+`lib/msg.ts` が読み込む Cosmos SDK/CosmWasm のメッセージを UI から利用できます（Vesting 系と `MsgDeposit` は混乱回避のため非表示）。
 
-This app uses Vercel for deployment and hosting, since they support next.js's serverless functions. You will need a vercel account to deploy this app. Use the button below to one-click clone and deploy this repo. The initial deployment will fail until all the necessary environment variables are input from the following steps.
+- **Bank**: `MsgSend`, `MsgMultiSend`
+- **Staking**: `MsgDelegate`, `MsgUndelegate`, `MsgBeginRedelegate`, `MsgCreateValidator`, `MsgEditValidator`
+- **Distribution**: `MsgWithdrawDelegatorReward`, `MsgWithdrawValidatorCommission`, `MsgSetWithdrawAddress`, `MsgFundCommunityPool`
+- **Governance**: `MsgSubmitProposal`, `MsgVote`, `MsgVoteWeighted`
+- **Authz**: `MsgGrant`, `MsgExec`, `MsgRevoke`
+- **Feegrant**: `MsgGrantAllowance`, `MsgRevokeAllowance`
+- **IBC Transfer**: `MsgTransfer`
+- **CosmWasm**: `MsgStoreCode`, `MsgInstantiateContract`, `MsgInstantiateContract2`, `MsgExecuteContract`, `MsgMigrateContract`, `MsgUpdateAdmin`, `MsgClearAdmin`
+
+## 自分の環境で動かす
+
+### 1. クローンと Vercel デプロイ設定
+
+Vercel 上で Next.js のサーバーレス機能を使う構成です。Vercel アカウントを用意し、下記ボタンからクローン & デプロイしてください。環境変数を入れるまではデプロイが失敗します。
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fhello-world)
 
-### 2. Setup environment variables
+### 2. 環境変数を設定
 
-In the Vercel control panel for your new app, go to `Settings -> Environment Variables` and add in the keys and values from this repo's `.env.sample` file. The only remaining variable should be the `DGRAPH_SECRET`, which will be available once you setup your DGraph instance.
+Vercel の `Settings -> Environment Variables` で `.env.sample` を参考に `NEO4J_URI` `NEO4J_USERNAME` `NEO4J_PASSWORD`（任意で `NEO4J_DATABASE`）を登録します。AuraDB の `neo4j+s://` URI をそのまま `NEO4J_URI` に使い、資格情報は安全に保管してください。
 
-### 3. Initializing DGraph
+### 3. Neo4j AuraDB を用意
 
-This app relies on DGraph as for storing account, transaction and signature details.
+[Neo4j AuraDB Free](https://neo4j.com/cloud/platform/aura-graph-database/) で新しい DB を作成し、自動生成された接続情報を控えます。追加の移行作業は不要で、この時点でマルチシグやトランザクションの保存が可能です。
 
-- Create a [DGraph](https://cloud.dgraph.io) account
-- Launch a new backend
-- Click the `Develop -> Schema` menu item, and past the contents of the `db-schema.graphql` file in the root of this repo
-- On the `Develop -> Schema` view, click the `Access` tab, and make sure Anonymous Access is OFF.
-- Click the `Admin -> Settings` menu item, and create a key. Copy that key into your vercel app's environment variables as the `DGRAPH_SECRET` value
+### 4. 再デプロイ
 
-As your instance of the app is used, you can return to the DGraph dashboard to view records for any accounts, transactions or signatures.
+環境変数を入れたら再度デプロイすると、設定が反映された状態で動作します。
 
-### 4. Successful Deployment
+## ローカル開発
 
-Redeploy the app and it will pickup the new environment variables and should be functioning normally.
+### 1. `.env.local` を作成
 
-## Running Locally
+`.env.sample` をコピーして `.env.local` を作り、必要なキーを埋めます。
 
-### 1. Setup .env.local file
+### 2. Cosmos SDK Simapp を起動
 
-Copy the `.env.sample` file and rename it to `.env.local`
+`uatom` など Cosmoshub4 と同じ denom に揃えた simapp をローカルで起動し、`NEXT_PUBLIC_NODE_ADDRESS` にノードのエンドポイントを書きます。
 
-### 2. Run a local cosmos-sdk Simapp instance
+### 3. Neo4j に接続
 
-It's recommended that you make your simapp instance mimic the denomination of cosmoshub-4 (`uatom`). Put the local address of your node as the value for `NEXT_PUBLIC_NODE_ADDRESS` in your `.env.local` file.
+AuraDB もしくはローカルの Neo4j の接続情報を `.env.local` に入れます（`NEO4J_URI`, `NEO4J_USERNAME`, `NEO4J_PASSWORD`, 必要なら `NEO4J_DATABASE`）。
 
-A more in depth tutorial on this is coming soon :)
+### 4. サーバーを起動
 
-### 3. Initializing DGraph
-
-This app relies on DGraph as for storing account, transaction and signature details.
-
-- Create a [DGraph](https://cloud.dgraph.io) account
-- Launch a new backend
-- Click the `Develop -> Schema` menu item, and past the contents of the `db-schema.graphql` file in the root of this repo
-- On the `Develop -> Schema` view, click the `Access` tab, and make sure Anonymous Access is OFF.
-- Click the `Admin -> Settings` menu item, and create a key. Copy that key into your vercel app's environment variables as the `DGRAPH_SECRET` value
-
-As your instance of the app is used, you can return to the DGraph dashboard to view records for any accounts, transactions or signatures.
-
-### 3. Run your instance
-
-With the simapp process running, run these commands in another window:
+Simapp を動かした状態で別ターミナルから以下を実行します。
 
 ```
-// with node v12.5.0 or later
+// node v12.5.0 以上を推奨
 npm install
 npm run dev
 ```

@@ -2,7 +2,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { isChainInfoFilled } from "@/context/ChainsContext/helpers";
 import { checkAddress } from "@/lib/displayHelpers";
-import { getKeplrKey } from "@/lib/keplr";
 import {
   HostedMultisig,
   createMultisigFromCompressedSecp256k1Pubkeys,

@@ -1,3 +1,4 @@
+import { getKeplrKey } from "@/lib/keplr";
 import { StargateClient } from "@cosmjs/stargate";
 import { NextRouter, withRouter } from "next/router";
 import { useState } from "react";
@@ -103,11 +104,13 @@ const MultiSigForm = (props: Props) => {
     const compressedPubkeys = pubkeys.map((item) => item.compressedPubkey);
     let multisigAddress;
     try {
+      const { bech32Address } = await getKeplrKey(chain.chainId);
       multisigAddress = await createMultisigFromCompressedSecp256k1Pubkeys(
         compressedPubkeys,
         threshold,
         chain.addressPrefix,
         chain.chainId,
+        { creatorAddress: bech32Address },
       );
       props.router.push(`/${chain.registryName}/${multisigAddress}`);
     } catch (error) {

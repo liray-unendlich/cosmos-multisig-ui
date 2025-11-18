@@ -1,12 +1,13 @@
-import { gql } from "graphql-request";
+import { runCypher } from "@/lib/neo4j";
+import { randomUUID } from "crypto";
 import { z } from "zod";
-import { gqlClient } from ".";
 
 export const DbMultisig = z.object({
   id: z.string(),
   chainId: z.string(),
   address: z.string(),
   pubkeyJSON: z.string(),
+  creator: z.string().nullish(),
 });
 export type DbMultisig = Readonly<z.infer<typeof DbMultisig>>;
 
@@ -15,36 +16,39 @@ export type DbMultisigDraft = Omit<DbMultisig, "id">;
 export const DbMultisigId = DbMultisig.pick({ id: true });
 export type DbMultisigId = Readonly<z.infer<typeof DbMultisigId>>;
 
+type Neo4jRecord = Awaited<ReturnType<typeof runCypher>>["records"][number];
+
+const mapRecordToMultisig = (record: Neo4jRecord): DbMultisig => {
+  const multisig = record.get("multisig");
+  DbMultisig.parse(multisig);
+  return multisig;
+};
+
 export const getMultisig = async (
   chainId: string,
   multisigAddress: string,
 ): Promise<DbMultisig | null> => {
-  type Response = { readonly queryMultisig: readonly DbMultisig[] };
-  type Variables = { readonly chainId: string; readonly multisigAddress: string };
-
-  const { queryMultisig } = await gqlClient.request<Response, Variables>(
-    gql`
-      query GetMultisig($chainId: String!, $multisigAddress: String!) {
-        queryMultisig(filter: { chainId: { eq: $chainId }, address: { eq: $multisigAddress } }) {
-          id
-          chainId
-          address
-          pubkeyJSON
-        }
-      }
+  const result = await runCypher(
+    `
+      MATCH (m:Multisig { chainId: $chainId, address: $multisigAddress })
+      RETURN m {
+        .id,
+        .chainId,
+        .address,
+        .pubkeyJSON,
+        .creator
+      } AS multisig
+      LIMIT 1
     `,
     { chainId, multisigAddress },
+    "READ",
   );
 
-  if (!queryMultisig.length) {
+  if (!result.records.length) {
     return null;
   }
 
-  const fetchedMultisig = queryMultisig[0];
-
-  DbMultisig.parse(fetchedMultisig);
-
-  return fetchedMultisig;
+  return mapRecordToMultisig(result.records[0]);
 };
 
 const getUniqueMultisigs = (
@@ -67,24 +71,24 @@ export const getCreatedMultisigs = async (
   chainId: string,
   creatorAddress: string,
 ): Promise<readonly DbMultisig[]> => {
-  type Response = { readonly queryMultisig: readonly DbMultisig[] };
-  type Variables = { readonly chainId: string; readonly creatorAddress: string };
-
-  const { queryMultisig } = await gqlClient.request<Response, Variables>(
-    gql`
-      query GetCreatedMultisigs($chainId: String!, $creatorAddress: String!) {
-        queryMultisig(filter: { chainId: { eq: $chainId }, creator: { eq: $creatorAddress } }) {
-          id
-          chainId
-          address
-          pubkeyJSON
-        }
-      }
+  const result = await runCypher(
+    `
+      MATCH (m:Multisig { chainId: $chainId })
+      WHERE m.creator = $creatorAddress
+      RETURN m {
+        .id,
+        .chainId,
+        .address,
+        .pubkeyJSON,
+        .creator
+      } AS multisig
+      ORDER BY m.createdAt DESC
     `,
     { chainId, creatorAddress },
+    "READ",
   );
 
-  const fetchedMultisigs = getUniqueMultisigs(queryMultisig);
+  const fetchedMultisigs = getUniqueMultisigs(result.records.map(mapRecordToMultisig));
   DbMultisigs.parse(fetchedMultisigs);
 
   return fetchedMultisigs;
@@ -94,26 +98,24 @@ export const getBelongedMultisigs = async (
   chainId: string,
   memberPubkey: string,
 ): Promise<readonly DbMultisig[]> => {
-  type Response = { readonly queryMultisig: readonly DbMultisig[] };
-  type Variables = { readonly chainId: string; readonly memberPubkey: string };
-
-  const { queryMultisig } = await gqlClient.request<Response, Variables>(
-    gql`
-      query GetBelongedMultisigs($chainId: String!, $memberPubkey: String!) {
-        queryMultisig(
-          filter: { chainId: { eq: $chainId }, pubkeyJSON: { alloftext: $memberPubkey } }
-        ) {
-          id
-          chainId
-          address
-          pubkeyJSON
-        }
-      }
+  const result = await runCypher(
+    `
+      MATCH (m:Multisig { chainId: $chainId })
+      WHERE m.pubkeyJSON CONTAINS $memberPubkey
+      RETURN m {
+        .id,
+        .chainId,
+        .address,
+        .pubkeyJSON,
+        .creator
+      } AS multisig
+      ORDER BY m.createdAt DESC
     `,
     { chainId, memberPubkey },
+    "READ",
   );
 
-  const fetchedMultisigs = getUniqueMultisigs(queryMultisig);
+  const fetchedMultisigs = getUniqueMultisigs(result.records.map(mapRecordToMultisig));
   DbMultisigs.parse(fetchedMultisigs);
 
   return fetchedMultisigs;
@@ -127,36 +129,38 @@ export const createMultisig = async (multisig: DbMultisigDraft) => {
 
   // Create only if not exists
   if (!dbMultisig) {
-    type Response = { readonly addMultisig: { readonly multisig: readonly DbMultisigAddress[] } };
-    type Variables = DbMultisigDraft;
-
-    const { addMultisig } = await gqlClient.request<Response, Variables>(
-      gql`
-        mutation CreateMultisig(
-          $chainId: String!
-          $address: String!
-          $pubkeyJSON: String!
-        ) {
-          addMultisig(
-            input: {
-              chainId: $chainId
-              address: $address
-              pubkeyJSON: $pubkeyJSON
-            }
-          ) {
-            multisig {
-              address
-            }
+    const result = await runCypher(
+      `
+        CREATE (
+          m:Multisig {
+            id: $id,
+            chainId: $chainId,
+            address: $address,
+            pubkeyJSON: $pubkeyJSON,
+            creator: $creator,
+            createdAt: $createdAt
           }
-        }
+        )
+        RETURN m { .address } AS multisig
       `,
-      multisig,
+      {
+        id: randomUUID(),
+        chainId: multisig.chainId,
+        address: multisig.address,
+        pubkeyJSON: multisig.pubkeyJSON,
+        creator: multisig.creator ?? null,
+        createdAt: new Date().toISOString(),
+      },
     );
 
-    const createdMultisig = addMultisig.multisig[0];
-    DbMultisigAddress.parse(createdMultisig);
+    const createdMultisig = result.records[0]?.get("multisig");
 
-    return createdMultisig.address;
+    if (!createdMultisig) {
+      throw new Error("Failed to persist multisig in Neo4j");
+    }
+
+    const parsed = DbMultisigAddress.parse(createdMultisig);
+    return parsed.address;
   }
 
 

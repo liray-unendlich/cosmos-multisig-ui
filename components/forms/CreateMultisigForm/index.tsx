@@ -14,8 +14,8 @@ import { toastError } from "@/lib/utils";
 import { StargateClient } from "@cosmjs/stargate";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useChains } from "../../../context/ChainsContext";
 import { createMultisigFromCompressedSecp256k1Pubkeys } from "../../../lib/multisigHelpers";
@@ -41,28 +41,30 @@ export default function CreateMultisigForm() {
     replace: membersReplace,
   } = useFieldArray({ name: "members", control: createMultisigForm.control });
 
-  const watchedMembers = useWatch({ control: createMultisigForm.control, name: "members" });
+  const [memberCount, setMemberCount] = useState(2);
+  const memberFieldCount = membersFields.length;
+
+  const handleMemberCountChange = (value: number) => {
+    const nextValue = Number.isNaN(value) ? 2 : Math.round(value);
+    setMemberCount(Math.max(2, Math.min(50, nextValue)));
+  };
+
+  const handleBulkReplaceMembers = (members: readonly string[]) => {
+    handleMemberCountChange(members.length || 2);
+  };
 
   useEffect(() => {
-    if (watchedMembers.every(({ member }) => member !== "")) {
-      membersAppend({ member: "" }, { shouldFocus: false });
-      createMultisigForm.trigger();
+    const desiredCount = Math.max(2, memberCount);
+    if (memberFieldCount < desiredCount) {
+      for (let i = memberFieldCount; i < desiredCount; i += 1) {
+        membersAppend({ member: "" }, { shouldFocus: false });
+      }
+    } else if (memberFieldCount > desiredCount) {
+      for (let i = memberFieldCount; i > desiredCount; i -= 1) {
+        membersRemove(i - 1);
+      }
     }
-
-    if (
-      watchedMembers.length > 2 &&
-      watchedMembers.filter(({ member }) => member === "").length > 1
-    ) {
-      const memberToRemove = watchedMembers.findIndex(({ member }) => member === "");
-      membersRemove(memberToRemove);
-      createMultisigForm.trigger();
-    }
-  }, [createMultisigForm, membersAppend, membersRemove, watchedMembers]);
-
-  useEffect(() => {
-    const numMembers = watchedMembers.filter(({ member }) => member !== "").length;
-    createMultisigForm.setValue("threshold", Math.max(2, numMembers));
-  }, [createMultisigForm, watchedMembers]);
+  }, [memberCount, memberFieldCount, membersAppend, membersRemove]);
 
   const submitCreateMultisig = async () => {
     try {
@@ -97,6 +99,7 @@ export default function CreateMultisigForm() {
         Number(threshold),
         chain.addressPrefix,
         chain.chainId,
+        { creatorAddress: address },
       );
 
       router.push(`/${chain.registryName}/${multisigAddress}`);
@@ -115,14 +118,9 @@ export default function CreateMultisigForm() {
         <CardHeader>
           <CardTitle>Create multisig</CardTitle>
           <CardDescription>
-            <p className="mt-2">
-              Fill the form to create a new multisig account on{" "}
-              {chain.chainDisplayName || "Cosmos Hub"}.
-            </p>
-            <p className="mt-2">
-              You can paste several addresses on the first input if they are separated by whitespace
-              or commas.
-            </p>
+            Fill the form to create a new multisig account on {chain.chainDisplayName || "Cosmos Hub"}
+            . You can paste several addresses on the first input if they are separated by whitespace
+            or commas.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -138,6 +136,7 @@ export default function CreateMultisigForm() {
                   createMultisigForm={createMultisigForm}
                   index={index}
                   membersReplace={membersReplace}
+                  onBulkReplaceMembers={handleBulkReplaceMembers}
                 />
               ))}
               <FormField
@@ -150,13 +149,23 @@ export default function CreateMultisigForm() {
                       Number of signatures needed to broadcast a transaction
                     </FormDescription>
                     <FormControl className="">
-                      <div className="flex items-center gap-2">
-                        <Input className="w-20" placeholder="2" {...field} />
-                        <span className="text-sm text-muted-foreground">
-                          out of{" "}
-                          <em className="text-base font-bold not-italic text-white">
-                            {watchedMembers.filter(({ member }) => member !== "").length}
-                          </em>{" "}
+                      <div className="flex flex-wrap items-center gap-3">
+                        <Input
+                          className="w-20"
+                          placeholder="2"
+                          type="number"
+                          min={1}
+                          {...field}
+                        />
+                        <span className="text-sm text-muted-foreground flex items-center gap-2">
+                          out of
+                          <Input
+                            className="w-20"
+                            type="number"
+                            min={2}
+                            value={memberCount}
+                            onChange={({ target }) => handleMemberCountChange(Number(target.value))}
+                          />
                           members
                         </span>
                       </div>

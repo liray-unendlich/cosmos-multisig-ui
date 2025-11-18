@@ -1,80 +1,45 @@
-import { gql } from "graphql-request";
+import { runCypher } from "@/lib/neo4j";
+import { randomUUID } from "crypto";
 import { z } from "zod";
-import { gqlClient } from ".";
 
 const DbNonceObjNonce = z.object({ nonce: z.number() });
 type DbNonceObjNonce = Readonly<z.infer<typeof DbNonceObjNonce>>;
 
 export const getNonce = async (chainId: string, address: string) => {
-  type QueryResponse = { readonly queryNonce: readonly DbNonceObjNonce[] };
-  type QueryVariables = { readonly chainId: string; readonly address: string };
-
-  const { queryNonce } = await gqlClient.request<QueryResponse, QueryVariables>(
-    gql`
-      query GetNonce($chainId: String!, $address: String!) {
-        queryNonce(filter: { chainId: { eq: $chainId }, address: { eq: $address } }) {
-          nonce
-        }
-      }
+  const result = await runCypher(
+    `
+      MERGE (n:Nonce { chainId: $chainId, address: $address })
+      ON CREATE SET
+        n.id = $id,
+        n.nonce = 1,
+        n.createdAt = $createdAt
+      RETURN n.nonce AS nonce
     `,
-    { chainId, address },
+    { chainId, address, id: randomUUID(), createdAt: new Date().toISOString() },
   );
 
-  const dbNonceObj = queryNonce.length ? queryNonce[0] : null;
+  const nonceObj: DbNonceObjNonce = DbNonceObjNonce.parse({
+    nonce: Number(result.records[0]?.get("nonce") ?? 1),
+  });
 
-  if (dbNonceObj) {
-    DbNonceObjNonce.parse(dbNonceObj);
-    return dbNonceObj.nonce;
-  }
-
-  type AddResponse = { readonly addNonce: { readonly nonce: readonly DbNonceObjNonce[] } };
-  type AddVariables = { readonly chainId: string; readonly address: string };
-
-  const { addNonce } = await gqlClient.request<AddResponse, AddVariables>(
-    gql`
-      mutation CreateNonce($chainId: String!, $address: String!) {
-        addNonce(input: { chainId: $chainId, address: $address, nonce: 1 }) {
-          nonce {
-            nonce
-          }
-        }
-      }
-    `,
-    { chainId, address },
-  );
-
-  const createdNonceObj = addNonce.nonce[0];
-  DbNonceObjNonce.parse(createdNonceObj);
-
-  return createdNonceObj.nonce;
+  return nonceObj.nonce;
 };
 
 export const incrementNonce = async (chainId: string, address: string) => {
   const dbNonce = await getNonce(chainId, address);
 
-  type Response = { readonly updateNonce: { readonly nonce: readonly DbNonceObjNonce[] } };
-  type Variables = { readonly chainId: string; readonly address: string; readonly nonce: number };
-
-  const { updateNonce } = await gqlClient.request<Response, Variables>(
-    gql`
-      mutation IncrementNonce($chainId: String!, $address: String!, $nonce: Int!) {
-        updateNonce(
-          input: {
-            filter: { chainId: { eq: $chainId }, address: { eq: $address } }
-            set: { nonce: $nonce }
-          }
-        ) {
-          nonce {
-            nonce
-          }
-        }
-      }
+  const result = await runCypher(
+    `
+      MATCH (n:Nonce { chainId: $chainId, address: $address })
+      SET n.nonce = $nonce, n.updatedAt = $updatedAt
+      RETURN n.nonce AS nonce
     `,
-    { chainId, address, nonce: dbNonce + 1 },
+    { chainId, address, nonce: dbNonce + 1, updatedAt: new Date().toISOString() },
   );
 
-  const updatedNonceObj = updateNonce.nonce[0];
-  DbNonceObjNonce.parse(updatedNonceObj);
+  const updatedNonceObj: DbNonceObjNonce = DbNonceObjNonce.parse({
+    nonce: Number(result.records[0]?.get("nonce") ?? dbNonce + 1),
+  });
 
   return updatedNonceObj.nonce;
 };

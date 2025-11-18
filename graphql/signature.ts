@@ -1,6 +1,7 @@
-import { gql } from "graphql-request";
+import { runCypher } from "@/lib/neo4j";
+import { randomUUID } from "crypto";
 import { z } from "zod";
-import { DbTransactionId, gqlClient } from ".";
+import { DbTransactionId } from ".";
 
 // Calling DbSignatureObj to avoid DbSignatureSignature for the field type
 export const DbSignatureObj = z.object({
@@ -16,38 +17,39 @@ const DbSignatureObjSignature = DbSignatureObj.pick({ signature: true });
 type DbSignatureObjSignature = Readonly<z.infer<typeof DbSignatureObjSignature>>;
 
 export const createSignature = async (signature: DbSignatureObjDraft) => {
-  type Response = {
-    readonly addSignature: { readonly signature: readonly { readonly signature: string }[] };
-  };
-  type Variables = Omit<DbSignatureObjDraft, "transaction"> & { readonly transactionId: string };
-
-  const { addSignature } = await gqlClient.request<Response, Variables>(
-    gql`
-      mutation CreateSignature(
-        $transactionId: ID!
-        $bodyBytes: String!
-        $signature: String!
-        $address: String!
-      ) {
-        addSignature(
-          input: {
-            transaction: { id: $transactionId }
-            bodyBytes: $bodyBytes
-            signature: $signature
-            address: $address
-          }
-        ) {
-          signature {
-            signature
-          }
-        }
-      }
+  const result = await runCypher(
+    `
+      MATCH (tx:Transaction { id: $transactionId })
+      MERGE (sig:Signature { transactionId: tx.id, address: $address })
+      ON CREATE SET
+        sig.id = $id,
+        sig.bodyBytes = $bodyBytes,
+        sig.signature = $signature,
+        sig.createdAt = $createdAt
+      ON MATCH SET
+        sig.bodyBytes = $bodyBytes,
+        sig.signature = $signature,
+        sig.updatedAt = $createdAt
+      MERGE (sig)-[:FOR_TRANSACTION]->(tx)
+      RETURN sig { .signature } AS signature
     `,
-    { ...signature, transactionId: signature.transaction.id },
+    {
+      transactionId: signature.transaction.id,
+      bodyBytes: signature.bodyBytes,
+      signature: signature.signature,
+      address: signature.address,
+      id: randomUUID(),
+      createdAt: new Date().toISOString(),
+    },
   );
 
-  const signatureObjSignature = addSignature.signature[0];
-  DbSignatureObjSignature.parse(signatureObjSignature);
+  const signatureObjSignature = result.records[0]?.get("signature");
 
-  return signatureObjSignature.signature;
+  if (!signatureObjSignature) {
+    throw new Error("Failed to persist signature in Neo4j");
+  }
+
+  const parsed = DbSignatureObjSignature.parse(signatureObjSignature);
+
+  return parsed.signature;
 };

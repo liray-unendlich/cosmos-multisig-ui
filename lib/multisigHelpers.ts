@@ -24,6 +24,7 @@ export const createMultisigFromCompressedSecp256k1Pubkeys = async (
   threshold: number,
   addressPrefix: string,
   chainId: string,
+  options?: { readonly creatorAddress?: string },
 ): Promise<string> => {
   const pubkeys = compressedPubkeys.map((compressedPubkey) => {
     return {
@@ -39,6 +40,7 @@ export const createMultisigFromCompressedSecp256k1Pubkeys = async (
     address: multisigAddress,
     pubkeyJSON: JSON.stringify(multisigPubkey),
     chainId,
+    creator: options?.creatorAddress,
   };
 
   const dbMultisigAddress = await createDbMultisig(multisig, chainId);

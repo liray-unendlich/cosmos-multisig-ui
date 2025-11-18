@@ -1,15 +1,33 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  ArrowBigRightDash,
+  Banknote,
+  Code2,
+  Gavel,
+  Network,
+  ShieldCheck,
+  Sparkles,
+  Waves,
+} from "lucide-react";
 import { useChains } from "@/context/ChainsContext";
 import { loadValidators } from "@/context/ChainsContext/helpers";
 import { getField, getMsgSchema } from "@/lib/form";
 import { getMsgRegistry } from "@/lib/msg";
 import { createDbTx } from "@/lib/api";
 import { exportMsgToJson } from "@/lib/txMsgHelpers";
-import { calculateFee } from "@cosmjs/stargate";
+import { Account, calculateFee } from "@cosmjs/stargate";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { assert } from "@cosmjs/utils";
 import { useRouter } from "next/router";
+import type { ComponentType } from "react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { MsgTypeUrl } from "../../../types/txMsg";
@@ -25,11 +43,54 @@ type MsgType = Readonly<{
   key: string;
 }>;
 
-export default function CreateTxForm({ 
+const categoryMeta: Record<string, { label: string; description: string; icon: ComponentType<{ className?: string }> }> = {
+  bank: {
+    label: "Bank",
+    description: "送金やMultiSendといった基礎的な操作",
+    icon: Banknote,
+  },
+  distribution: {
+    label: "Distribution",
+    description: "報酬やコミュニティプールに関する操作",
+    icon: Waves,
+  },
+  gov: {
+    label: "Governance",
+    description: "提案の提出や投票を管理",
+    icon: Gavel,
+  },
+  staking: {
+    label: "Staking",
+    description: "Delegate/Undelegate の制御",
+    icon: ShieldCheck,
+  },
+  ibc: {
+    label: "IBC",
+    description: "チェーン間転送を実行",
+    icon: Network,
+  },
+  cosmwasm: {
+    label: "CosmWasm",
+    description: "スマートコントラクトの操作",
+    icon: Code2,
+  },
+  authz: {
+    label: "Authz",
+    description: "権限委譲コントロール",
+    icon: ShieldCheck,
+  },
+  feegrant: {
+    label: "Feegrant",
+    description: "手数料の支払い権限を委譲",
+    icon: ArrowBigRightDash,
+  },
+};
+
+export default function CreateTxForm({
   accountOnChain,
-  multisigAddress 
+  multisigAddress,
 }: {
-  accountOnChain: any;
+  accountOnChain: Account;
   multisigAddress: string;
 }) {
   const { chain, validatorState, chainsDispatch } = useChains();
@@ -153,50 +214,74 @@ export default function CreateTxForm({
     }
   };
 
-  // Generate a valid bech32-compatible placeholder address 
-  // using only valid bech32 characters (excludes 'o' and other invalid chars)
-  const placeholderAddress = `${chain.addressPrefix}1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq`;
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Create a new transaction</CardTitle>
-        <CardDescription>You can add several different messages.</CardDescription>
+        <CardTitle>トランザクションの作成</CardTitle>
+        <CardDescription>
+          必要なメッセージカテゴリを展開し、追加したいアクションを選択するとフォームが下に現れます。
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {/* Add message buttons */}
-        {categories.map((category) => (
-          <div key={category}>
-            <h3 className="text-lg font-semibold mb-2">{category}</h3>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {Object.values(msgRegistry)
-                .filter((msg) => msg.category === category)
-                .filter((msg) => !excludedMsgTypes.includes(msg.typeUrl))
-                .map((msg) => (
-                  <Button
-                    key={msg.typeUrl}
-                    onClick={() => addMsg(msg.typeUrl)}
-                    disabled={
-                      msg.fields.map((f: string) => getField(f)).some((v: string) => v === null) ||
-                      Object.values(getMsgSchema(msg.fields, { chain }).shape).some(
-                        (v) => v === null,
-                      )
-                    }
-                  >
-                    Add {msg.name.startsWith("Msg") ? msg.name.slice(3) : msg.name}
-                  </Button>
-                ))}
-            </div>
-          </div>
-        ))}
+        <Accordion type="multiple" className="w-full divide-y rounded-2xl border bg-gradient-to-b from-background via-card to-background shadow-lg">
+          {categories.map((category) => (
+            <AccordionItem key={category} value={category} className="border-b last:border-b-0">
+              <AccordionTrigger className="group flex flex-1 items-center justify-between rounded-xl px-4 py-3 text-left text-base capitalize transition hover:bg-primary/10">
+                <span className="flex items-center gap-3">
+                  {(() => {
+                    const meta = categoryMeta[category.toLowerCase()];
+                    const Icon = meta?.icon ?? Sparkles;
+                    return <Icon className="h-5 w-5 text-primary" />;
+                  })()}
+                  <span>
+                    <span className="block font-semibold tracking-wide">
+                      {categoryMeta[category.toLowerCase()]?.label ?? category}
+                    </span>
+                    <span className="block text-xs text-muted-foreground">
+                      {categoryMeta[category.toLowerCase()]?.description ?? "メッセージ一覧"}
+                    </span>
+                  </span>
+                </span>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {Object.values(msgRegistry)
+                    .filter((msg) => msg.category === category)
+                    .filter((msg) => !excludedMsgTypes.includes(msg.typeUrl))
+                    .map((msg) => (
+                      <Button
+                        key={msg.typeUrl}
+                        onClick={() => addMsg(msg.typeUrl)}
+                        disabled={
+                          msg.fields
+                            .map((f: string) => getField(f))
+                            .some((v: string) => v === null) ||
+                          Object.values(getMsgSchema(msg.fields, { chain }).shape).some(
+                            (v) => v === null,
+                          )
+                        }
+                        variant="outline"
+                        className="justify-start gap-2 border-border/60 bg-background/60"
+                      >
+                        <span className="text-sm font-medium">
+                          {msg.name.startsWith("Msg") ? msg.name.slice(3) : msg.name}
+                        </span>
+                        <span className="text-xs uppercase text-muted-foreground">Add</span>
+                      </Button>
+                    ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
 
         {/* Message forms */}
         {msgTypes.map((msgType, index) => (
           <div key={msgType.key} className="mb-6">
-            <MsgForm 
-              msgTypeUrl={msgType.url}
-              index={index}
-              delegatorAddress={placeholderAddress}
+            <MsgForm
+              msgType={msgType.url as MsgTypeUrl}
+              senderAddress={multisigAddress}
               setMsgGetter={setMsgGetter(index)}
               deleteMsg={() => removeMsg(index)}
             />
@@ -206,28 +291,39 @@ export default function CreateTxForm({
         {/* Gas limit and memo section */}
         {msgTypes.length > 0 && (
           <>
-            <div className="form-item">
+            <div className="form-item space-y-2">
+              <label htmlFor="gas-limit" className="text-sm font-medium text-foreground">
+                Gas Limit
+              </label>
               <Input
+                id="gas-limit"
                 type="number"
-                label="Gas Limit"
                 name="gasLimit"
                 value={gasLimit.toString()}
+                min={1}
+                placeholder="例: 200000"
                 onChange={({ target }) => {
                   setGasLimit(Number(target.value));
                   setGasLimitError("");
                 }}
-                error={gasLimitError}
               />
+              {gasLimitError ? (
+                <p className="text-xs text-destructive">{gasLimitError}</p>
+              ) : null}
             </div>
-            <div className="form-item">
+            <div className="form-item space-y-2">
+              <label htmlFor="memo" className="text-sm font-medium text-foreground">
+                Memo（任意）
+              </label>
               <Input
-                label="Memo (optional)"
+                id="memo"
                 name="memo"
                 value={memo}
+                placeholder="例: ガバナンス投票メモ"
                 onChange={({ target }) => setMemo(target.value)}
               />
             </div>
-            <div className="form-item">
+            <div className="form-item mt-4">
               <Button 
                 onClick={createTx} 
                 disabled={processing}
@@ -237,68 +333,6 @@ export default function CreateTxForm({
               </Button>
             </div>
           </>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
-        {/* Render added message forms */}
-        {msgTypes.map((msgType, index) => (
-          <MsgForm
-            key={msgType.key}
-            msgType={msgType.url as MsgTypeUrl}
-            senderAddress={multisigAddress}
-            setMsgGetter={setMsgGetter(index)}
-            deleteMsg={() => removeMsg(index)}
-          />
-        ))}
-
-        {/* Gas and Memo settings */}
-        {msgTypes.length > 0 && (
-          <div className="space-y-4 mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Gas Limit</label>
-                <input
-                  type="number"
-                  value={gasLimit}
-                  onChange={(e) => {
-                    setGasLimit(Number(e.target.value));
-                    setGasLimitError("");
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  min="1"
-                />
-                {gasLimitError && (
-                  <p className="text-red-500 text-sm mt-1">{gasLimitError}</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Memo (optional)</label>
-                <input
-                  type="text"
-                  value={memo}
-                  onChange={(e) => setMemo(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Transaction memo"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Create Transaction button */}
-        {msgTypes.length > 0 && (
-          <div className="mt-6">
-            <Button 
-              onClick={createTx} 
-              className="w-full"
-              disabled={processing}
-            >
-              {processing ? "Creating Transaction..." : "Create Transaction"}
-            </Button>
-          </div>
         )}
       </CardContent>
     </Card>

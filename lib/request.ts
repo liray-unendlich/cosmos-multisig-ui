@@ -21,13 +21,3 @@ export const requestGhJson = (endpoint: string, { headers, ...restConfig }: Requ
     headers: { ...headers, Accept: "application/vnd.github+json" },
   });
 };
-
-type RequestGraphQlJsonConfig = Omit<RequestInit, "body"> & { body: { query: string } };
-
-export const requestGraphQlJson = (config: RequestGraphQlJsonConfig) =>
-  requestJson(process.env.DGRAPH_URL || "", {
-    ...config,
-    headers: process.env.DGRAPH_SECRET
-      ? { "X-Auth-Token": process.env.DGRAPH_SECRET, ...config.headers }
-      : config.headers,
-  });
